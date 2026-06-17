@@ -1,0 +1,79 @@
+# The quality tail — controls that can't fall off the end
+
+After the domain phases come four fixed phases: **Validate → Audit → Tidy → Finalize**
+(`PV → PA → PT → PF`). The critical property:
+
+> **The orchestrator appends the tail, not the planner.** `/develop:run` writes `### PV`,
+> `### PA`, `### PT`, `### PF` into the plan *before* the walk begins. A planner that forgets
+> to verify, or an executor that stops early, can't drop the controls — they're structural
+> nodes the walk must reach. Each depends on the previous, and `PV` depends on all domain
+> phases.
+
+All four are ordinary phases the walk processes; they just have fixed logic instead of
+planner-authored nodes. Findings flow into the same Finding Registry, deduped by
+fingerprint ([schemas.md](./schemas.md)).
+
+## PV — Validate (does the diff satisfy the requirements?)
+
+- Assemble the branch diff (`git diff <merge-base>`). Dispatch a validator with the diff +
+  the **Requirements Inventory**. It returns a `VERDICT`.
+- `pass` → advance to PA.
+- `iterate` → append fix-in-place subtasks (and, if a requirement was missed entirely, a
+  small bounded re-plan) and re-walk. Bounded by `caps.validator` rounds; on exhaustion,
+  carry the gaps as findings and advance with them recorded.
+- Validation is about **completeness vs. the spec**, not style — that's PT.
+
+## PA — Audit (deep, parallel)
+
+- Dispatch the audit set **in parallel**: the always-on auditors plus any conditional ones
+  whose trigger matches the change shape, from the `audit` rules in
+  [routing.md](./routing.md). The bundled stack-agnostic auditors read *diffs*, not build
+  systems, so they travel across stacks:
+  - `completeness` — broadest cross-area lens (is the planned edge actually wired?)
+  - `stubs` — placeholders/TODOs where real logic was required
+  - `regression` — behaviour preserved when existing files were modified
+  - `general-quality` — fresh-eyes "compiles but obviously wrong"
+- **Consolidate**: dedup by fingerprint; promote by convergence (a finding several auditors
+  independently raise is higher severity). Append the consolidated findings.
+- **Audit ladder** — climb one rung per round *that finds defects* (most- to least-likely to
+  surface): completeness → stubs → edge-case → regression → fresh-eyes → architecture. A
+  round that finds nothing new ends the climb. Bounded by `caps.audit`; a convergence check
+  (same finding count two rounds running) forces a stop → escalate.
+- Outcome: clean → PT; fixable → append fix subtasks + re-walk; needs a human decision →
+  between-phase gate.
+
+## PT — Tidy (reviewers + lint)
+
+- Run the **cheap** lint/format/type gates first (fast, scoped).
+- Dispatch the reviewer set, path-routed from [routing.md](./routing.md)'s `reviewers`
+  rules (collect *every* rule whose glob matches a changed file; `authoritative_over`
+  suppresses co-listed reviewers for that path). Fix in place.
+- Zero "needs-decision" + clean lint → PF. Any needs-decision → between-phase gate.
+
+## PF — Finalize (the real gates, then commit)
+
+This is where the repo's **heavy** gates actually run and block the commit:
+
+1. **Run every gate the executors annotated `DEFERRED-PF`**, plus all `tier: heavy` gates in
+   `develop.config.json`, locally, in the worktree — whole build, full test suite, coverage,
+   any multi-module check. Each returns a `GATE_RESULT`.
+2. **Block until green.** A failing heavy gate is not "done": re-dispatch a fix (bounded by
+   `caps.gate`), then re-run the gate. A flake (passes on rerun) is logged, not treated as a
+   failure; a real failure that survives the budget → terminal status
+   `committed-with-failures` (recorded, surfaced, never pushed).
+3. Run the **completeness critic** + the flywheel **contract-gaps classifier** over the
+   residual findings ([flywheel.md](./flywheel.md)) — classify each preventable vs
+   irreducible and propose an anchor.
+4. Write the run **report** and append the **postmortem** to the flywheel doc.
+5. **Commit** the worktree (no push). Derive the terminal status mechanically from the gate
+   results + finding state (see the table in [run/SKILL.md](../skills/run/SKILL.md)).
+
+The commit is gated on the heavy gates passing. There is no path that commits "green"
+without the real commands having run and produced evidence — that is the whole point of the
+tail.
+
+## Tiering recap
+
+Cheap gates run inline in every domain phase (fast local signal); heavy gates are deferred
+and run **only** here in PF, where they block the commit. See
+[gate-tokens.md](./gate-tokens.md) for how each gate is tagged.
