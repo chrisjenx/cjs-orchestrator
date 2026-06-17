@@ -27,6 +27,30 @@ the row's status instead of adding a duplicate.
 { "findings": [ { /* FINDING */ } ], "summary": "one line" }
 ```
 
+## PLAN — the planner's output ([planner](../agents/planner.md))
+
+```json
+{
+  "requirements": [
+    { "id": "R1", "text": "...", "areas": ["ui", "api"], "verifiedBy": "{test:...} | {grep:...}" }
+  ],
+  "phases": [
+    {
+      "id": "P1", "description": "...", "dependsOn": [],
+      "nodes": [
+        { "id": "P1.a", "action": "...", "agent": "executor",
+          "gates": ["build", "test:<selector>"], "dependsOn": [], "reuse": "extend path/Existing" }
+      ]
+    }
+  ],
+  "gaps": ["a slice no existing agent/skill/rule covers — defer, don't invent"],
+  "summary": "one line"
+}
+```
+
+Domain phases only — the orchestrator appends the quality tail. `agent` on each node is an
+*already-defined* agent chosen by routing; an uncovered slice goes to `executor` + a `gap`.
+
 ## VERDICT — a validator / auditor / refuter result
 
 ```json

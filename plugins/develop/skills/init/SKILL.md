@@ -28,9 +28,19 @@ The plugin ships **static, portable skills**; per-project behaviour comes from
   behaves fitted to the repo without being rewritten per repo.
 - **Bundled references** (the portable mechanism, read by `/develop:run`, never copied into
   the repo): `references/plan-anatomy.md`, `references/executor-brief.md`,
-  `references/gate-tokens.md`, `references/flywheel.md`, `references/routing.md`,
-  `references/config-schema.md`, `references/schemas.md`, `references/stacks.md`.
-- **Bundled agents** — portable, diff-reading auditors under `agents/`.
+  `references/gate-tokens.md`, `references/quality-tail.md`, `references/flywheel.md`,
+  `references/routing.md`, `references/config-schema.md`, `references/schemas.md`,
+  `references/stacks.md`, `references/reuse-and-defer.md`.
+- **Bundled agents** (`agents/`, available because the plugin is installed — **not** copied
+  into the repo): `planner`, `executor`, the diff-reading auditors (`completeness`, `stubs`,
+  `regression`), `general-quality-reviewer`, `code-reviewer`, `tidy`, `refuter`. The
+  repo's `develop-routing.json` references these by name; repo-specific specialists the user
+  adds later live in the repo's own `.claude/agents/` (grown via the flywheel).
+
+> **Reuse first, defer creation to workflows.** Both skills prefer the most specific
+> *already-defined* skill / agent / rule (repo `.claude/` → bundled → available skills), and
+> defer building anything missing/inadequate to a human-gated workflow rather than
+> hand-rolling it ([references/reuse-and-defer.md](../../references/reuse-and-defer.md)).
 
 Reference files in this skill are relative to the plugin root (`${CLAUDE_PLUGIN_ROOT}`).
 Read them as you reach each phase; don't paste their contents into the repo.
@@ -118,6 +128,9 @@ timeouts. **Never** install a hook tied to a stack you didn't confirm. Follow
    structurally.
 7. **Close the loop** — feed review findings back into the planner; the line tightens every
    run.
+8. **Reuse first, defer creation to workflows** — use the most specific already-defined
+   skill/agent/rule; build anything missing/inadequate in a human-gated workflow, never
+   inline ([references/reuse-and-defer.md](../../references/reuse-and-defer.md)).
 
 ## Start-minimal checklist
 

@@ -29,7 +29,9 @@ These rules are standing discipline; the brief restates the load-bearing ones.
 ## Nest your own children (don't fan out from the orchestrator)
 - You may dispatch sub-agents (writers, test-writers, reviewers). Route each by artifact
   shape via the routing table in the brief; only fall back to a generalist when nothing
-  matches. Record routing decisions in the Execution Log Notes.
+  matches. Record routing decisions in the Execution Log Notes. **Reuse first:** prefer an
+  already-defined agent/skill/rule; if a slice needs a capability none covers, write a
+  finding to defer it — don't hand-roll a new agent inline.
 - Fan-out is scale-gated: a small slice = you do it yourself; a multi-file compile-atomic
   slice = parallel per-file writers + a test-writer.
 - Give every child an explicit model tier from the brief's tier map. A reviewer must be a

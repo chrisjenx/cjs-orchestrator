@@ -3,7 +3,8 @@
     { "glob": ["**/*"], "agent": "executor" }
   ],
   "reviewers": [
-    { "glob": ["**/*"], "agent": "general-quality-reviewer" }
+    { "glob": ["**/*"], "agent": "general-quality-reviewer" },
+    { "glob": ["**/*"], "agent": "code-reviewer" }
   ],
   "audit": [
     { "always": true, "agents": ["completeness-auditor", "stubs-auditor", "general-quality-reviewer"] },

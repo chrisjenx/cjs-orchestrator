@@ -7,6 +7,22 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+### Added
+- **`planner` agent** — `/develop:run` now dispatches a planner (reuse survey → Requirements
+  Inventory + Execution Strategy as structured `PLAN`) instead of planning inline, keeping
+  the orchestrator thin.
+- **`code-reviewer` agent** — reviews the diff against the repo's *own* rules (`CLAUDE.md`) +
+  requirement compliance; default PT reviewer alongside `general-quality`.
+- **`tidy` agent** — the PT cleanup worker (repo's own lint/format autofix, removes
+  leftovers, applies low-risk fixes).
+- **`references/reuse-and-defer.md`** — the reuse-first + defer-creation-to-workflows
+  principle (and the 8th portable move): prefer already-defined skills/agents/rules; build
+  anything missing/inadequate in a human-gated workflow, never inline. Wired through the
+  planner, routing (growth *and* pruning), the flywheel levers, and both skills.
+
+### Changed
+- `develop-routing.json` default reviewers now include `code-reviewer`.
+
 ## [0.2.0] — 2026-06-17
 
 First full build of the orchestration system. The plugin grew from a single high-level

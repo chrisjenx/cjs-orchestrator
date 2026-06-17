@@ -70,7 +70,9 @@ repeating — they are exactly the specialists/forks that earned their place.
   postmortem. A human reads the postmortem and **promotes** any category that has appeared
   **≥ 2 times across runs — or immediately if it's a breaking-class finding** — by applying its
   lever (a hook/gate/rule/agent, or an anchor on the contract). Prefer the earliest deterministic
-  lever; promote a new agent only when nothing cheaper expresses the check.
+  lever; promote a new agent only when nothing cheaper expresses the check. **Applying** a lever
+  means deferring to a workflow that builds/improves it — not hand-rolling it inline; see
+  [reuse-and-defer.md](./reuse-and-defer.md).
 
 > **Never auto-edit `.claude/` from run artifacts.** Promotion is a human edit to the lever's
 > target (a hook, lint rule, contract anchor, rule doc, or agent). Auto-promotion would let one

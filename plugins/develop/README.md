@@ -25,9 +25,13 @@ The plugin ships **static, portable skills**; per-project behaviour comes from
   walks a per-feature plan file it creates at runtime.
 - **`references/`** — the portable mechanism the loop relies on (plan anatomy, executor
   brief, gate tokens, flywheel). Stack-neutral.
-- **`agents/`** — portable, stack-agnostic auditor subagents (diff-reading completeness /
-  regression / stubs auditors, a general-quality reviewer) that read diffs, not build
-  systems, so they travel across stacks.
+- **`agents/`** — portable, stack-agnostic subagents available because the plugin is
+  installed (referenced by name from `develop-routing.json`, not copied per repo): a
+  `planner`, the generalist `executor`, diff-reading auditors (completeness / stubs /
+  regression), a `general-quality-reviewer`, a `code-reviewer` (reviews against the repo's
+  own rules), a `tidy` worker, and a `refuter`. They read diffs/rules, not build systems, so
+  they travel across stacks. The flow **reuses these first** and defers building anything
+  missing to a workflow (see `references/reuse-and-defer.md`).
 - **`hooks/`** — safe, stack-agnostic hooks (worktree/uncommitted-work protection,
   generic timeouts). Nothing tied to a stack the bootstrapper didn't confirm.
 

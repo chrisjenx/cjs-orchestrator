@@ -33,6 +33,8 @@ fingerprint ([schemas.md](./schemas.md)).
   - `stubs` — placeholders/TODOs where real logic was required
   - `regression` — behaviour preserved when existing files were modified
   - `general-quality` — fresh-eyes "compiles but obviously wrong"
+  - `code-reviewer` — requirement compliance + conformance to the repo's *own* rules
+    (`CLAUDE.md`); reuses the rules that exist, doesn't invent standards
 - **Consolidate**: dedup by fingerprint; promote by convergence (a finding several auditors
   independently raise is higher severity). Append the consolidated findings.
 - **Audit ladder** — climb one rung per round *that finds defects* (most- to least-likely to
@@ -42,12 +44,16 @@ fingerprint ([schemas.md](./schemas.md)).
 - Outcome: clean → PT; fixable → append fix subtasks + re-walk; needs a human decision →
   between-phase gate.
 
-## PT — Tidy (reviewers + lint)
+## PT — Tidy (cleanup + reviewers)
 
-- Run the **cheap** lint/format/type gates first (fast, scoped).
-- Dispatch the reviewer set, path-routed from [routing.md](./routing.md)'s `reviewers`
-  rules (collect *every* rule whose glob matches a changed file; `authoritative_over`
-  suppresses co-listed reviewers for that path). Fix in place.
+- Dispatch the [`tidy`](../agents/tidy.md) worker: it runs the repo's own lint/format
+  **autofix** (the cheap gates), removes branch leftovers (debug prints, dead code, resolved
+  TODOs), and applies low-risk reviewer fixes — leaving anything behaviour-changing for a
+  decision.
+- Dispatch the reviewer set, path-routed from [routing.md](./routing.md)'s `reviewers` rules
+  (collect *every* rule whose glob matches a changed file; `authoritative_over` suppresses
+  co-listed reviewers for that path). The default reviewers are `general-quality` and
+  `code-reviewer`; specialists join as the routing table grows.
 - Zero "needs-decision" + clean lint → PF. Any needs-decision → between-phase gate.
 
 ## PF — Finalize (the real gates, then commit)

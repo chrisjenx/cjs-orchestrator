@@ -13,7 +13,8 @@ keeps missing things. Day one has no specialists — and that's correct.
     { "glob": ["**/*"], "agent": "executor" }
   ],
   "reviewers": [
-    { "glob": ["**/*"], "agent": "general-quality-reviewer" }
+    { "glob": ["**/*"], "agent": "general-quality-reviewer" },
+    { "glob": ["**/*"], "agent": "code-reviewer" }
   ],
   "audit": [
     { "always": true, "agents": ["completeness-auditor", "stubs-auditor", "general-quality-reviewer"] },
@@ -67,7 +68,9 @@ to add a specialist:
    generalist there.
 
 A specialist earns its row by repeated pain, never by speculation. The table you don't need
-yet, you don't write.
+yet, you don't write. And when a slice needs a reviewer/writer that doesn't exist yet,
+**don't invent one inline** — route to the generalist for now and defer building it to a
+workflow ([reuse-and-defer.md](./reuse-and-defer.md)).
 
 ## Shrinking the table (the agent lever, in reverse)
 

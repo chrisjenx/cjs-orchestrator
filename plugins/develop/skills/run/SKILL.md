@@ -20,7 +20,15 @@ never write feature code yourself.
   [executor-brief.md](../../references/executor-brief.md),
   [gate-tokens.md](../../references/gate-tokens.md),
   [quality-tail.md](../../references/quality-tail.md),
-  [schemas.md](../../references/schemas.md).
+  [schemas.md](../../references/schemas.md),
+  [reuse-and-defer.md](../../references/reuse-and-defer.md).
+
+**Reuse first, defer creation to workflows.** At every step that needs a capability — plan,
+write, review, audit, enforce a rule — use the most specific *already-defined* skill / agent /
+rule (repo `.claude/` → bundled agents → available skills). When nothing fits or an existing
+one is inadequate, **don't hand-roll it inline** — record the gap and defer creation/
+improvement to a human-gated workflow. See
+[reuse-and-defer.md](../../references/reuse-and-defer.md).
 
 ## Control flow
 
@@ -52,15 +60,21 @@ If the spec is thin or `ambiguities` is non-empty, ask the user the blocking que
 Skip only when the spec is genuinely unambiguous.
 
 ### 5. Plan
-Produce the plan file `<featureDir>/<feature>.plan.md` per
+Dispatch the [`planner`](../../agents/planner.md) agent (top tier) with the spec brief +
+config + routing — so the spec-and-repo planning context stays out of *your* head. It runs a
+reuse survey (reuse existing code, route nodes to already-defined agents, fold in the repo's
+rules + contract anchors) and returns a structured `PLAN`
+([schemas.md](../../references/schemas.md)). Render it into the plan file per
 [plan-anatomy.md](../../references/plan-anatomy.md):
-- A **Requirements Inventory** — every requirement a row, each with how it's *verified*
-  (a gate token or grep anchor).
-- An **Execution Strategy** — domain phases `### P1..Pn` with subtask nodes, `[agent:]`,
-  `[depends:]`, `[loop:]`, and gate tokens placed on the node whose work they prove.
+- A **Requirements Inventory** — every requirement a row, each with how it's *verified*.
+- An **Execution Strategy** — the planner's domain phases `### P1..Pn` with subtask nodes,
+  `[agent:]`, `[depends:]`, `[loop:]`, and gate tokens on the node whose work they prove.
 - Then **append the fixed quality tail** (`### PV`, `### PA`, `### PT`, `### PF`) — *you*
   append these, not the planner, so controls can't fall off the end
   ([quality-tail.md](../../references/quality-tail.md)).
+- If the planner returns `gaps` (a slice no existing agent/skill/rule covers), surface them:
+  route the slice to the generalist `executor` for now and offer to **defer** building the
+  missing capability to a workflow ([reuse-and-defer.md](../../references/reuse-and-defer.md)).
 
 **Pre-walk gate:** the plan must contain `### P` nodes and a Requirements Inventory. If not,
 terminate `planning-failed` (no code written).
@@ -89,9 +103,10 @@ Loop until no phase is ready:
 ### 7. Quality tail
 PV → PA → PT → PF are ordinary phases in the walk, but with fixed logic — see
 [quality-tail.md](../../references/quality-tail.md). In short: **Validate** the diff against
-the Requirements Inventory, deep **Audit** (parallel auditors from [routing](../../references/routing.md)),
-**Tidy** (reviewers + lint), **Finalize** (run every `DEFERRED-PF` heavy gate locally,
-blocking until green, then commit — no push — and write the report + flywheel postmortem).
+the Requirements Inventory, deep **Audit** (parallel auditors + `code-reviewer` from
+[routing](../../references/routing.md)), **Tidy** (the [`tidy`](../../agents/tidy.md) worker +
+reviewers), **Finalize** (run every `DEFERRED-PF` heavy gate locally, blocking until green,
+then commit — no push — and write the report + flywheel postmortem).
 
 ### 8. Relay
 Derive the terminal status **mechanically** from the plan's Decisions/finding state and the
@@ -112,6 +127,9 @@ takes it from there.
 ## Invariants
 - The plan file is the only source of truth. Phase `[status:]` is rewritten in place;
   Execution Log / Finding Registry / Decisions are append-only.
-- One executor per phase; the orchestrator never writes feature code.
+- One executor per phase; the orchestrator never writes feature code (and never plans in its
+  own head — the `planner` does that).
+- Reuse first; defer creation of any missing/inadequate skill/agent/rule to a human-gated
+  workflow — never hand-roll it inline ([reuse-and-defer.md](../../references/reuse-and-defer.md)).
 - The quality tail is appended structurally before the walk; it cannot be skipped.
 - Heavy gates run only in PF, blocking the commit until green.
