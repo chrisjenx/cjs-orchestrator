@@ -68,3 +68,12 @@ to add a specialist:
 
 A specialist earns its row by repeated pain, never by speculation. The table you don't need
 yet, you don't write.
+
+## Shrinking the table (the agent lever, in reverse)
+
+Routes also come **out**. When a cheaper, deterministic lever — a hook, a gate, a lint rule —
+starts catching what a reviewer was added for, that reviewer is now redundant run cost. The
+[flywheel](./flywheel.md)'s agent lever covers both directions: grow a route when judgement is
+the only thing that catches a recurring class, and **reduce or merge** a route once something
+earlier subsumes its catches. Removing a now-redundant reviewer is as much a flywheel outcome
+as adding one — keep the table only as large as the pain requires.

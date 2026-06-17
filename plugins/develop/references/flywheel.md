@@ -30,9 +30,11 @@ that can *express* the check, earliest catch first:
 - **plan-anchor** — a plan-completeness contract row the planner must satisfy (the anchors below);
   for structural requirements a plan can enumerate.
 - **rule** — a convention doc an agent reads while writing; for judgement an agent should apply.
-- **agent** — a new or tightened reviewer; last resort, for judgement-only recurrences nothing cheaper
-  expresses. Once a deterministic lever subsumes a reviewer's catches, the loop may instead **propose
-  reducing/merging** it.
+- **agent** — a new or tightened reviewer, applied by **growing `develop-routing.json`** (add a
+  route + the agent; see [routing.md](./routing.md)); last resort, for judgement-only recurrences
+  nothing cheaper expresses. Once a deterministic lever subsumes a reviewer's catches, the loop may
+  instead **propose reducing/merging** it — *shrinking* the routing table so a now-redundant
+  reviewer stops adding run cost.
 
 Prefer the earliest deterministic lever — a new agent is the latest catch and adds run cost. The
 plan-anchor lever (next section) is the one the contract owns.
@@ -66,8 +68,9 @@ repeating — they are exactly the specialists/forks that earned their place.
   over the residual findings (one `CONTRACT_GAP` per finding — `preventable` + a proposed
   `remediation` lever + `target`; see [schemas.md](./schemas.md)) and appends them to the
   postmortem. A human reads the postmortem and **promotes** any category that has appeared
-  **≥ 2 times across runs** by applying its lever — a hook/gate/rule/agent, or an anchor on the
-  contract.
+  **≥ 2 times across runs — or immediately if it's a breaking-class finding** — by applying its
+  lever (a hook/gate/rule/agent, or an anchor on the contract). Prefer the earliest deterministic
+  lever; promote a new agent only when nothing cheaper expresses the check.
 
 > **Never auto-edit `.claude/` from run artifacts.** Promotion is a human edit to the lever's
 > target (a hook, lint rule, contract anchor, rule doc, or agent). Auto-promotion would let one
@@ -80,6 +83,6 @@ repeating — they are exactly the specialists/forks that earned their place.
   `/develop:init` from [`templates/develop-flywheel.md`](../templates/develop-flywheel.md).
 - `PF` appends one postmortem block per run; the human curates the promoted-anchors list.
 
-The loop tightens every run: a defect that escaped becomes an anchor the next plan must
-satisfy, so it can't escape again — and the flow grows precisely the structure the repo's
-real failures call for, nothing more.
+The loop tightens every run: a defect that escaped becomes a control at the right layer — a
+hook, gate, rule, agent, or plan anchor — so it can't escape again, and the flow grows
+(and prunes) precisely the structure the repo's real failures call for, nothing more.
