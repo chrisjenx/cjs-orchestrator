@@ -645,6 +645,13 @@ button.use-chip { font: inherit; color: var(--text); cursor: default; }
 .coming-soon p { color: var(--text-faint); font-size: 15px; margin: 14px 0 0; }
 .cs-badge { display: inline-block; font-family: var(--mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 4px 12px; opacity: 0.85; }
 
+/* ---------- ship it ---------- */
+.ship-steps { counter-reset: ship; list-style: none; padding: 0; margin: 26px 0 0; max-width: 760px; display: grid; gap: 14px; }
+.ship-steps li { counter-increment: ship; position: relative; padding: 16px 18px 16px 56px; background: var(--surface); border: 1px solid var(--border-bright); border-radius: 12px; color: var(--text-dim); line-height: 1.55; }
+.ship-steps li::before { content: counter(ship); position: absolute; left: 16px; top: 15px; width: 26px; height: 26px; border-radius: 8px; background: var(--bg-2); border: 1px solid var(--border-bright); display: grid; place-items: center; font-family: var(--mono); color: var(--accent); font-weight: 600; font-size: 13px; }
+.ship-steps li strong { color: var(--text); }
+.ship-steps code { display: inline-block; margin-top: 4px; }
+
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {
   .shift-grid, .trio, .mech-cards, .block-grid, .pattern-grid, .fly, .explorer { grid-template-columns: 1fr; }
