@@ -70,7 +70,8 @@ Default to `refuted: true` when uncertain — the refuter's job is to *try to ki
 {
   "category": "the finding class",
   "preventable": true,
-  "anchor": "the plan-time check that would have required it (grep id / gate / inventory row)"
+  "remediation": "hook | gate | plan-anchor | rule | agent — the lever that should catch it",
+  "target": "the concrete destination (hook id / lint rule / contract anchor / rule doc / agent + add|modify|reduce)"
 }
 ```
 

@@ -20,7 +20,24 @@ Every finding the quality tail surfaces is one of:
 
 The flywheel drives the **preventable** count toward zero. The irreducible floor stays.
 
-## The plan-completeness contract (stack-neutral starting anchors)
+## Route the finding to the right lever
+
+Not every preventable finding is a plan step. Route each to the cheapest, most deterministic lever
+that can *express* the check, earliest catch first:
+
+- **hook** (a pre-write check) or **gate** (a lint rule / coverage floor / CI check) — pattern-detectable;
+  fires at write or gate time, before review.
+- **plan-anchor** — a plan-completeness contract row the planner must satisfy (the anchors below);
+  for structural requirements a plan can enumerate.
+- **rule** — a convention doc an agent reads while writing; for judgement an agent should apply.
+- **agent** — a new or tightened reviewer; last resort, for judgement-only recurrences nothing cheaper
+  expresses. Once a deterministic lever subsumes a reviewer's catches, the loop may instead **propose
+  reducing/merging** it.
+
+Prefer the earliest deterministic lever — a new agent is the latest catch and adds run cost. The
+plan-anchor lever (next section) is the one the contract owns.
+
+## The plan-completeness contract (stack-neutral starting anchors for the plan-anchor lever)
 
 The contract is the set of properties the plan must *state* so the planner satisfies them by
 construction. Each property has a **mechanical anchor** — a check that's true/false without
@@ -47,13 +64,14 @@ repeating — they are exactly the specialists/forks that earned their place.
   The planner can't omit a contract anchor; that's the "satisfy by construction" half.
 - **Contract ← runs (periodic, human-gated):** `PF` runs the **contract-gaps classifier**
   over the residual findings (one `CONTRACT_GAP` per finding — `preventable` + a proposed
-  `anchor`; see [schemas.md](./schemas.md)) and appends them to the postmortem. A human reads
-  the postmortem and **promotes** any category that has appeared **≥ 2 times across runs** by
-  adding its anchor to the contract.
+  `remediation` lever + `target`; see [schemas.md](./schemas.md)) and appends them to the
+  postmortem. A human reads the postmortem and **promotes** any category that has appeared
+  **≥ 2 times across runs** by applying its lever — a hook/gate/rule/agent, or an anchor on the
+  contract.
 
-> **Never auto-edit `.claude/` from run artifacts.** Promotion is a human edit to the
-> contract/`develop.config.json`. Auto-promotion would let one noisy run rewrite the rules.
-> The classifier *proposes*; the human *promotes*.
+> **Never auto-edit `.claude/` from run artifacts.** Promotion is a human edit to the lever's
+> target (a hook, lint rule, contract anchor, rule doc, or agent). Auto-promotion would let one
+> noisy run rewrite the rules. The classifier *proposes*; the human *promotes*.
 
 ## Where it lives
 

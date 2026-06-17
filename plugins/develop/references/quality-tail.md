@@ -63,7 +63,8 @@ This is where the repo's **heavy** gates actually run and block the commit:
    `committed-with-failures` (recorded, surfaced, never pushed).
 3. Run the **completeness critic** + the flywheel **contract-gaps classifier** over the
    residual findings ([flywheel.md](./flywheel.md)) — classify each preventable vs
-   irreducible and propose an anchor.
+   irreducible and, for preventable ones, propose a remediation lever (hook / gate /
+   plan-anchor / rule / agent) + its target.
 4. Write the run **report** and append the **postmortem** to the flywheel doc.
 5. **Commit** the worktree (no push). Derive the terminal status mechanically from the gate
    results + finding state (see the table in [run/SKILL.md](../skills/run/SKILL.md)).

@@ -24,6 +24,6 @@ repeating. Each anchor must be *mechanical* (true/false without judgement).
 ### <feature> — <date>
 - Terminal status: <ready | ...>
 - Preventable findings that escaped to audit/tidy: <n>
-  - <category> → proposed anchor: <anchor>  (seen <count>x total)
+  - <category> → proposed remediation: <hook|gate|plan-anchor|rule|agent> → <target>  (seen <count>x total)
 - Irreducible findings (floor): <n>
 - Promotion candidates (≥2 runs): <list, or none>
