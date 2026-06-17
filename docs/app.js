@@ -240,7 +240,7 @@ const PATTERNS = [
   },
   {
     name: 'Close the loop', ref: 'Autonomous agents',
-    body: 'Classify every residual finding <em>preventable</em> (a plan check could\'ve required it) or <em>irreducible</em>. Each preventable one books a plan-time anchor the planner satisfies next run — the flywheel above, made mechanical.',
+    body: 'Classify every residual finding <em>preventable</em> (a plan check could\'ve required it) or <em>irreducible</em>. Route each preventable one to the cheapest deterministic lever — a hook, gate, rule, agent, or plan step, not always a plan step — the flywheel above, made mechanical.',
     takeaway: 'Feed reviewer findings back into the planner. The line tightens every run.',
   },
 ];
@@ -250,8 +250,8 @@ const FLY_STAGES = [
   { a: -90, label: 'Run', sub: 'the walk completes' },
   { a: -18, label: 'Residual findings', sub: 'audit + tidy log them' },
   { a: 54, label: 'Preventable?', sub: 'vs the irreducible floor' },
-  { a: 126, label: 'New plan anchor', sub: 'grep / token / lint' },
-  { a: 198, label: 'Stronger planner', sub: 'satisfies it next run' },
+  { a: 126, label: 'Route to a lever', sub: 'hook / gate / rule / agent / plan' },
+  { a: 198, label: 'Stronger pipeline', sub: 'the right layer, next run' },
 ];
 const FLY_INIT = 8;
 const FLY_FLOOR = 2;
