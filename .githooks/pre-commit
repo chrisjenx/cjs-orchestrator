@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+# Optional local mirror of CI's fast checks — catch a manifest break or a docs leak before
+# it's committed. Enable with:
+#
+#     git config core.hooksPath .githooks
+#
+# Skips the docs subpath check (slower, network-y); CI runs that one.
+set -e
+python3 scripts/validate-manifests.py
+python3 scripts/check-docs-leaks.py

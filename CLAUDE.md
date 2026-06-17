@@ -31,10 +31,11 @@ The explainer in `docs/` is **genericized from a real but private case study**. 
 
 ### Find leaks before you commit
 
+CI enforces this on every PR (`.github/workflows/ci.yml` → `scripts/check-docs-leaks.py`),
+and you can mirror it locally: `git config core.hooksPath .githooks`. To check by hand:
+
 ```bash
-# identifier formats (review hits in context):
-grep -rEn "\b[0-9a-f]{7,12}\b|[A-Z]{2,4}-[0-9]+|\bW[0-9]{2,3}\b" docs/ \
-  | grep -vE "#[0-9a-f]{6}|viewBox|stop-color"
+python3 scripts/check-docs-leaks.py   # SHAs, TICKET-### ids, W## codes (deterministic)
 # also grep docs/ for any real brand, framework, language, build-tool, or
 # hostname you might have referenced — keep everything stack-neutral.
 ```

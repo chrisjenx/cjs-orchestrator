@@ -1,0 +1,34 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    name: validate manifests + lint docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Validate JSON manifests + templates
+        run: python3 scripts/validate-manifests.py
+
+      - name: Check docs JS parses
+        run: |
+          for f in docs/*.js; do node --check "$f"; done
+
+      - name: Verify docs load under the /cjs-orchestrator/ subpath
+        run: python3 scripts/check-docs-subpath.py
+
+      - name: Scan docs for private-data leaks
+        run: python3 scripts/check-docs-leaks.py
