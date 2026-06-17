@@ -23,6 +23,9 @@ jobs:
       - name: Validate JSON manifests + templates
         run: python3 scripts/validate-manifests.py
 
+      - name: Validate plugin install structure + cross-links
+        run: python3 scripts/check-install.py
+
       - name: Check docs JS parses
         run: |
           for f in docs/*.js; do node --check "$f"; done
