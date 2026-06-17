@@ -1,0 +1,12 @@
+{
+  "writers": [
+    { "glob": ["**/*"], "agent": "executor" }
+  ],
+  "reviewers": [
+    { "glob": ["**/*"], "agent": "general-quality-reviewer" }
+  ],
+  "audit": [
+    { "always": true, "agents": ["completeness-auditor", "stubs-auditor", "general-quality-reviewer"] },
+    { "when": "pre-existing files modified", "agents": ["regression-auditor"] }
+  ]
+}
