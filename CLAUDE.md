@@ -4,8 +4,16 @@ A **public** Claude Code plugin marketplace + the `develop` plugin + an interact
 
 - Marketplace: `.claude-plugin/marketplace.json`
 - Plugin: `plugins/develop/` (manifest in `plugins/develop/.claude-plugin/plugin.json`)
-- Skill: `plugins/develop/skills/init/SKILL.md` → `/develop:init`
+- Skills: `skills/init/SKILL.md` → `/develop:init`; `skills/run/SKILL.md` → `/develop:run`
 - Explainer: `docs/` (no-build static site: HTML + CSS + vanilla JS)
+
+**Locked architecture (see [DECISIONS.md](DECISIONS.md)):** the plugin ships *static,
+portable skills*; per-project behaviour comes from *definitions `/develop:init` discovers
+and writes* into the target's `.claude/` (`develop.config.json`, `develop-routing.json`,
+starter `CLAUDE.md`, safe hooks, flywheel). `/develop:run` is the static orchestrator loop
+that reads those definitions. The portable mechanism (plan anatomy, executor brief, gate
+tokens) lives in `plugins/develop/references/`; the stack-agnostic auditors in
+`plugins/develop/agents/`. Names are locked — do not rename.
 
 ---
 

@@ -27,10 +27,15 @@ The portable part is a small set of moves — state in a file, narrow context pe
 Then, in the repo you want to set up:
 
 ```text
-/develop:init
+/develop:init     # once — detect your stack, confirm gates, scaffold the config
+/develop:run      # repeatedly — spec → reviewed, committed branch
 ```
 
-It will detect your stack, confirm the real gate commands with you, and scaffold a minimal flow.
+`/develop:init` detects your stack, confirms the real gate commands with you, and writes
+the repo-specific definitions (gates, conventions, routing, safe hooks) into `.claude/`.
+`/develop:run` is the portable orchestrator loop: it ships **static** in the plugin but
+behaves **fitted to your repo** because it reads those discovered definitions. See
+[DECISIONS.md](DECISIONS.md) for the locked names and architecture.
 
 ## Layout
 
@@ -40,8 +45,10 @@ cjs-orchestrator/
 ├── plugins/develop/                  # the plugin
 │   ├── .claude-plugin/plugin.json
 │   ├── skills/init/SKILL.md          # the /develop:init bootstrapper
-│   ├── agents/                       # portable, stack-agnostic agents (WIP)
-│   └── hooks/                        # safe, stack-agnostic hooks (WIP)
+│   ├── skills/run/SKILL.md           # the /develop:run orchestrator loop
+│   ├── references/                   # portable mechanism (plan anatomy, briefs, gates)
+│   ├── agents/                       # portable, stack-agnostic auditor agents
+│   └── hooks/                        # safe, stack-agnostic hooks
 └── docs/                             # the explainer site (GitHub Pages)
 ```
 
