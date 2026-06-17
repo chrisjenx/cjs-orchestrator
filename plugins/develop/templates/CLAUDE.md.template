@@ -1,0 +1,28 @@
+# <repo name>
+
+<one line: what this repo is>
+
+## Commands
+
+- **Build:** `<build command>`
+- **Test:** `<test command>` (single test: `<scoped test command>`)
+- **Lint / format:** `<lint command>` · `<format-check command>`
+- **Type-check:** `<type-check command>`
+
+These are the gates `/develop:run` enforces; the machine-readable source is
+`.claude/develop.config.json`.
+
+## Layout
+
+- `<dir>/` — <what lives here>
+- `<dir>/` — <what lives here>
+
+## Conventions
+
+- <only conventions with evidence; delete this section if none>
+
+## Orchestration
+
+This repo uses the `develop` plugin. Run `/develop:run <spec | ticket | idea>` to take a
+change from spec to a reviewed, committed branch. Config: `.claude/develop.config.json`.
+Re-run `/develop:init` to refresh discovered settings.
