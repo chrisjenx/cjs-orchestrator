@@ -29,6 +29,7 @@ Then, in the repo you want to set up:
 ```text
 /develop:init     # once — detect your stack, confirm gates, scaffold the config
 /develop:run      # repeatedly — spec → reviewed, committed branch
+/develop:flywheel # periodically — review postmortems, tune the flow for next run
 ```
 
 `/develop:init` detects your stack, confirms the real gate commands with you, and writes
@@ -46,6 +47,7 @@ cjs-orchestrator/
 │   ├── .claude-plugin/plugin.json
 │   ├── skills/init/SKILL.md          # the /develop:init bootstrapper
 │   ├── skills/run/SKILL.md           # the /develop:run orchestrator loop
+│   ├── skills/flywheel/SKILL.md      # the /develop:flywheel tuner
 │   ├── references/                   # portable mechanism (plan anatomy, briefs, gates)
 │   ├── agents/                       # portable, stack-agnostic auditor agents
 │   └── hooks/                        # safe, stack-agnostic hooks

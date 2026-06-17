@@ -8,6 +8,12 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 ## [Unreleased]
 
 ### Added
+- **`/develop:flywheel` skill** — the manually-triggered tuner (third plugin skill). Reads
+  the accumulated postmortems in `.claude/develop-flywheel.md`, flags recurring (≥2 runs) or
+  breaking-class finding categories, and proposes the cheapest remediation lever + concrete
+  target for each (reuse-first), human-gated — applying simple deterministic levers directly
+  and deferring agent/skill/rule builds to a workflow. This is the act-on-the-postmortems
+  half that was previously only described, not scaffolded.
 - **`planner` agent** — `/develop:run` now dispatches a planner (reuse survey → Requirements
   Inventory + Execution Strategy as structured `PLAN`) instead of planning inline, keeping
   the orchestrator thin.

@@ -67,9 +67,15 @@ def main() -> int:
             if not os.path.isdir(d):
                 problems.append(f"plugin.json: {key} dir {pj[key]} missing")
 
-    # 3) skills present + triggerable
-    for skill in ("init", "run"):
-        sp = os.path.join(PLUGIN, "skills", skill, "SKILL.md")
+    # 3) skills present + triggerable (discover all skill dirs)
+    sdir = os.path.join(PLUGIN, "skills")
+    skills = sorted(d for d in os.listdir(sdir) if os.path.isdir(os.path.join(sdir, d))) \
+        if os.path.isdir(sdir) else []
+    for required in ("init", "run", "flywheel"):
+        if required not in skills:
+            problems.append(f"skills/{required}/ missing")
+    for skill in skills:
+        sp = os.path.join(sdir, skill, "SKILL.md")
         if not os.path.isfile(sp):
             problems.append(f"skills/{skill}/SKILL.md missing")
         else:
@@ -102,8 +108,8 @@ def main() -> int:
         for p in problems:
             print("  -", p)
         return 1
-    print(f"install validation PASSED — plugin resolves, {len(agents)} agents, 2 skills, all "
-          f"{len(md_files)} plugin docs' cross-links resolve")
+    print(f"install validation PASSED — plugin resolves, {len(agents)} agents, "
+          f"{len(skills)} skills, all {len(md_files)} plugin docs' cross-links resolve")
     return 0
 
 

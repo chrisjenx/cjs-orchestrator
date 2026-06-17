@@ -67,7 +67,8 @@ repeating — they are exactly the specialists/forks that earned their place.
 - **Contract ← runs (periodic, human-gated):** `PF` runs the **contract-gaps classifier**
   over the residual findings (one `CONTRACT_GAP` per finding — `preventable` + a proposed
   `remediation` lever + `target`; see [schemas.md](./schemas.md)) and appends them to the
-  postmortem. A human reads the postmortem and **promotes** any category that has appeared
+  postmortem. **`/develop:flywheel`** (run periodically between feature runs) reads the
+  accumulated postmortems and **promotes** any category that has appeared
   **≥ 2 times across runs — or immediately if it's a breaking-class finding** — by applying its
   lever (a hook/gate/rule/agent, or an anchor on the contract). Prefer the earliest deterministic
   lever; promote a new agent only when nothing cheaper expresses the check. **Applying** a lever

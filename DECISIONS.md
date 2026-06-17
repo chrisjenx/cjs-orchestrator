@@ -17,13 +17,16 @@ zero users. Closes #1.
 | Plugin | `develop` | `plugins/develop/.claude-plugin/plugin.json` |
 | Bootstrap skill | `/develop:init` | `plugins/develop/skills/init/` |
 | Run skill | `/develop:run` | `plugins/develop/skills/run/` |
+| Flywheel skill | `/develop:flywheel` | `plugins/develop/skills/flywheel/` |
 
 - The plugin namespace is `develop:`, so every plugin skill is invoked `develop:<skill>`.
 - `/develop:run` is a **plugin** skill (not a generated project `/develop`). That is
   the only way the `develop:run` invocation works, and it keeps the run-loop versioned
   and upgradeable centrally.
-- Avoid a third top-level verb unless it earns its place; prefer arguments/flags on the
-  two existing skills.
+- A third verb must earn its place. `/develop:flywheel` earned it: distinct **cadence**
+  (periodic, between feature runs — not per feature, which `PF` already logs) and distinct
+  **action** (cross-run postmortem evaluation + human-gated promotion). It is not a feature
+  build, so overloading `/develop:run` with it would muddy that skill's contract.
 
 ## 2026-06-17 — Run-flow architecture: static skills, discovered definitions
 

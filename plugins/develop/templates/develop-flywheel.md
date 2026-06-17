@@ -1,8 +1,10 @@
 # develop flywheel — <repo name>
 
-How this repo's `/develop` flow grows. See the mechanism in the plugin's
+How this repo's `/develop` flow grows. `/develop:run`'s `PF` appends a postmortem block
+below after each run; run **`/develop:flywheel`** periodically to evaluate the accumulated
+log and promote tweaks for the next run. See the mechanism in the plugin's
 `references/flywheel.md`. Start minimal; promote a remediation only when a finding category
-recurs (≥ 2 runs) **or** is breaking-class. Promotion is always a human edit — never
+recurs (≥ 2 runs) **or** is breaking-class. Promotion is always a human-gated edit — never
 auto-edited from a run.
 
 ## Remediation levers (route each preventable finding to the cheapest, earliest one)

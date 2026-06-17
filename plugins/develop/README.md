@@ -9,6 +9,7 @@ Bootstrap a minimal, self-improving `/develop` orchestration flow fitted to your
 /plugin install develop@cjs-orchestrator
 /develop:init     # once — discover + scaffold
 /develop:run      # repeatedly — spec → committed branch
+/develop:flywheel # periodically — tune the flow from its postmortems
 ```
 
 ## How it works
@@ -23,6 +24,10 @@ The plugin ships **static, portable skills**; per-project behaviour comes from
 - **`skills/run/SKILL.md`** (`/develop:run`) — the portable orchestrator loop. Static in
   the plugin, but fitted to your repo because it reads those discovered definitions and
   walks a per-feature plan file it creates at runtime.
+- **`skills/flywheel/SKILL.md`** (`/develop:flywheel`) — the manually-triggered tuner. Reads
+  the accumulated postmortems, flags recurring/breaking finding categories, and proposes the
+  cheapest remediation lever + target for each (human-gated) — the half of the flywheel that
+  decides what to tighten before the next run.
 - **`references/`** — the portable mechanism the loop relies on (plan anatomy, executor
   brief, gate tokens, flywheel). Stack-neutral.
 - **`agents/`** — portable, stack-agnostic subagents available because the plugin is
