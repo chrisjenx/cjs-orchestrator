@@ -1,0 +1,15 @@
+{
+  "stack": {
+    "ecosystems": ["go"],
+    "buildTool": "go",
+    "monorepo": false
+  },
+  "gates": [
+    { "kind": "lint",  "command": "go vet ./..." },
+    { "kind": "build", "command": "go build ./..." },
+    { "kind": "test",  "command": "go test ./..." },
+    { "kind": "lint",  "command": "golangci-lint run" }
+  ],
+  "skipped": ["coverage"],
+  "notes": "Go from go.mod. golangci-lint is configured via the CI action — detection should surface it as a lint gate (golangci-lint run) even though the exact command is in the action, not a run: line. No coverage gate present."
+}

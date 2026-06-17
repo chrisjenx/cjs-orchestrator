@@ -1,0 +1,16 @@
+{
+  "stack": {
+    "ecosystems": ["node-ts"],
+    "buildTool": "pnpm",
+    "monorepo": false
+  },
+  "gates": [
+    { "kind": "lint",     "command": "pnpm lint" },
+    { "kind": "types",    "command": "pnpm typecheck" },
+    { "kind": "build",    "command": "pnpm build" },
+    { "kind": "test",     "command": "pnpm test" },
+    { "kind": "coverage", "command": "pnpm coverage" }
+  ],
+  "skipped": [],
+  "notes": "Package manager is pnpm (pnpm-lock.yaml). All gates come straight from CI; lint/types are cheap, build/test/coverage are heavy."
+}

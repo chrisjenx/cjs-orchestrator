@@ -1,0 +1,14 @@
+{
+  "stack": {
+    "ecosystems": ["python"],
+    "buildTool": "uv",
+    "monorepo": false
+  },
+  "gates": [
+    { "kind": "lint",  "command": "uv run ruff check ." },
+    { "kind": "types", "command": "uv run mypy ." },
+    { "kind": "test",  "command": "uv run pytest" }
+  ],
+  "skipped": ["build", "coverage"],
+  "notes": "uv from uv.lock. No build/coverage gate in CI — those facets are legitimately skipped and must be reported as skipped, not invented. ruff/mypy cheap, pytest heavy."
+}

@@ -1,0 +1,20 @@
+{
+  "stack": {
+    "ecosystems": ["unknown"],
+    "buildTool": "zig (unrecognised)",
+    "monorepo": false
+  },
+  "gates": [
+    { "kind": "build", "command": "zig build" },
+    { "kind": "test",  "command": "zig build test" }
+  ],
+  "skipped": ["lint", "format", "types", "coverage"],
+  "behavior": [
+    "Must NOT pretend to recognise the ecosystem — report it as unknown.",
+    "Must mine the README for the build/test commands (no CI exists).",
+    "Must explicitly ask the user to confirm gates rather than guessing.",
+    "Must log lint/format/types/coverage as skipped (no tool detected), not silently drop them.",
+    "Must NOT block — a build + test gate is enough to proceed."
+  ],
+  "notes": "The pass condition here is behavioral: graceful degradation per references/stacks.md, not exact-match detection."
+}

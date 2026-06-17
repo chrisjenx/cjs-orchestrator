@@ -1,0 +1,4 @@
+lockfileVersion: '9.0'
+# marker file: presence selects pnpm as the package manager
+settings:
+  autoInstallPeers: true
