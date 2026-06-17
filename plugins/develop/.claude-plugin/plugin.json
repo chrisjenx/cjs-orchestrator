@@ -12,5 +12,6 @@
   "repository": "https://github.com/chrisjenx/cjs-orchestrator",
   "license": "MIT",
   "keywords": ["orchestration", "agents", "develop", "pipeline", "automation", "subagents"],
-  "skills": "./skills/"
+  "skills": "./skills/",
+  "agents": "./agents/"
 }
