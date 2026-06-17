@@ -11,7 +11,7 @@ import functools, http.server, os, re, shutil, socketserver, sys, tempfile, thre
 
 REPO = "cjs-orchestrator"
 DOCS = os.path.join(os.path.dirname(__file__), "..", "docs")
-ASSETS = ["index.html", "styles.css", "app.js", "catalog.js", "flow.js"]
+ASSETS = ["index.html", "use.html", "styles.css", "app.js", "catalog.js", "flow.js", "use.js"]
 
 
 def main() -> int:
@@ -38,7 +38,7 @@ def main() -> int:
     threading.Thread(target=httpd.serve_forever, daemon=True).start()
     base = f"http://127.0.0.1:{port}/{REPO}"
     try:
-        for path in ["/", "/styles.css", "/app.js", "/catalog.js", "/flow.js"]:
+        for path in ["/", "/use.html", "/styles.css", "/app.js", "/catalog.js", "/flow.js", "/use.js"]:
             try:
                 with urllib.request.urlopen(base + path) as r:
                     if r.status != 200:

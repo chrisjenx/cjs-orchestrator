@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<!--
+  PUBLIC REPO — genericized from a real case study. Keep it stack-neutral; do not
+  reintroduce project-specific data (real names, brand, commit SHAs, private metrics).
+  See /CLAUDE.md → "Keep it generic".
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Use the develop plugin — orchestrated /develop on your repo</title>
+<meta name="description" content="How to install and use the develop plugin to stand up an orchestrated /develop flow on your own project — and why strong rules, mechanical checks, and hooks are what make it pay off." />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="brand-dot"></span> Agentic Pipelines</div>
+    <nav class="nav-links">
+      <a class="nav-link" href="index.html">← Concept</a>
+      <a class="nav-link" href="#install">Install</a>
+      <a class="nav-link" href="#commands">Commands</a>
+      <a class="nav-link" href="#most">Get the most out of it</a>
+      <a class="nav-link" href="#scaffold">What it writes</a>
+      <a class="nav-link" href="#loop">The loop</a>
+      <a class="nav-cta" href="https://github.com/chrisjenx/cjs-orchestrator" target="_blank" rel="noopener">GitHub →</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <span class="hero-tag">Use the plugin</span>
+  <h1>Run orchestrated <span class="grad">/develop</span> on your own repo.</h1>
+  <p class="hero-sub">Install once, scaffold a flow fitted to <em>your</em> stack, then take changes from spec to a reviewed, committed branch. New to the idea? Start with the <a href="index.html">concept</a>.</p>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="#install">Install →</a>
+    <a class="btn btn-ghost" href="#most">Get the most out of it</a>
+  </div>
+</section>
+
+<!-- ================= INSTALL ================= -->
+<section id="install">
+  <div class="section-eyebrow">Install</div>
+  <h2>Add the marketplace, install the plugin</h2>
+  <p class="section-lead">In Claude Code, from the repo you want to set up:</p>
+  <ol class="ship-steps">
+    <li><strong>Add the marketplace</strong><br><code>/plugin marketplace add chrisjenx/cjs-orchestrator</code></li>
+    <li><strong>Install the plugin</strong><br><code>/plugin install develop@cjs-orchestrator</code></li>
+    <li><strong>Scaffold your flow</strong><br><code>/develop:init</code> — detects your stack, confirms your real gate commands with you, and writes the per-repo definitions + safe hooks into <code>.claude/</code>.</li>
+    <li><strong>Use it</strong><br><code>/develop:run &lt;spec | ticket | idea&gt;</code> per change, and <code>/develop:flywheel</code> periodically to tune the flow from its postmortems.</li>
+  </ol>
+  <p class="section-lead">Nothing is transplanted: <code>/develop:init</code> reads <em>this</em> repo's commands and conventions and grows from a minimal core. Re-run it any time to refresh discovery — it reconciles, it doesn't clobber.</p>
+</section>
+
+<!-- ================= COMMANDS ================= -->
+<section id="commands">
+  <div class="section-eyebrow">The three commands</div>
+  <h2>Scaffold once · run per feature · tune periodically</h2>
+  <p class="section-lead">Three static, portable skills. Their behaviour is fitted to your repo because they read the definitions <code>init</code> discovered — not because they were rewritten for you.</p>
+  <div class="trio">
+    <div class="trio-card skill">
+      <h3><span class="trio-tag">once</span> /develop:init</h3>
+      <p>Detects your stack, discovers the real build/test/lint/coverage commands (CI is the source of truth), and writes <code>.claude/develop.config.json</code>, a routing table, a starter <code>CLAUDE.md</code>, safe hooks, and a flywheel doc. Confirms with you before writing.</p>
+      <div class="eg">run when you set up — or to refresh discovery</div>
+    </div>
+    <div class="trio-card orch">
+      <h3><span class="trio-tag">per feature</span> /develop:run</h3>
+      <p>The orchestrator loop. Plans, works in an isolated worktree, dispatches one executor per phase, then runs a fixed quality tail — validate → audit → tidy → finalize — wired to <em>your</em> gates. Blocks the commit until they pass; hands off a branch (never pushes).</p>
+      <div class="eg">run per change: spec, ticket, or rough idea</div>
+    </div>
+    <div class="trio-card agent">
+      <h3><span class="trio-tag">periodically</span> /develop:flywheel</h3>
+      <p>Reads the accumulated postmortems, flags finding categories that keep escaping (or are breaking-class), and proposes the cheapest fix — a hook, gate, rule, anchor, or a new reviewer — human-gated. This is how the flow gets <em>stronger</em> over time.</p>
+      <div class="eg">run every few features, to tune</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GET THE MOST OUT OF IT ================= -->
+<section id="most">
+  <div class="section-eyebrow">Get the most out of it</div>
+  <h2>It's only as good as the checks you give it</h2>
+  <p class="section-lead">The orchestrator doesn't decide "done" by judgement — it clears a phase only when a <strong>command ran and produced evidence</strong>. So the flow's ceiling is set by what your repo can <em>mechanically verify</em>. Point it at a repo with strong gates and it's formidable; point it at one with no checks and it can only confirm what little there is.</p>
+
+  <div class="callout">
+    <strong>The leverage is in the controls, not the prompts.</strong> Discovery finds the gates you already have; the quality tail enforces them; the flywheel turns every escaped defect into a new <em>mechanical</em> check. None of that compounds if there's nothing mechanical to anchor to. Invest here first.
+  </div>
+
+  <h3 class="sub-h">Invest in these before expecting magic</h3>
+  <ul class="checklist">
+    <li><strong>Real CI gates.</strong> Build, test, lint, type-check, coverage — as actual commands CI runs. These become the gate tokens the flow can't skip. No gates, no teeth.</li>
+    <li><strong>Mechanical rules over prose.</strong> A lint rule, a grep anchor, or a coverage floor beats a paragraph of "please remember to…". The flywheel can only promote a finding to a check if the check can be expressed mechanically.</li>
+    <li><strong>Hooks for the non-negotiables.</strong> Pre-write/pre-commit hooks catch a whole class of mistakes <em>before</em> review — the earliest, cheapest layer. The plugin installs only safe, stack-agnostic ones; add your repo's own.</li>
+    <li><strong>A real <code>CLAUDE.md</code>.</strong> Your conventions, stated plainly. The <code>code-reviewer</code> reviews against the rules that <em>exist</em> — it won't invent standards. Vague or missing rules = vague review.</li>
+    <li><strong>Tests that mean something.</strong> A test gate is only as honest as the tests. Diff coverage and named tests on each requirement are what let the flow prove a feature works, not just compiles.</li>
+    <li><strong>Then tune.</strong> Run <code>/develop:flywheel</code> after a few features and promote the recurring escapes into hooks/gates/rules. The line tightens every cycle — but only if you feed it.</li>
+  </ul>
+
+  <p class="section-lead">Weak checks aren't a blocker to starting — <code>/develop:init</code> degrades gracefully and uses whatever you confirm. But the gap between "it ran" and "it's trustworthy" is exactly the gap between a repo with strong mechanical checks and one without. That's where the payoff lives.</p>
+</section>
+
+<!-- ================= WHAT IT WRITES ================= -->
+<section id="scaffold">
+  <div class="section-eyebrow">What it writes</div>
+  <h2>Static skills, discovered definitions</h2>
+  <p class="section-lead">The plugin ships static, portable skills + agents. <code>/develop:init</code> writes only the <em>repo-specific definitions</em> they read — so the flow is fitted without being a copy you have to maintain.</p>
+  <div class="split-cols">
+    <div class="split-card">
+      <h3 class="sub-h">Written into your <code>.claude/</code></h3>
+      <ul class="checklist tight">
+        <li><code>develop.config.json</code> — your gates (tagged cheap/heavy), stack, model tiers, caps</li>
+        <li><code>develop-routing.json</code> — artifact-shape → agent (starts with a generalist fallback)</li>
+        <li><code>CLAUDE.md</code> — a short starter from your discovered conventions</li>
+        <li><code>develop-flywheel.md</code> — the postmortem log + your promoted checks</li>
+        <li>safe <code>hooks/</code> — worktree guard + a generic command timeout</li>
+      </ul>
+    </div>
+    <div class="split-card">
+      <h3 class="sub-h">Bundled in the plugin (not copied)</h3>
+      <ul class="checklist tight">
+        <li><strong>skills</strong> — <code>/develop:init</code>, <code>/develop:run</code>, <code>/develop:flywheel</code></li>
+        <li><strong>agents</strong> — planner, executor, the diff-reading auditors, code-reviewer, tidy, refuter</li>
+        <li><strong>references</strong> — the portable mechanism (plan anatomy, gate tokens, the quality tail, the flywheel)</li>
+      </ul>
+      <p class="sub-lead">Your routing table references the bundled agents by name. Specialists you add later live in your own <code>.claude/agents/</code>, grown via the flywheel.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= THE LOOP ================= -->
+<section id="loop">
+  <div class="section-eyebrow">In practice</div>
+  <h2>The loop that tightens itself</h2>
+  <p class="section-lead">Reuse first, defer creation to workflows: the flow prefers the skills/agents/rules you already have, and when something's missing it proposes building it — it doesn't quietly hand-roll one-off helpers.</p>
+  <ol class="ship-steps">
+    <li><strong>Run a feature.</strong> <code>/develop:run</code> plans, builds, and runs the quality tail. The finalize phase logs a postmortem: what escaped, classified preventable vs irreducible.</li>
+    <li><strong>Tune periodically.</strong> <code>/develop:flywheel</code> reads the postmortems, and for each recurring (or breaking-class) escape proposes the cheapest lever — hook, gate, rule, anchor, or a new/pruned reviewer.</li>
+    <li><strong>You approve; it applies.</strong> Simple deterministic levers are edited directly; building or improving an agent/skill/rule is deferred to a focused workflow. Nothing edits <code>.claude/</code> without you.</li>
+    <li><strong>Next run is stronger.</strong> The new checks are enforced by construction, so that defect class stops escaping. Preventable findings trend toward zero; the irreducible floor stays.</li>
+  </ol>
+  <p class="section-lead">Want the why behind all of this? The <a href="index.html">concept page</a> walks the full pipeline, the design trade-offs, and the portable patterns.</p>
+</section>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <span><a href="index.html">← Back to the concept</a> · Source &amp; backlog: <a class="ext-link" href="https://github.com/chrisjenx/cjs-orchestrator" target="_blank" rel="noopener">github.com/chrisjenx/cjs-orchestrator</a></span>
+    <span>Skills <i style="color:var(--skill)">●</i> · Agents <i style="color:var(--agent)">●</i> · Fork <i style="color:var(--fork)">●</i> · Nest <i style="color:var(--nest)">●</i></span>
+  </div>
+</footer>
+
+<script src="use.js"></script>
+</body>
+</html>

@@ -26,7 +26,7 @@
       <a class="nav-link" href="#run">Watch</a>
       <a class="nav-link" href="#flywheel">Flywheel</a>
       <a class="nav-link" href="#build">Build your own</a>
-      <a class="nav-link" href="#ship">Ship it</a>
+      <a class="nav-cta" href="use.html">Use the plugin →</a>
     </nav>
   </div>
 </header>
@@ -37,9 +37,10 @@
   <h1>A spec goes in. An <span class="grad">audited, committed branch</span> comes out.</h1>
   <p class="hero-sub">No hands on the wheel between plan, build, audit, and sign-off. Here's the machinery — and how to stand up your own.</p>
   <div class="hero-cta">
-    <a class="btn btn-primary" href="#solution">See the solution →</a>
-    <a class="btn btn-ghost" href="#build">Build your own</a>
+    <a class="btn btn-primary" href="#solution">See how it works →</a>
+    <a class="btn btn-ghost" href="use.html">Use it on your repo →</a>
   </div>
+  <p class="hero-note">This page is the <strong>concept</strong> — what orchestrated <code>/develop</code> is and why. To run it on your own project, head to <a href="use.html">Use the plugin</a>.</p>
   <div class="hero-legend">
     <span class="keychip"><i style="background:var(--skill)"></i> Skill — a playbook</span>
     <span class="keychip"><i style="background:var(--agent)"></i> Agent — a worker</span>
@@ -174,7 +175,7 @@
   <div class="section-eyebrow">Your turn</div>
   <h2>How to build your own</h2>
   <p class="section-lead">Strip the project specifics and this is a handful of reusable parts. Start small — one generalist executor, a plan file, real controls — then add specialists, forks, and feedback where the pain shows.</p>
-  <p class="section-lead"><strong>You don't have to hand-roll it.</strong> The <code>develop</code> plugin's <code>/develop:init</code> discovers your repo's real gates and scaffolds exactly this shape — fitted to your stack, not transplanted. The parts below are <em>what it builds</em>, so you can understand it, own it, and grow it. <a class="ext-link" href="#ship">Jump to install ↓</a></p>
+  <p class="section-lead"><strong>You don't have to hand-roll it.</strong> The <code>develop</code> plugin's <code>/develop:init</code> discovers your repo's real gates and scaffolds exactly this shape — fitted to your stack, not transplanted. The parts below are <em>what it builds</em>, so you can understand it, own it, and grow it. <a class="ext-link" href="use.html">Use the plugin on your project →</a></p>
 
   <h3 class="sub-h">Three primitives, and that's it</h3>
   <p class="sub-lead">Everything here is one of three things. Learn the trio; the rest is composition.</p>
@@ -219,22 +220,23 @@
   </div>
 </section>
 
-<!-- ================= SHIP IT ================= -->
-<section id="ship">
-  <div class="section-eyebrow">Ship it</div>
-  <h2>Bootstrap it with <code>/develop:init</code></h2>
-  <p class="section-lead">The meta-skill that stands up a pipeline like this on a fresh codebase — orchestrator, plan contract, starter agent registry, real gates, safe hooks — by <em>discovering</em> your repo, not copying someone else's. Two commands: scaffold once, then run.</p>
-  <ol class="ship-steps">
-    <li><strong>Add the marketplace</strong><br><code>/plugin marketplace add chrisjenx/cjs-orchestrator</code></li>
-    <li><strong>Install the plugin</strong><br><code>/plugin install develop@cjs-orchestrator</code></li>
-    <li><strong>Scaffold, then run</strong><br><code>/develop:init</code> — detects your stack, confirms your real gate commands, writes the per-repo config + safe hooks.<br><code>/develop:run &lt;spec | ticket | idea&gt;</code> — walks the plan, dispatches one executor per phase, runs your real gates, hands off a reviewed, committed branch.</li>
-  </ol>
-  <p class="section-lead"><code>/develop:init</code> never transplants a finished system — it reads <em>this</em> repo's commands and conventions and grows from a minimal core via the feedback flywheel. Source &amp; backlog: <a class="ext-link" href="https://github.com/chrisjenx/cjs-orchestrator" target="_blank" rel="noopener">github.com/chrisjenx/cjs-orchestrator</a>.</p>
+<!-- ================= USE-IT CTA ================= -->
+<section id="useit">
+  <div class="cta-card">
+    <div class="section-eyebrow">Your turn</div>
+    <h2>Run this on your own repo</h2>
+    <p class="section-lead">The <code>develop</code> plugin stands up this exact shape on your codebase — by <em>discovering</em> your real gates, not copying someone else's. Three commands: scaffold once, run per feature, tune periodically.</p>
+    <p class="cta-warn"><strong>It's only as good as the checks you give it.</strong> The flow can only verify what's mechanically checkable — strong rules, real CI gates, and hooks are what let it (and the flywheel) actually compound. The guide covers how to set that up.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="use.html">Use the plugin →</a>
+      <a class="btn btn-ghost" href="https://github.com/chrisjenx/cjs-orchestrator" target="_blank" rel="noopener">Source &amp; backlog</a>
+    </div>
+  </div>
 </section>
 
 <footer class="foot">
   <div class="foot-inner">
-    <span>Modelled on a real <code>/develop</code> — run <code>/develop:init</code> to fit it to your own codebase.</span>
+    <span>Modelled on a real <code>/develop</code> — <a href="use.html">use the plugin</a> to fit it to your own codebase.</span>
     <span>Skills <i style="color:var(--skill)">●</i> · Agents <i style="color:var(--agent)">●</i> · Fork <i style="color:var(--fork)">●</i> · Nest <i style="color:var(--nest)">●</i></span>
   </div>
 </footer>
