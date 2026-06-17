@@ -72,6 +72,11 @@ yet, you don't write. And when a slice needs a reviewer/writer that doesn't exis
 **don't invent one inline** — route to the generalist for now and defer building it to a
 workflow ([reuse-and-defer.md](./reuse-and-defer.md)).
 
+> **Unwired agents.** An agent that exists in `.claude/agents/` but no rule references is a
+> missed reuse — it *should have been used*. `/develop:flywheel` greps for these and surfaces
+> them; if one matches a recurring finding, wiring it in (a route here) is the cheapest fix of
+> all, since the agent already exists.
+
 ## Shrinking the table (the agent lever, in reverse)
 
 Routes also come **out**. When a cheaper, deterministic lever — a hook, a gate, a lint rule —

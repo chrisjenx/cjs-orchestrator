@@ -14,6 +14,7 @@ periodically once a few runs have accumulated, not after every feature.
 - `.claude/develop-flywheel.md` — the postmortem log + this repo's promoted-anchors table.
 - `.claude/develop.config.json`, `.claude/develop-routing.json` — what gates/agents already
   exist (you reuse-first against these).
+- `.claude/agents/` — the repo's own agents (to spot unwired ones — step 1b).
 - `.claude/CLAUDE.md` — the repo's existing rules.
 - The mechanism: [flywheel.md](../../references/flywheel.md),
   [reuse-and-defer.md](../../references/reuse-and-defer.md),
@@ -25,7 +26,24 @@ periodically once a few runs have accumulated, not after every feature.
 Read every postmortem block in `.claude/develop-flywheel.md` and the promoted-anchors table
 (so you don't re-propose what's already promoted).
 
-### 2. Aggregate
+### 1b. Detect unwired agents (quick grep)
+A repo agent that exists but nothing routes to is a missed reuse — it *should have been
+used*. A quick light grep finds them: list the repo's agents, list the names referenced in
+routing, and report the difference.
+
+```sh
+# repo-local agents that exist
+for f in .claude/agents/*.md; do basename "$f" .md; done | sort -u > /tmp/have
+# agent names referenced by any route (agent: "x" / agents: ["x", …])
+grep -oE '"agents?"[[:space:]]*:[[:space:]]*(\[[^]]*\]|"[^"]*")' .claude/develop-routing.json \
+  | grep -oE '"[a-z0-9][a-z0-9-]*"' | tr -d '"' | grep -vE '^(agent|agents)$' | sort -u > /tmp/routed
+# UNWIRED = exists but not routed
+comm -23 /tmp/have /tmp/routed
+```
+
+(If `comm` isn't available, just read both files and diff the name sets — it's a tiny list.)
+Carry the unwired list into step 4: for each, ask **"should this have caught one of the
+recurring findings?"** If yes, wiring it is the cheapest possible fix — it already exists.
 Group the **preventable** escaped findings by category across runs; count recurrences and
 flag any **breaking-class** ones. Set the **irreducible** floor aside — those aren't
 preventable; don't try to "fix" them, just confirm they're staying flat.
@@ -41,9 +59,13 @@ For each flagged category, pick the remediation per
 - **Does something already target this?** A rule in `CLAUDE.md`, a gate, a hook, a reviewer?
   If it exists and the finding still escapes, propose **strengthening that** — never add a
   duplicate alongside it.
+- **Is there an unwired agent (step 1b) that already covers this?** If one exists but nothing
+  routes to it, the fix is to **wire it in** — add a route in `develop-routing.json`. That's a
+  cheap, direct edit, not a build: an existing agent that should have been used beats authoring
+  a new one.
 - **Otherwise pick the cheapest, earliest deterministic lever** that can express the check:
-  `hook` → `gate` → `plan-anchor` → `rule` → `agent` (a new reviewer is the last resort).
-  Name the **concrete target** (which file / anchor / route / rule line).
+  `hook` → `gate` → `plan-anchor` → `rule` → `agent` (building a *new* reviewer is the last
+  resort). Name the **concrete target** (which file / anchor / route / rule line).
 - **Pruning:** if a cheaper lever now subsumes a reviewer's catches, propose **reducing or
   merging** that routing entry — removing run cost is as valid an outcome as adding.
 
@@ -56,6 +78,7 @@ Tweaks before next run (you approve which to apply):
      edit: <the exact change>            apply: direct | defer-to-workflow
   2. ...
   Irreducible floor: <n> (unchanged — expected)
+  Unwired: <agent> exists but isn't routed — should have caught <category>? → wire it  (cheap)
   Prune: <reviewer> — subsumed by <lever>  (optional)
 ```
 
