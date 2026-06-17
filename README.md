@@ -52,6 +52,12 @@ cjs-orchestrator/
 └── docs/                             # the explainer site (GitHub Pages)
 ```
 
+## Releases
+
+Changes are in [CHANGELOG.md](CHANGELOG.md); the release flow + SemVer version policy are in
+[RELEASING.md](RELEASING.md). The plugin version (`plugins/develop/.claude-plugin/plugin.json`)
+is what Claude Code uses to surface updates — it's always set, never omitted.
+
 ## License
 
 MIT © Chris Jenkins. See [LICENSE](LICENSE).

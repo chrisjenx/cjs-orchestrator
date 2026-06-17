@@ -2,7 +2,7 @@
   "name": "develop",
   "displayName": "Develop Orchestrator",
   "description": "Bootstrap a minimal, self-improving /develop orchestration flow fitted to your repo, then grow it via a feedback flywheel.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Chris Jenkins",
     "email": "chris.mark.jenkins@gmail.com",

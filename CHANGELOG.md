@@ -1,0 +1,53 @@
+# Changelog
+
+All notable changes to the `develop` plugin are recorded here. Format follows
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the plugin version is in
+`plugins/develop/.claude-plugin/plugin.json` and follows [SemVer](https://semver.org/).
+See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy.
+
+## [Unreleased]
+
+## [0.2.0] — 2026-06-17
+
+First full build of the orchestration system. The plugin grew from a single high-level
+bootstrapper into static, portable skills that read per-repo discovered definitions.
+
+### Added
+- **`/develop:run`** — the static orchestrator loop (Intake → Worktree → Assess → Clarify →
+  Plan → Walk → quality tail → Relay), dispatching one executor per phase and holding only
+  phase status.
+- **Portable mechanism references** (`plugins/develop/references/`): plan anatomy, executor
+  brief, gate tokens, the quality tail (PV/PA/PT/PF), schemas, the flywheel + planwork-sync,
+  routing, the config schema, model tiers, the multi-stack matrix, stack detection,
+  CLAUDE.md starter, the dry-run protocol, idempotency, and verify-by-forking.
+- **Bundled stack-agnostic agents** (`plugins/develop/agents/`): the generalist `executor`,
+  diff-reading `completeness` / `stubs` / `regression` auditors, a `general-quality`
+  reviewer, and the adversarial `refuter`.
+- **Safe hooks** (`plugins/develop/hooks/`): a worktree/destructive-git guard + a generic
+  command timeout, installed by merge (never overwrite), nothing stack-tied.
+- **Templates** (`plugins/develop/templates/`): `develop.config.json`, `develop-routing.json`,
+  the plan skeleton, `CLAUDE.md`, and the flywheel doc.
+- **Eval harness** (`evals/`): triggering matrix + stack fixtures (node-ts, python-uv,
+  go-mod, unknown-stack) with `expected.json`, plus the install e2e checklist.
+- **CI + verification scripts** (`.github/workflows/ci.yml`, `scripts/`): manifest +
+  install-structure validation, docs subpath check, and a deterministic docs leak scan;
+  optional `.githooks/pre-commit`.
+- **DECISIONS.md** — locked public names and the static-skills/discovered-definitions
+  architecture.
+
+### Changed
+- **`/develop:init`** rebuilt around the locked architecture: detailed stack detection,
+  gate-command discovery, writing per-repo definitions, safe-hook install, dry-run
+  verification, and idempotent (reconcile-not-clobber) re-runs.
+- Explainer "build your own" now points at `/develop:init` and gained a `#ship` install
+  section (replacing the "coming soon" placeholder).
+- READMEs + CLAUDE.md updated to the two-skill UX and locked architecture.
+
+## [0.1.0] — initial
+
+- Marketplace + `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
+  genericized explainer site.
+
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.2.0
+[0.1.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.1.0
