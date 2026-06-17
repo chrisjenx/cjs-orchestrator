@@ -1,0 +1,70 @@
+# `develop.config.json` — the discovered, per-repo definitions
+
+Written by `/develop:init` into `.claude/develop.config.json`. Read by `/develop:run` at
+the start of every run. This is the file that makes a *static* loop behave *fitted* to the
+repo. Keep it small and human-editable; the user owns it.
+
+## Shape
+
+```json
+{
+  "schema": 1,
+  "featureDir": "build/develop",
+  "stack": {
+    "ecosystems": ["node-ts"],
+    "buildTool": "pnpm",
+    "monorepo": false,
+    "evidence": {
+      "buildTool": "pnpm-lock.yaml",
+      "test": "package.json scripts.test",
+      "ci": ".github/workflows/ci.yml"
+    }
+  },
+  "gates": [
+    { "id": "types",    "kind": "types",    "tier": "cheap", "command": "pnpm -w typecheck" },
+    { "id": "lint",     "kind": "lint",     "tier": "cheap", "command": "pnpm -w lint",
+      "scopedCommand": "pnpm eslint {files}" },
+    { "id": "build",    "kind": "build",    "tier": "heavy", "command": "pnpm -w build",
+      "scopedCommand": "pnpm --filter {pkg} build" },
+    { "id": "test",     "kind": "test",     "tier": "heavy", "command": "pnpm -w test",
+      "scopedCommand": "pnpm vitest run {selector}", "fresh": true },
+    { "id": "coverage", "kind": "coverage", "tier": "heavy", "command": "pnpm -w coverage",
+      "threshold": 80 }
+  ],
+  "models": { "cheap": "default-cheap", "mid": "default-mid", "top": "default-top" },
+  "caps": { "validator": 3, "audit": 2, "fork": 1, "gate": 2 },
+  "intensity": { "refuters": 1, "planCandidates": 1 },
+  "routingFile": ".claude/develop-routing.json",
+  "flywheelFile": ".claude/develop-flywheel.md"
+}
+```
+
+## Fields
+
+| Field | Set by | Meaning |
+|---|---|---|
+| `schema` | init | Config schema version (currently `1`). Bump on breaking changes. |
+| `featureDir` | init | Where per-feature plan files live (`<featureDir>/<feature>.plan.md`). Default `build/develop`; must be git-ignored or a build dir. |
+| `stack` | init Phase 1 | The confirmed stack summary + file evidence. Informational + drives scoped-command templates. |
+| `gates` | init Phase 2 | The discovered gate commands. See [gate-tokens.md](./gate-tokens.md). |
+| `gates[].kind` | init | `build` \| `test` \| `lint` \| `format` \| `types` \| `coverage` \| `grep`. |
+| `gates[].tier` | init | `cheap` (inline every phase) or `heavy` (deferred to `PF`). |
+| `gates[].command` | init | The exact whole-repo command (from CI). |
+| `gates[].scopedCommand` | init | Optional template for the cheap inline run; placeholders `{files}`, `{pkg}`, `{selector}`. |
+| `gates[].fresh` | init | `true` for test gates that must force a non-cached run. |
+| `gates[].threshold` | init | For `coverage` gates: minimum diff coverage %. |
+| `models` | init / [model-tiers.md](./model-tiers.md) | The cheap/mid/top model ids `/develop:run` dispatches with. |
+| `caps` | init / run | Loop bounds: validator rounds, audit rounds, fork rounds, between-phase gate rounds. |
+| `intensity` | [verify-by-forking.md](./verify-by-forking.md) | `refuters` and `planCandidates` counts. `1` = lean default (no forking). |
+| `routingFile` | init | Path to the routing table ([routing.md](./routing.md)). |
+| `flywheelFile` | init | Path to the flywheel doc ([flywheel.md](./flywheel.md)). |
+
+## Rules
+
+- **Only commands the user confirmed go in `gates`.** No invented commands.
+- The config is the contract between `/develop:init` (writer) and `/develop:run` (reader).
+  A gate token on a plan node with no matching `gates[].id`/`kind` is a planner error.
+- Defaults shown for `models`, `caps`, `intensity` are the lean starting point; the user
+  edits them. `/develop:run` reads them every run, so edits take effect immediately.
+- On a re-run, `/develop:init` reconciles this file rather than overwriting it (see
+  [idempotency.md](./idempotency.md)).

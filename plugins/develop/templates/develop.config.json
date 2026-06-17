@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "featureDir": "build/develop",
+  "stack": {
+    "ecosystems": ["<detected>"],
+    "buildTool": "<detected>",
+    "monorepo": false,
+    "evidence": {}
+  },
+  "gates": [
+    { "id": "<id>", "kind": "build|test|lint|format|types|coverage", "tier": "cheap|heavy", "command": "<exact command CI runs>" }
+  ],
+  "models": { "cheap": "default-cheap", "mid": "default-mid", "top": "default-top" },
+  "caps": { "validator": 3, "audit": 2, "fork": 1, "gate": 2 },
+  "intensity": { "refuters": 1, "planCandidates": 1 },
+  "routingFile": ".claude/develop-routing.json",
+  "flywheelFile": ".claude/develop-flywheel.md"
+}
