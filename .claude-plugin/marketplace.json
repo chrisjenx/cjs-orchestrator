@@ -1,0 +1,18 @@
+{
+  "name": "cjs-orchestrator",
+  "owner": {
+    "name": "Chris Jenkins",
+    "email": "chris.mark.jenkins@gmail.com"
+  },
+  "description": "Tools for building self-improving, agentic /develop orchestration flows fitted to any repo.",
+  "metadata": {
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "develop",
+      "source": "develop",
+      "description": "Bootstrap a minimal, self-improving /develop orchestration flow fitted to your repo, then grow it via a feedback flywheel."
+    }
+  ]
+}

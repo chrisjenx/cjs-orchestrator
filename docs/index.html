@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<!--
+  PUBLIC REPO — genericized from a real case study. Keep it stack-neutral; do not
+  reintroduce project-specific data (real names, brand, commit SHAs, private metrics).
+  Scorecard figures are representative/anonymized. See /CLAUDE.md → "Keep it generic".
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Agentic Pipelines — how /develop works & how to build your own</title>
+<meta name="description" content="An interactive explainer of a real /develop pipeline: how skills, agents, forking, and nesting compose a spec-to-branch loop — and the building blocks to make your own." />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ================= NAV ================= -->
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand"><span class="brand-dot"></span> Agentic Pipelines</div>
+    <nav class="nav-links">
+      <a class="nav-link" href="#problem">Problem</a>
+      <a class="nav-link" href="#solution">Solution</a>
+      <a class="nav-link" href="#scorecard">Scorecard</a>
+      <a class="nav-link" href="#pipeline">Pipeline</a>
+      <a class="nav-link" href="#run">Watch</a>
+      <a class="nav-link" href="#flywheel">Flywheel</a>
+      <a class="nav-link" href="#build">Build your own</a>
+      <a class="nav-link" href="#skill-for-skill">Skill for the skill</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <span class="hero-tag">Modelled on a real <b>/develop</b></span>
+  <h1>A spec goes in. An <span class="grad">audited, committed branch</span> comes out.</h1>
+  <p class="hero-sub">No hands on the wheel between plan, build, audit, and sign-off. Here's the machinery — and how to stand up your own.</p>
+  <div class="hero-cta">
+    <a class="btn btn-primary" href="#solution">See the solution →</a>
+    <a class="btn btn-ghost" href="#build">Build your own</a>
+  </div>
+  <div class="hero-legend">
+    <span class="keychip"><i style="background:var(--skill)"></i> Skill — a playbook</span>
+    <span class="keychip"><i style="background:var(--agent)"></i> Agent — a worker</span>
+    <span class="keychip"><i style="background:var(--nest)"></i> Nest — depth</span>
+    <span class="keychip"><i style="background:var(--fork)"></i> Fork — breadth</span>
+    <span class="keychip"><i style="background:var(--gate)"></i> Gate — evidence</span>
+  </div>
+</section>
+
+<!-- ================= PROBLEM ================= -->
+<section id="problem">
+  <div class="section-eyebrow">The problem</div>
+  <h2>Manual orchestration doesn't scale</h2>
+  <p class="section-lead">Build a feature by hand and you babysit every seam — re-prompting at each handoff, eyeballing "done," watching reviewers re-find the same defects every PR. Context leaks at every hop; controls get waved through.</p>
+  <div class="shift-grid shift-solo">
+    <div class="shift-card before">
+      <h3>Manual flow <small>before</small></h3>
+      <div class="grind" id="grind"></div>
+      <ul>
+        <li>Each handoff leaks context — the next step re-derives what the last knew.</li>
+        <li>Controls pass on judgement; under pressure, they're skipped.</li>
+        <li>Reviewers re-find the <em>same</em> defect classes every PR.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SOLUTION ================= -->
+<section id="solution">
+  <div class="section-eyebrow">The solution</div>
+  <h2>One orchestrator walks a plan</h2>
+  <p class="section-lead">Put a thin orchestrator on the desk: it walks a durable plan — the system of record — and dispatches fresh-context agents to do the work. State lives in the plan file, controls are mechanical, and a crash resumes by re-reading it.</p>
+  <div class="shift-grid shift-solo">
+    <div class="shift-card after">
+      <h3>Orchestrated pipeline <small>after</small></h3>
+      <div class="magic" id="magic"></div>
+      <ul>
+        <li>State lives in the plan file — the system of record. A crash resumes by re-reading it.</li>
+        <li>Controls clear on evidence — a command ran and produced a result.</li>
+        <li>Every escaped finding books a new plan-time control. The line tightens itself.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SCORECARD ================= -->
+<section id="scorecard">
+  <div class="section-eyebrow">Why this design won · the evidence, honestly</div>
+  <h2>Four methods, one scorecard</h2>
+  <p class="section-lead">We didn't land here by taste. Each generation closed a specific gap in the last. Vanilla, plus three generations of the skill — ad-hoc, dynamic workflow, and today's plan-walking orchestrator — four generations of the approach, with representative token + agent counts from a real project's runs (anonymized).</p>
+  <div class="sc-scroll"><div class="sc-grid" id="sc-grid"></div></div>
+
+  <div class="sc-anchor">
+    <div class="sc-anchor-tag">measured · effective tokens per run, representative figures from a real project's runs (anonymized)</div>
+    <p id="sc-anchor-body">These are <strong>effective tokens per run</strong> — the raw total down-weighted by how each token actually bills. Raw totals look alarming (the current method's is ~570M) but <strong>cache reads are ~95% of that volume and bill at ~1/10 the input rate</strong>, so counting them at face value over-states real spend by roughly <strong>5–6×</strong> (more for single-context methods, less for ones that fan out fresh agents). Weighted for that, a run is closer to <strong>~75–125M effective tokens</strong> — still large, but the honest figure. (Output is under <strong>1%</strong> of the raw total, which is why an earlier output-only ~3M number looked absurd against a real run.) These are representative figures from a real project's runs (anonymized). Effective medians sit close — <strong>Skill Only ~75M · Mechanical ~110M · Dynamic Workflow ~120M · Vanilla ~125M</strong>. The <em>spread</em> is the story: Dynamic Workflow's fan-out gives it the worst tail (~310M effective on one run), Skill Only the widest range, Vanilla the heaviest steady median. Spend isn't what separates these methods; reliability and predictability are.</p>
+  </div>
+
+  <div class="sc-method-note">
+    <strong>How to read this:</strong> <em>Accuracy</em> and <em>Quality</em> are <strong>directional</strong> — reasoned from architecture, since no ground-truth scores exist. <em>Wall-clock</em>, <em>Tokens/run</em>, and <em>agent counts</em> are grounded in <strong>real measurements</strong> from a real project's runs (anonymized), across 10–27 sampled runs per method. <em>Tokens/run</em> is <strong>effective</strong> (raw total, cache reads weighted at their ~1/10 billing rate) — the fair per-run figure, not the scary raw volume. <em>Wall-clock is relative</em> — a multiplier against the leanest method, not absolute hours, because <strong>* it's session lifetime</strong> (a run resumed later for PR-review/CI reads far longer than its core loop), so treat it as directional ordering, not a clock. The most thorough method runs longest by design — it checks the most. Agent counts are the empirical run total; a few multi-day "epic" runs were excluded as outliers. A controlled bake-off would add measured <em>accuracy</em> and apples-to-apples per-run numbers. Ready when you want it.
+  </div>
+</section>
+
+<!-- ================= PIPELINE EXPLORER ================= -->
+<section id="pipeline">
+  <div class="section-eyebrow">The pipeline · interactive</div>
+  <h2>Walk the eleven phases</h2>
+  <p class="section-lead">Click a phase: what it does, which skills / agents / tools it draws on, and how it nests, forks, or gates. The dots mark each node's mechanics.</p>
+  <div class="legend-bar">
+    <span class="legend-hint">Filter by mechanic:</span>
+    <span class="legend-item" data-mech="nest"><i></i> nests</span>
+    <span class="legend-item" data-mech="fork"><i></i> forks</span>
+    <span class="legend-item" data-mech="gate"><i></i> gated</span>
+    <span class="legend-item" data-mech="human"><i></i> human seam</span>
+  </div>
+  <div class="explorer">
+    <div class="phase-rail" id="phase-rail"></div>
+    <div class="phase-detail" id="phase-detail"></div>
+  </div>
+</section>
+
+<!-- ================= WATCH IT RUN ================= -->
+<section id="run">
+  <div class="section-eyebrow">Watch it run · animated · true to the skill</div>
+  <h2>The orchestrator walks a tree</h2>
+  <p class="section-lead">The walk is a tree, not a line. Control runs left → right along the phases, dipping <em>down</em> into each phase's agents and back <em>up</em> before the next — the "back and forth," no crossed wires. Pick a size; the tree grows real nesting, forking, and phases as scope rises. All of it mirrors what <code>/develop</code> does — lean by default, forks and ladder-climbs only where they fire.</p>
+
+  <div class="flow-head">
+    <div class="flow-scenarios" id="flow-scenarios"></div>
+    <div class="flow-count" id="flow-count"></div>
+  </div>
+
+  <div class="flow">
+    <div class="flow-stage" id="flow-stage">
+      <!-- canvas (nodes + edges + tokens) injected by flow.js -->
+    </div>
+    <aside class="flow-side">
+      <div class="flow-narration" id="flow-narration">Pick a size and press play.</div>
+      <div class="flow-callout" id="flow-callout"></div>
+      <div class="flow-controls">
+        <button class="btn btn-primary" id="flow-play">▶ Play</button>
+        <button class="btn btn-ghost" id="flow-step">Step →</button>
+        <button class="btn btn-ghost" id="flow-reset">↺ Reset</button>
+      </div>
+      <div class="flow-progress"><span class="flow-progress-bar" id="flow-progress"></span></div>
+      <div class="flow-legend" id="flow-legend"></div>
+      <p class="flow-foot">Seeded agent counts are <strong>expectations, not caps</strong> — no hard ceiling. Default runs are lean; forks and ladder-climbs are <strong>conditional</strong>, shown only where they fire. <strong>model · effort</strong> are each agent's own definition (<code>.claude/agents/*.md</code>); inside <code>/develop</code> the orchestrator may pass an explicit tier-map model.</p>
+    </aside>
+  </div>
+</section>
+
+<!-- ================= FLYWHEEL ================= -->
+<section id="flywheel">
+  <div class="section-eyebrow">Why it compounds</div>
+  <h2>The residual-feedback flywheel</h2>
+  <p class="section-lead">Most pipelines run at flat quality. This one compounds: every run's leftovers book new plan-time controls, the planner strengthens, and audit/tidy load amortises toward an irreducible floor. The wheel is that loop — watch the controls accrue and preventable escapes run to zero.</p>
+  <div class="fly">
+    <div class="fly-wheel" id="fly-wheel"></div>
+    <div class="fly-panel">
+      <div class="fly-live" id="fly-live"></div>
+      <ol class="fly-steps">
+        <li>A run settles; the <strong>audit + tidy tail</strong> logs every residual finding.</li>
+        <li>Each is marked <strong>preventable</strong> (a plan check could have required it) or <strong>irreducible</strong> (the floor — "compiles but subtly wrong").</li>
+        <li>For each preventable one, <strong>book the plan check</strong> that should've caught it — a mechanical grep / token / lint check beats prose.</li>
+        <li>Next run, the planner <strong>satisfies the anchor</strong> — that defect class stops escaping.</li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ================= HOW TO BUILD YOUR OWN ================= -->
+<section id="build">
+  <div class="section-eyebrow">Your turn</div>
+  <h2>How to build your own</h2>
+  <p class="section-lead">Strip the project specifics and this is a handful of reusable parts. Start small — one generalist executor, a plan file, real controls — then add specialists, forks, and feedback where the pain shows.</p>
+
+  <h3 class="sub-h">Three primitives, and that's it</h3>
+  <p class="sub-lead">Everything here is one of three things. Learn the trio; the rest is composition.</p>
+  <div class="trio">
+    <div class="trio-card skill">
+      <h3><span class="trio-tag">skill</span> Playbook</h3>
+      <p>A reusable procedure — what runs, in what order. Called by name (<code>/develop</code>, <code>/plan-work</code>, <code>/tidy</code>). It directs; it rarely lifts.</p>
+      <div class="eg">e.g. /develop, /plan-work, /audit-feature</div>
+    </div>
+    <div class="trio-card agent">
+      <h3><span class="trio-tag">agent</span> Worker</h3>
+      <p>A desk with its own fresh context and a narrow remit. Hand it a brief, it does one job, returns a short result. One desk filling its context never touches the next.</p>
+      <div class="eg">e.g. backend-scaffolder, feature-validator, reviewers</div>
+    </div>
+    <div class="trio-card orch">
+      <h3><span class="trio-tag">orchestrator</span> Conductor</h3>
+      <p>The thin loop that walks the plan and dispatches the desks. It holds <em>only</em> phase status — never the heavy reading — so it clears dozens of agents without filling up.</p>
+      <div class="eg">e.g. the /develop main loop walking PN nodes</div>
+    </div>
+  </div>
+
+  <h3 class="sub-h">The unlock — forking &amp; nesting</h3>
+  <p class="sub-lead">How one orchestrator becomes dozens of coordinated desks without filling its own context. Nesting buys <strong>depth</strong>; forking buys <strong>breadth</strong>.</p>
+  <div class="mech-cards" id="mech-cards"></div>
+  <div class="together">
+    <strong>Together, that's the whole trick.</strong> The orchestrator <em>nests</em> one executor per phase (depth, clean context per slice); audit / plan / tidy <em>fork</em> independent reads that converge (breadth, verification). No agent ever holds the whole book — which is why the line scales past any single context.
+  </div>
+
+  <h3 class="sub-h">Patterns worth stealing</h3>
+  <p class="sub-lead">Seven portable moves — each a principle the pipeline leans on, most mapping straight to Anthropic's <a class="ext-link" href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Building Effective Agents</a> (tagged ≈). The <strong>takeaway</strong> on each is the part that travels to any stack.</p>
+  <div class="pattern-grid" id="pattern-grid"></div>
+
+  <h3 class="sub-h">The cast — every agent &amp; skill</h3>
+  <p class="sub-lead">The moving parts of <code>/develop</code>. Click a card for what it does and the exact file you'd write.</p>
+  <div class="cast-groups" id="cast-groups"></div>
+
+  <h3 class="sub-h">The files you'd write</h3>
+  <p class="sub-lead">The real shape of each file type — frontmatter and all. Switch tabs to compare.</p>
+  <div class="anatomy" id="anatomy">
+    <div class="anatomy-tabs" id="anatomy-tabs"></div>
+    <div class="anatomy-panel" id="anatomy-panel"></div>
+  </div>
+</section>
+
+<!-- ================= SKILL FOR THE SKILL ================= -->
+<section id="skill-for-skill">
+  <div class="section-eyebrow">Coming soon</div>
+  <h2>A skill for building the skill</h2>
+  <p class="section-lead">A meta-skill that stands up a pipeline like this on a fresh codebase — orchestrator, plan contract, starter agent registry, controls — from a short brief.</p>
+  <div class="coming-soon">
+    <span class="cs-badge">placeholder</span>
+    <p>We'll come back to this.</p>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="foot-inner">
+    <span>Modelled on the <code>/develop</code> skill — take the shape to your own codebase.</span>
+    <span>Skills <i style="color:var(--skill)">●</i> · Agents <i style="color:var(--agent)">●</i> · Fork <i style="color:var(--fork)">●</i> · Nest <i style="color:var(--nest)">●</i></span>
+  </div>
+</footer>
+
+<!-- ================= MODAL ================= -->
+<div class="modal-backdrop" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" aria-label="Close">×</button>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script src="catalog.js"></script>
+<script src="flow.js"></script>
+</body>
+</html>

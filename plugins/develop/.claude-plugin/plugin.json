@@ -1,0 +1,16 @@
+{
+  "name": "develop",
+  "displayName": "Develop Orchestrator",
+  "description": "Bootstrap a minimal, self-improving /develop orchestration flow fitted to your repo, then grow it via a feedback flywheel.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Chris Jenkins",
+    "email": "chris.mark.jenkins@gmail.com",
+    "url": "https://github.com/chrisjenx"
+  },
+  "homepage": "https://chrisjenx.github.io/cjs-orchestrator/",
+  "repository": "https://github.com/chrisjenx/cjs-orchestrator",
+  "license": "MIT",
+  "keywords": ["orchestration", "agents", "develop", "pipeline", "automation", "subagents"],
+  "skills": "./skills/"
+}

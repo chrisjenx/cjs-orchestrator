@@ -1,0 +1,12 @@
+# OS / editor
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Node (for any tooling/build of the docs site)
+node_modules/
+npm-debug.log*
+
+# Local Claude Code state
+.claude/settings.local.json
