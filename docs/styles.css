@@ -615,33 +615,28 @@ button.use-chip { font: inherit; color: var(--text); cursor: default; }
 .mb-link { display: inline-block; margin-top: 14px; color: var(--skill); text-decoration: none; font-weight: 600; font-size: 13.5px; }
 .mb-link:hover { text-decoration: underline; }
 
-/* ---------- problem: laborious manual grind ---------- */
-.grind { background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; filter: saturate(0.55); margin: 16px 0; }
-.grind-track { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; font-family: var(--mono); font-size: 13px; }
-.grind-step { padding: 4px 9px; border-radius: 6px; background: #1a2029; border: 1px solid var(--border); color: var(--text-faint); }
-.grind-step.on { color: var(--text-dim); background: #232b38; border-color: #3a4452; }
-.grind-step.fail { color: #f0836b; background: #2a1c1c; border-color: #5a3232; animation: grindShake 0.32s; }
-@keyframes grindShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
-.grind-arrow { color: var(--text-faint); opacity: 0.45; }
-.grind-meta { margin-top: 13px; font-family: var(--mono); font-size: 12.5px; color: var(--text-faint); }
-.grind-meta b { color: var(--text-dim); }
-.grind-status.bad { color: #f0836b; }
-
-/* ---------- solution: automatic, magical pipeline ---------- */
-.magic { position: relative; overflow: hidden; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); padding: 18px 16px; margin: 16px 0; background: radial-gradient(120% 130% at 50% 0%, rgba(163, 113, 247, 0.1), var(--bg-2)); }
-.magic::before { content: ""; position: absolute; inset: 0; background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.06) 50%, transparent 65%); transform: translateX(-110%); animation: magicShimmer 3.6s ease-in-out infinite; pointer-events: none; }
-@keyframes magicShimmer { 0% { transform: translateX(-110%); } 55%, 100% { transform: translateX(110%); } }
-.magic-track { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; position: relative; }
-.magic-step { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 13px; color: var(--text-faint); transition: color 0.5s ease; }
-.magic-orb { width: 11px; height: 11px; border-radius: 50%; background: #2a3340; transition: background 0.5s ease, box-shadow 0.5s ease, transform 0.5s ease; }
-.magic-step.done { color: var(--text-dim); }
-.magic-step.done .magic-orb { background: var(--agent); }
-.magic-step.on { color: var(--text); }
-.magic-step.on .magic-orb { background: linear-gradient(135deg, var(--skill), var(--agent)); box-shadow: 0 0 16px var(--skill); transform: scale(1.55); }
-.magic-meta { margin-top: 15px; font-family: var(--mono); font-size: 12.5px; color: var(--text-dim); position: relative; }
-.magic-status.settled { color: var(--gate); font-weight: 600; }
-.magic.sparkle { animation: magicPulse 0.9s ease; }
-@keyframes magicPulse { 0% { box-shadow: 0 0 0 0 rgba(163, 113, 247, 0); } 30% { box-shadow: 0 0 34px 2px rgba(163, 113, 247, 0.28); } 100% { box-shadow: 0 0 0 0 rgba(63, 185, 80, 0); } }
+/* ---------- manual vs orchestrated · fake CLI panes ---------- */
+.term { background: #0b0e16; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-family: var(--mono); font-size: 12.5px; margin: 16px 0; }
+.term-bar { display: flex; align-items: center; gap: 6px; padding: 8px 12px; background: var(--bg-2); border-bottom: 1px solid var(--border); }
+.term-dot { width: 10px; height: 10px; border-radius: 50%; background: #313c4d; }
+.term-title { margin-left: 8px; font-size: 11px; color: var(--text-faint); letter-spacing: 0.04em; }
+.term-body { height: 178px; overflow: hidden; padding: 11px 13px; line-height: 1.7; }
+.term-line { white-space: pre-wrap; word-break: break-word; animation: termIn 0.18s ease; }
+@keyframes termIn { from { opacity: 0; } to { opacity: 1; } }
+.tl-sigil { font-weight: 700; }
+.tl-cmd .tl-text { color: var(--text); }
+.tl-out { color: var(--text-faint); }
+.tl-out .bad { color: #f0836b; }
+.tl-out .ok { color: var(--gate); }
+.term-caret { display: inline-block; width: 7px; height: 14px; background: var(--text); margin-left: 1px; vertical-align: -2px; animation: termBlink 1s steps(1) infinite; }
+@keyframes termBlink { 50% { opacity: 0; } }
+.term-foot { display: flex; align-items: center; gap: 7px; padding: 8px 12px; border-top: 1px solid var(--border); font-size: 11px; }
+.term-foot b { font-weight: 700; }
+/* manual = human-driven (amber), auto = hands-free (green) */
+.term-manual .tl-sigil, .term-manual .term-foot { color: var(--human); }
+.tf-wait { animation: termBlink 1.1s steps(1) infinite; }
+.term-auto .tl-sigil, .term-auto .term-foot { color: var(--gate); }
+.tf-run { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--gate); box-shadow: 0 0 8px var(--gate); animation: termBlink 1.4s ease infinite; }
 
 /* ---------- pattern lineage + external link ---------- */
 .ext-link { color: var(--skill); text-decoration: none; border-bottom: 1px solid rgba(163, 113, 247, 0.4); }

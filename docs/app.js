@@ -399,55 +399,99 @@ function renderScorecard() {
   grid.innerHTML = html;
 }
 
-/* ---- Problem: a laborious, looping manual grind (deliberately janky) ---- */
-const GRIND_STEPS = ['plan', 'code', 'review', 'fix', 'push', 'CI'];
-const GRIND_SAY = ['scoping by hand…', 'hand-writing it…', 'did I miss anything?…', 'patching…', 'pushing…'];
-function renderManualGrind() {
-  const wrap = document.querySelector('#grind'); if (!wrap) return;
+/* =========================================================================
+ *  Manual vs Orchestrated — fake CLI panes (the literal contrast)
+ *  Manual: you keep typing and chasing — prompts never stop, CI bounces back.
+ *  Auto:   one command, then it runs unattended to a committed branch.
+ * ========================================================================= */
+
+/* Build the terminal chrome inside #id; returns { body, foot } or null. */
+function buildTerm(id, title, footHTML) {
+  const wrap = document.querySelector('#' + id); if (!wrap) return null;
   wrap.innerHTML =
-    `<div class="grind-track">${GRIND_STEPS.map((s, i) => `<span class="grind-step">${s}</span>${i < GRIND_STEPS.length - 1 ? '<span class="grind-arrow">→</span>' : ''}`).join('')}</div>
-     <div class="grind-meta">attempt <b id="grind-att">1</b> · <span id="grind-status" class="grind-status">grinding…</span></div>`;
-  const steps = [...wrap.querySelectorAll('.grind-step')];
-  const status = wrap.querySelector('#grind-status'), att = wrap.querySelector('#grind-att');
-  let i = 0, n = 1;
-  setInterval(() => {
-    steps.forEach((s) => s.classList.remove('on', 'fail'));
-    steps[i].classList.add('on');
-    if (i === GRIND_STEPS.length - 1) {            // CI → always rejected, loop back to fix
-      steps[i].classList.add('fail');
-      status.textContent = '✗ CI rejected — back to fix'; status.classList.add('bad');
-      att.textContent = ++n;
-      i = 3;
-    } else {
-      status.textContent = GRIND_SAY[i]; status.classList.remove('bad');
-      i++;
-    }
-  }, 950);
+    `<div class="term-bar"><span class="term-dot"></span><span class="term-dot"></span><span class="term-dot"></span><span class="term-title">${title}</span></div>
+     <div class="term-body"></div>
+     <div class="term-foot">${footHTML}</div>`;
+  return { body: wrap.querySelector('.term-body'), foot: wrap.querySelector('.term-foot') };
 }
 
-/* ---- Solution: a smooth, glowing, automatic pipeline that settles ---- */
-const MAGIC_STEPS = ['intake', 'plan', 'build', 'audit', 'tidy', 'commit'];
-const MAGIC_SAY = ['intake…', 'planning…', 'building…', 'auditing…', 'tidying…'];
-function renderMagicPipeline() {
-  const wrap = document.querySelector('#magic'); if (!wrap) return;
-  wrap.innerHTML =
-    `<div class="magic-track">${MAGIC_STEPS.map((s) => `<span class="magic-step"><span class="magic-orb"></span><span class="magic-lbl">${s}</span></span>`).join('')}</div>
-     <div class="magic-meta"><span id="magic-status" class="magic-status">ready</span></div>`;
-  const steps = [...wrap.querySelectorAll('.magic-step')];
-  const status = wrap.querySelector('#magic-status');
-  let i = 0, settling = false;
-  setInterval(() => {
-    if (settling) { settling = false; steps.forEach((s) => s.classList.remove('on', 'done')); i = 0; }
-    steps.forEach((s, k) => { s.classList.toggle('on', k === i); if (k < i) s.classList.add('done'); });
-    if (i === MAGIC_STEPS.length - 1) {
-      status.innerHTML = '✓ settled — clean, audited, booked ✨'; status.classList.add('settled');
-      wrap.classList.add('sparkle'); setTimeout(() => wrap.classList.remove('sparkle'), 900);
-      settling = true;
-    } else {
-      status.textContent = MAGIC_SAY[i]; status.classList.remove('settled');
-      i++;
+/* Type text into elm one char at a time (human cadence), then done(). */
+function typeInto(elm, text, cps, done) {
+  let i = 0;
+  (function tick() {
+    elm.textContent = text.slice(0, i);
+    if (i++ <= text.length) setTimeout(tick, cps + Math.random() * 45);
+    else done();
+  })();
+}
+
+/* Play a looping script in a terminal body.
+ *   { p:'text', wait, after }  human prompt — caret waits ("your turn"), then types
+ *   { o:'html', cls, after }   machine output — appears at once               */
+function playTerm(parts, steps, opts) {
+  const body = parts.body;
+  let i = 0;
+  (function loop() {
+    if (i >= steps.length) {
+      setTimeout(() => { i = 0; body.innerHTML = ''; loop(); }, opts.endPause || 2400);
+      return;
     }
-  }, 820);
+    const s = steps[i++];
+    if (s.p != null) {                                   // human types a prompt
+      const ln = el('div', 'term-line tl-cmd', '<span class="tl-sigil">❯</span> <span class="tl-text"></span>');
+      const car = el('span', 'term-caret');
+      ln.appendChild(car);
+      body.appendChild(ln); body.scrollTop = body.scrollHeight;
+      setTimeout(() => {                                 // blinking caret = "waiting on you"
+        typeInto(ln.querySelector('.tl-text'), s.p, s.cps || 52, () => {
+          car.remove();
+          if (opts.onprompt) opts.onprompt();
+          setTimeout(loop, s.after != null ? s.after : 360);
+        });
+      }, s.wait != null ? s.wait : 720);
+    } else {                                             // machine output
+      body.appendChild(el('div', 'term-line tl-out' + (s.cls ? ' ' + s.cls : ''), s.o));
+      body.scrollTop = body.scrollHeight;
+      setTimeout(loop, s.after != null ? s.after : 520);
+    }
+  })();
+}
+
+/* Manual: endless typing + a CI bounce-back. The prompt counter never resets. */
+function renderManualTerminal() {
+  const parts = buildTerm('term-manual', 'you — by hand',
+    '⌨ <span class="tf-wait">your turn…</span> · typed <b class="tf-n">0</b> prompts');
+  if (!parts) return;
+  let n = 0;
+  playTerm(parts, [
+    { p: 'implement profile editing' },
+    { o: '↳ drafted a plan — does this look right?' },
+    { p: 'yes, now build it', wait: 820 },
+    { o: '↳ built it. want me to review?' },
+    { p: 'review it', wait: 760 },
+    { o: '↳ <span class="bad">found 2 issues</span>' },
+    { p: 'fix them', wait: 800 },
+    { o: '↳ fixed, pushed' },
+    { o: '<span class="bad">✗ CI failed — lint</span>', after: 720 },
+    { p: 'fix the lint error too', wait: 880 },
+    { o: '↳ pushing again…', after: 900 },
+  ], { endPause: 1500, onprompt: () => { const b = parts.foot.querySelector('.tf-n'); if (b) b.textContent = ++n; } });
+}
+
+/* Auto: one command, then a hands-free stream to a committed branch. */
+function renderAutoTerminal() {
+  const parts = buildTerm('term-auto', 'orchestrated — /develop',
+    '<span class="tf-run"></span> running unattended — walk away ☕');
+  if (!parts) return;
+  playTerm(parts, [
+    { p: '/develop "profile editing"', wait: 620 },
+    { o: '▸ intake · plan ✓', after: 560 },
+    { o: '▸ build · 3 agents working…', after: 780 },
+    { o: '▸ build ✓', after: 520 },
+    { o: '▸ audit ✓ · tidy ✓', after: 600 },
+    { o: '<span class="ok">{build} ✓  {test} ✓  {lint} ✓  {cov≥80} ✓</span>', after: 660 },
+    { o: '<span class="ok">✓ committed — audited branch ready</span>', after: 720 },
+  ], { endPause: 2600 });
 }
 
 /* =========================================================================
@@ -615,8 +659,8 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPatterns();
   renderFlywheel();
   renderScorecard();
-  renderManualGrind();
-  renderMagicPipeline();
+  renderManualTerminal();
+  renderAutoTerminal();
   animateFlow();
   setupNav();
   setupLegend();
