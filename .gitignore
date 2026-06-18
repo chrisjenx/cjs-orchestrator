@@ -10,3 +10,7 @@ npm-debug.log*
 
 # Local Claude Code state
 .claude/settings.local.json
+
+# Python bytecode
+__pycache__/
+*.pyc
