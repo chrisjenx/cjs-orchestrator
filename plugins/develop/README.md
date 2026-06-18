@@ -14,35 +14,13 @@ Bootstrap a minimal, self-improving `/develop` orchestration flow fitted to your
 
 ## How it works
 
-The plugin ships **static, portable skills**; per-project behaviour comes from
-**definitions the skills discover**, not from generating a bespoke flow per repo.
+The plugin ships **static, portable skills**; per-project behaviour comes from **definitions the skills discover**, not from a bespoke flow generated per repo. Its **first principle is token frugality** — every shipped token is paid on every run, so the prose is kept tight by design (`references/token-frugality.md`).
 
-Its **first principle is token frugality** — every shipped token is paid on every run, so the
-prose is kept tight by design (`references/token-frugality.md`).
+- **`skills/init`** (`/develop:init`) — detects the stack, discovers the repo's real gate commands, and writes the definitions into `.claude/` (`develop.config.json`, `develop-routing.json`, a starter `CLAUDE.md`, safe hooks, a flywheel doc). Never transplants a finished system.
+- **`skills/run`** (`/develop:run`) — the portable orchestrator loop: reads those definitions and walks a per-feature plan file it creates at runtime. Static in the plugin, fitted to your repo at run time.
+- **`skills/flywheel`** (`/develop:flywheel`) — the manual tuner: reads accumulated postmortems, flags recurring/breaking findings, and proposes the cheapest remediation lever + target for each (human-gated).
+- **`references/`** — the portable, stack-neutral mechanism the loop relies on (plan anatomy, executor brief, gate tokens, flywheel).
+- **`agents/`** — stack-agnostic subagents referenced by name from `develop-routing.json` (not copied per repo): `planner`, `executor`, diff-reading auditors (`completeness` / `stubs` / `regression`), `general-quality-reviewer`, `code-reviewer`, `tidy`, `refuter`. They read diffs and rules, not build systems, so they travel across stacks. The flow **reuses these first** and defers building anything missing to a workflow (`references/reuse-and-defer.md`).
+- **`hooks/`** — safe, stack-agnostic hooks (worktree/uncommitted-work protection, generic timeouts); nothing tied to an unconfirmed stack.
 
-- **`skills/init/SKILL.md`** (`/develop:init`) — detects the stack, discovers the repo's
-  real gate commands, and writes the repo-specific definitions into `.claude/`
-  (`develop.config.json`, `develop-routing.json`, a starter `CLAUDE.md`, safe hooks, a
-  flywheel doc). Does **not** transplant a finished system.
-- **`skills/run/SKILL.md`** (`/develop:run`) — the portable orchestrator loop. Static in
-  the plugin, but fitted to your repo because it reads those discovered definitions and
-  walks a per-feature plan file it creates at runtime.
-- **`skills/flywheel/SKILL.md`** (`/develop:flywheel`) — the manually-triggered tuner. Reads
-  the accumulated postmortems, flags recurring/breaking finding categories, and proposes the
-  cheapest remediation lever + target for each (human-gated) — the half of the flywheel that
-  decides what to tighten before the next run.
-- **`references/`** — the portable mechanism the loop relies on (plan anatomy, executor
-  brief, gate tokens, flywheel). Stack-neutral.
-- **`agents/`** — portable, stack-agnostic subagents available because the plugin is
-  installed (referenced by name from `develop-routing.json`, not copied per repo): a
-  `planner`, the generalist `executor`, diff-reading auditors (completeness / stubs /
-  regression), a `general-quality-reviewer`, a `code-reviewer` (reviews against the repo's
-  own rules), a `tidy` worker, and a `refuter`. They read diffs/rules, not build systems, so
-  they travel across stacks. The flow **reuses these first** and defers building anything
-  missing to a workflow (see `references/reuse-and-defer.md`).
-- **`hooks/`** — safe, stack-agnostic hooks (worktree/uncommitted-work protection,
-  generic timeouts). Nothing tied to a stack the bootstrapper didn't confirm.
-
-See [DECISIONS.md](../../DECISIONS.md) for the locked names + architecture, and the
-[explainer](https://chrisjenx.github.io/cjs-orchestrator/) for the full design and a
-worked case study.
+See [DECISIONS.md](../../DECISIONS.md) for locked names + architecture, and the [explainer](https://chrisjenx.github.io/cjs-orchestrator/) for the full design and a worked case study.
