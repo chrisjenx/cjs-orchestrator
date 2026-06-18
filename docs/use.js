@@ -1,5 +1,5 @@
 /*
- * use.js — minimal nav scroll-spy for the "Use the plugin" page.
+ * use.js: minimal nav scroll-spy for the "Use the plugin" page.
  * Self-contained: this page deliberately does NOT load the concept page's app.js
  * (which builds page-1-only widgets). Plain anchors work without it; this just
  * highlights the active section as you scroll.

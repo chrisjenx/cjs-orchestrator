@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--
-  PUBLIC REPO — genericized from a real case study. Keep it stack-neutral; do not
+  PUBLIC REPO: genericized from a real case study. Keep it stack-neutral; do not
   reintroduce project-specific data (real names, brand, commit SHAs, private metrics).
   Scorecard figures are representative/anonymized. See /CLAUDE.md → "Keep it generic".
 -->
@@ -8,8 +8,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Agentic Pipelines — how /develop works & how to build your own</title>
-<meta name="description" content="An interactive explainer of a real /develop pipeline: how skills, agents, forking, and nesting compose a spec-to-branch loop — and the building blocks to make your own." />
+<title>Agentic Pipelines: how /develop works and how to build your own</title>
+<meta name="description" content="An interactive explainer of a real /develop pipeline: how skills, agents, forking, and nesting compose a spec-to-branch loop, plus the building blocks to make your own." />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -35,26 +35,26 @@
 <section class="hero">
   <span class="hero-tag">Modelled on a real <b>/develop</b></span>
   <h1>A spec goes in. An <span class="grad">audited, committed branch</span> comes out.</h1>
-  <p class="hero-sub">No hands on the wheel between plan, build, audit, and sign-off. Here's the machinery — and how to stand up your own.</p>
+  <p class="hero-sub">No hands on the wheel between plan, build, audit, and sign-off. Here's the machinery, and how to stand up your own.</p>
   <div class="hero-cta">
     <a class="btn btn-primary" href="#solution">See how it works →</a>
     <a class="btn btn-ghost" href="use.html">Use it on your repo →</a>
   </div>
-  <p class="hero-note">This page is the <strong>concept</strong> — what orchestrated <code>/develop</code> is and why. To run it on your own project, head to <a href="use.html">Use the plugin</a>.</p>
+  <p class="hero-note">This page is the <strong>concept</strong>: what orchestrated <code>/develop</code> is and why. To run it on your own project, head to <a href="use.html">Use the plugin</a>.</p>
   <div class="hero-legend">
-    <span class="keychip"><i style="background:var(--skill)"></i> Skill — a playbook</span>
-    <span class="keychip"><i style="background:var(--agent)"></i> Agent — a worker</span>
-    <span class="keychip"><i style="background:var(--nest)"></i> Nest — depth</span>
-    <span class="keychip"><i style="background:var(--fork)"></i> Fork — breadth</span>
-    <span class="keychip"><i style="background:var(--gate)"></i> Gate — evidence</span>
+    <span class="keychip"><i style="background:var(--skill)"></i> Skill: a playbook</span>
+    <span class="keychip"><i style="background:var(--agent)"></i> Agent: a worker</span>
+    <span class="keychip"><i style="background:var(--nest)"></i> Nest: depth</span>
+    <span class="keychip"><i style="background:var(--fork)"></i> Fork: breadth</span>
+    <span class="keychip"><i style="background:var(--gate)"></i> Gate: evidence</span>
   </div>
 </section>
 
 <!-- ============= THE SHIFT · MANUAL vs ORCHESTRATED ============= -->
 <section id="problem">
   <div class="section-eyebrow">The shift · manual vs orchestrated</div>
-  <h2>Same feature — you babysit it, or you don't</h2>
-  <p class="section-lead">Build it by hand and you're <strong>on the wheel the whole time</strong> — re-prompting at every handoff, eyeballing "done," looping back each time CI rejects. Hand the same spec to an orchestrator and you <strong>kick it off and walk away</strong>: it walks a durable plan, clears mechanical gates, resumes itself if it crashes, and hands back an audited branch.</p>
+  <h2>Same feature: you babysit it, or you don't</h2>
+  <p class="section-lead">Build it by hand and you're <strong>on the wheel the whole time</strong>: re-prompting at every handoff, eyeballing "done," looping back each time CI rejects. Hand the same spec to an orchestrator and you <strong>kick it off and walk away</strong>: it walks a durable plan, clears mechanical gates, resumes itself if it crashes, and hands back an audited branch.</p>
 
   <div class="versus">
     <!-- manual: hands-on, you drive every handoff -->
@@ -66,7 +66,7 @@
       </div>
       <div class="term term-manual" id="term-manual"></div>
       <ul>
-        <li>You babysit every seam — re-prompt at each handoff, re-explain what the last step already knew.</li>
+        <li>You babysit every seam: re-prompt at each handoff, re-explain what the last step already knew.</li>
         <li>Context leaks at every hop; controls pass on judgement and get waved through under pressure.</li>
         <li>Reviewers re-find the <em>same</em> defect classes every PR.</li>
       </ul>
@@ -79,13 +79,13 @@
       <h3>Orchestrated <small>after</small></h3>
       <div class="role-line role-auto">
         <span class="role-ico" aria-hidden="true">⏻</span>
-        <span><b>Fire-and-forget.</b> Hand it a spec, walk away — it resumes itself.</span>
+        <span><b>Fire-and-forget.</b> Hand it a spec, walk away; it resumes itself.</span>
       </div>
       <div class="term term-auto" id="term-auto"></div>
       <ul>
-        <li>State lives in the plan file — the system of record. A crash resumes by re-reading it, with no one watching.</li>
-        <li>Controls clear on evidence — a command ran and produced a result, not a nod.</li>
-        <li>Every escaped finding books a new control at the right layer — hook, gate, rule, agent, or plan. The line tightens itself.</li>
+        <li>State lives in the plan file, the system of record. A crash resumes by re-reading it, with no one watching.</li>
+        <li>Controls clear on evidence: a command ran and produced a result, not a nod.</li>
+        <li>Every escaped finding books a new control at the right layer: a hook, gate, rule, agent, or plan. The line tightens itself.</li>
       </ul>
     </div>
   </div>
@@ -95,16 +95,16 @@
 <section id="scorecard">
   <div class="section-eyebrow">Why this design won · the evidence, honestly</div>
   <h2>Four methods, one scorecard</h2>
-  <p class="section-lead">We didn't land here by taste. Each generation closed a specific gap in the last. Vanilla, plus three generations of the skill — ad-hoc, dynamic workflow, and today's plan-walking orchestrator — four generations of the approach, with representative token + agent counts from a real project's runs (anonymized).</p>
+  <p class="section-lead">We didn't land here by taste. Each generation closed a specific gap in the last. Vanilla, plus three generations of the skill (ad-hoc, dynamic workflow, and today's plan-walking orchestrator): four generations of the approach, with representative token and agent counts from a real project's runs (anonymized).</p>
   <div class="sc-scroll"><div class="sc-grid" id="sc-grid"></div></div>
 
   <div class="sc-anchor">
     <div class="sc-anchor-tag">measured · effective tokens per run, representative figures from a real project's runs (anonymized)</div>
-    <p id="sc-anchor-body">These are <strong>effective tokens per run</strong> — the raw total down-weighted by how each token actually bills. Raw totals look alarming (the current method's is ~570M) but <strong>cache reads are ~95% of that volume and bill at ~1/10 the input rate</strong>, so counting them at face value over-states real spend by roughly <strong>5–6×</strong> (more for single-context methods, less for ones that fan out fresh agents). Weighted for that, a run is closer to <strong>~75–125M effective tokens</strong> — still large, but the honest figure. (Output is under <strong>1%</strong> of the raw total, which is why an earlier output-only ~3M number looked absurd against a real run.) These are representative figures from a real project's runs (anonymized). Effective medians sit close — <strong>Skill Only ~75M · Mechanical ~110M · Dynamic Workflow ~120M · Vanilla ~125M</strong>. The <em>spread</em> is the story: Dynamic Workflow's fan-out gives it the worst tail (~310M effective on one run), Skill Only the widest range, Vanilla the heaviest steady median. Spend isn't what separates these methods; reliability and predictability are.</p>
+    <p id="sc-anchor-body">These are <strong>effective tokens per run</strong>: the raw total down-weighted by how each token actually bills. Raw totals look alarming (the current method's is ~570M) but <strong>cache reads are ~95% of that volume and bill at ~1/10 the input rate</strong>, so counting them at face value over-states real spend by roughly <strong>5-6×</strong> (more for single-context methods, less for ones that fan out fresh agents). Weighted for that, a run is closer to <strong>~75-125M effective tokens</strong>, still large but the honest figure. (Output is under <strong>1%</strong> of the raw total, which is why an earlier output-only ~3M number looked absurd against a real run.) These are representative figures from a real project's runs (anonymized). Effective medians sit close: <strong>Skill Only ~75M · Mechanical ~110M · Dynamic Workflow ~120M · Vanilla ~125M</strong>. The <em>spread</em> is the story: Dynamic Workflow's fan-out gives it the worst tail (~310M effective on one run), Skill Only the widest range, Vanilla the heaviest steady median. Spend isn't what separates these methods; reliability and predictability are.</p>
   </div>
 
   <div class="sc-method-note">
-    <strong>How to read this:</strong> <em>Accuracy</em> and <em>Quality</em> are <strong>directional</strong> — reasoned from architecture, since no ground-truth scores exist. <em>Wall-clock</em>, <em>Tokens/run</em>, and <em>agent counts</em> are grounded in <strong>real measurements</strong> from a real project's runs (anonymized), across 10–27 sampled runs per method. <em>Tokens/run</em> is <strong>effective</strong> (raw total, cache reads weighted at their ~1/10 billing rate) — the fair per-run figure, not the scary raw volume. <em>Wall-clock is relative</em> — a multiplier against the leanest method, not absolute hours, because <strong>* it's session lifetime</strong> (a run resumed later for PR-review/CI reads far longer than its core loop), so treat it as directional ordering, not a clock. The most thorough method runs longest by design — it checks the most. Agent counts are the empirical run total; a few multi-day "epic" runs were excluded as outliers. A controlled bake-off would add measured <em>accuracy</em> and apples-to-apples per-run numbers. Ready when you want it.
+    <strong>How to read this:</strong> <em>Accuracy</em> and <em>Quality</em> are <strong>directional</strong>: reasoned from architecture, since no ground-truth scores exist. <em>Wall-clock</em>, <em>Tokens/run</em>, and <em>agent counts</em> are grounded in <strong>real measurements</strong> from a real project's runs (anonymized), across 10-27 sampled runs per method. <em>Tokens/run</em> is <strong>effective</strong> (raw total, cache reads weighted at their ~1/10 billing rate): the fair per-run figure, not the scary raw volume. <em>Wall-clock is relative</em>: a multiplier against the leanest method, not absolute hours, because <strong>* it's session lifetime</strong> (a run resumed later for PR-review/CI reads far longer than its core loop), so treat it as directional ordering, not a clock. The most thorough method runs longest by design: it checks the most. Agent counts are the empirical run total; a few multi-day "epic" runs were excluded as outliers. A controlled bake-off would add measured <em>accuracy</em> and apples-to-apples per-run numbers.
   </div>
 </section>
 
@@ -130,7 +130,7 @@
 <section id="run">
   <div class="section-eyebrow">Watch it run · animated · true to the skill</div>
   <h2>The orchestrator walks a tree</h2>
-  <p class="section-lead">The walk is a tree, not a line. Control runs left → right along the phases, dipping <em>down</em> into each phase's agents and back <em>up</em> before the next — the "back and forth," no crossed wires. Pick a size; the tree grows real nesting, forking, and phases as scope rises. All of it mirrors what <code>/develop</code> does — lean by default, forks and ladder-climbs only where they fire.</p>
+  <p class="section-lead">The walk is a tree, not a line. Control runs left → right along the phases, dipping <em>down</em> into each phase's agents and back <em>up</em> before the next: the "back and forth," without crossing wires. Pick a size; the tree grows real nesting, forking, and phases as scope rises. All of it mirrors what <code>/develop</code> does: lean by default, with forks and ladder-climbs only where they fire.</p>
 
   <div class="flow-head">
     <div class="flow-scenarios" id="flow-scenarios"></div>
@@ -151,7 +151,7 @@
       </div>
       <div class="flow-progress"><span class="flow-progress-bar" id="flow-progress"></span></div>
       <div class="flow-legend" id="flow-legend"></div>
-      <p class="flow-foot">Seeded agent counts are <strong>expectations, not caps</strong> — no hard ceiling. Default runs are lean; forks and ladder-climbs are <strong>conditional</strong>, shown only where they fire. <strong>model · effort</strong> are each agent's own definition (<code>.claude/agents/*.md</code>); inside <code>/develop</code> the orchestrator may pass an explicit tier-map model.</p>
+      <p class="flow-foot">Seeded agent counts are <strong>expectations, not caps</strong>; there's no hard ceiling. Default runs are lean; forks and ladder-climbs are <strong>conditional</strong>, shown only where they fire. <strong>model · effort</strong> are each agent's own definition (<code>.claude/agents/*.md</code>); inside <code>/develop</code> the orchestrator may pass an explicit tier-map model.</p>
     </aside>
   </div>
 </section>
@@ -160,16 +160,16 @@
 <section id="flywheel">
   <div class="section-eyebrow">Why it compounds</div>
   <h2>The residual-feedback flywheel</h2>
-  <p class="section-lead">Most pipelines run at flat quality. This one compounds: every run's leftovers book new controls at the right layer — hook, gate, rule, agent, or plan — the pipeline strengthens, and audit/tidy load amortises toward an irreducible floor. The wheel is that loop — watch the controls accrue and preventable escapes run to zero.</p>
+  <p class="section-lead">Most pipelines run at flat quality. This one compounds: every run's leftovers book new controls at the right layer (a hook, gate, rule, agent, or plan), the pipeline strengthens, and audit/tidy load amortises toward an irreducible floor. The wheel is that loop: watch the controls accrue and preventable escapes run to zero.</p>
   <div class="fly">
     <div class="fly-wheel" id="fly-wheel"></div>
     <div class="fly-panel">
       <div class="fly-live" id="fly-live"></div>
       <ol class="fly-steps">
         <li>A run settles; the <strong>audit + tidy tail</strong> logs every residual finding.</li>
-        <li>Each is marked <strong>preventable</strong> (some check could have required it) or <strong>irreducible</strong> (the floor — "compiles but subtly wrong").</li>
-        <li>For each preventable one, <strong>route it to the cheapest lever</strong> that catches it earliest — a hook, gate, rule, agent, or plan step, not always a plan step.</li>
-        <li>Next run, that lever <strong>fires at the right layer</strong> — and that defect class stops escaping.</li>
+        <li>Each is marked <strong>preventable</strong> (some check could have required it) or <strong>irreducible</strong> (the floor: "compiles but subtly wrong").</li>
+        <li>For each preventable one, <strong>route it to the cheapest lever</strong> that catches it earliest: a hook, gate, rule, agent, or plan step, not always a plan step.</li>
+        <li>Next run, that lever <strong>fires at the right layer</strong>, and that defect class stops escaping.</li>
       </ol>
     </div>
   </div>
@@ -179,15 +179,15 @@
 <section id="build">
   <div class="section-eyebrow">Your turn</div>
   <h2>How to build your own</h2>
-  <p class="section-lead">Strip the project specifics and this is a handful of reusable parts. Start small — one generalist executor, a plan file, real controls — then add specialists, forks, and feedback where the pain shows.</p>
-  <p class="section-lead"><strong>You don't have to hand-roll it.</strong> The <code>develop</code> plugin's <code>/develop:init</code> discovers your repo's real gates and scaffolds exactly this shape — fitted to your stack, not transplanted. The parts below are <em>what it builds</em>, so you can understand it, own it, and grow it. <a class="ext-link" href="use.html">Use the plugin on your project →</a></p>
+  <p class="section-lead">Strip the project specifics and this is a handful of reusable parts. Start small (one generalist executor, a plan file, real controls), then add specialists, forks, and feedback where the pain shows.</p>
+  <p class="section-lead"><strong>You don't have to hand-roll it.</strong> The <code>develop</code> plugin's <code>/develop:init</code> discovers your repo's real gates and scaffolds exactly this shape, fitted to your stack, not transplanted. The parts below are <em>what it builds</em>, so you can understand it, own it, and grow it. <a class="ext-link" href="use.html">Use the plugin on your project →</a></p>
 
   <h3 class="sub-h">Three primitives, and that's it</h3>
   <p class="sub-lead">Everything here is one of three things. Learn the trio; the rest is composition.</p>
   <div class="trio">
     <div class="trio-card skill">
       <h3><span class="trio-tag">skill</span> Playbook</h3>
-      <p>A reusable procedure — what runs, in what order. Called by name (<code>/develop</code>, <code>/plan-work</code>, <code>/tidy</code>). It directs; it rarely lifts.</p>
+      <p>A reusable procedure: what runs, in what order. Called by name (<code>/develop</code>, <code>/plan-work</code>, <code>/tidy</code>). It directs; it rarely lifts.</p>
       <div class="eg">e.g. /develop, /plan-work, /audit-feature</div>
     </div>
     <div class="trio-card agent">
@@ -197,28 +197,28 @@
     </div>
     <div class="trio-card orch">
       <h3><span class="trio-tag">orchestrator</span> Conductor</h3>
-      <p>The thin loop that walks the plan and dispatches the desks. It holds <em>only</em> phase status — never the heavy reading — so it clears dozens of agents without filling up.</p>
+      <p>The thin loop that walks the plan and dispatches the desks. It holds <em>only</em> phase status, never the heavy reading, so it clears dozens of agents without filling up.</p>
       <div class="eg">e.g. the /develop main loop walking PN nodes</div>
     </div>
   </div>
 
-  <h3 class="sub-h">The unlock — forking &amp; nesting</h3>
+  <h3 class="sub-h">The unlock: forking and nesting</h3>
   <p class="sub-lead">How one orchestrator becomes dozens of coordinated desks without filling its own context. Nesting buys <strong>depth</strong>; forking buys <strong>breadth</strong>.</p>
   <div class="mech-cards" id="mech-cards"></div>
   <div class="together">
-    <strong>Together, that's the whole trick.</strong> The orchestrator <em>nests</em> one executor per phase (depth, clean context per slice); audit / plan / tidy <em>fork</em> independent reads that converge (breadth, verification). No agent ever holds the whole book — which is why the line scales past any single context.
+    <strong>Together, that's the whole trick.</strong> The orchestrator <em>nests</em> one executor per phase (depth, clean context per slice); audit / plan / tidy <em>fork</em> independent reads that converge (breadth, verification). No agent ever holds the whole book, which is why the line scales past any single context.
   </div>
 
   <h3 class="sub-h">Patterns worth stealing</h3>
-  <p class="sub-lead">Seven portable moves — each a principle the pipeline leans on, most mapping straight to Anthropic's <a class="ext-link" href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Building Effective Agents</a> (tagged ≈). The <strong>takeaway</strong> on each is the part that travels to any stack.</p>
+  <p class="sub-lead">Seven portable moves: each a principle the pipeline leans on, most mapping straight to Anthropic's <a class="ext-link" href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener">Building Effective Agents</a> (tagged ≈). The <strong>takeaway</strong> on each is the part that travels to any stack.</p>
   <div class="pattern-grid" id="pattern-grid"></div>
 
-  <h3 class="sub-h">The cast — every agent &amp; skill</h3>
+  <h3 class="sub-h">The cast: every agent and skill</h3>
   <p class="sub-lead">The moving parts of <code>/develop</code>. Click a card for what it does and the exact file you'd write.</p>
   <div class="cast-groups" id="cast-groups"></div>
 
   <h3 class="sub-h">The files you'd write</h3>
-  <p class="sub-lead">The real shape of each file type — frontmatter and all. Switch tabs to compare.</p>
+  <p class="sub-lead">The real shape of each file type, frontmatter and all. Switch tabs to compare.</p>
   <div class="anatomy" id="anatomy">
     <div class="anatomy-tabs" id="anatomy-tabs"></div>
     <div class="anatomy-panel" id="anatomy-panel"></div>
@@ -230,8 +230,8 @@
   <div class="cta-card">
     <div class="section-eyebrow">Your turn</div>
     <h2>Run this on your own repo</h2>
-    <p class="section-lead">The <code>develop</code> plugin stands up this exact shape on your codebase — by <em>discovering</em> your real gates, not copying someone else's. Three commands: scaffold once, run per feature, tune periodically.</p>
-    <p class="cta-warn"><strong>It's only as good as the checks you give it.</strong> The flow can only verify what's mechanically checkable — strong rules, real CI gates, and hooks are what let it (and the flywheel) actually compound. The guide covers how to set that up.</p>
+    <p class="section-lead">The <code>develop</code> plugin stands up this exact shape on your codebase by <em>discovering</em> your real gates, not copying someone else's. Three commands: scaffold once, run per feature, tune periodically.</p>
+    <p class="cta-warn"><strong>It's only as good as the checks you give it.</strong> The flow can only verify what's mechanically checkable: strong rules, real CI gates, and hooks are what let it (and the flywheel) actually compound. The guide covers how to set that up.</p>
     <div class="hero-cta">
       <a class="btn btn-primary" href="use.html">Use the plugin →</a>
       <a class="btn btn-ghost" href="https://github.com/chrisjenx/cjs-orchestrator" target="_blank" rel="noopener">Source &amp; backlog</a>
@@ -241,7 +241,7 @@
 
 <footer class="foot">
   <div class="foot-inner">
-    <span>Modelled on a real <code>/develop</code> — <a href="use.html">use the plugin</a> to fit it to your own codebase.</span>
+    <span>Modelled on a real <code>/develop</code>; <a href="use.html">use the plugin</a> to fit it to your own codebase.</span>
     <span>Skills <i style="color:var(--skill)">●</i> · Agents <i style="color:var(--agent)">●</i> · Fork <i style="color:var(--fork)">●</i> · Nest <i style="color:var(--nest)">●</i></span>
   </div>
 </footer>

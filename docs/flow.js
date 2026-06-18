@@ -1,6 +1,6 @@
 /* =========================================================================
- * Watch it run — animated TREE of one /develop run, stepped agent-by-agent.
- * PUBLIC REPO — `META` uses generic role names; keep them stack-neutral. See /CLAUDE.md.
+ * Watch it run: animated TREE of one /develop run, stepped agent-by-agent.
+ * PUBLIC REPO. `META` uses generic role names; keep them stack-neutral. See /CLAUDE.md.
  * The orchestrator walks phases left→right (the trunk); each phase's agents
  * hang BELOW it. Stepping drills into each agent and calls out its
  * name · model · effort · role. Only the active phase expands; finished
@@ -34,56 +34,56 @@ const SCENARIOS = {
     blurb: 'e.g. a few endpoints on an already-tested service. New work, not surface area, sizes it.',
     phases: [
       { id: 'plan', label: 'Plan', flow: 'mixed',
-        say: '<b>Plan.</b> A mechanical scan, then <b>four finders run in parallel</b>. One judge synthesizes a phase-node plan — <b>plan-reviewer</b> must PASS or the run stops as <code>planning-failed</code>.', sub: PLAN_LEAN },
+        say: '<b>Plan.</b> A mechanical scan, then <b>four finders run in parallel</b>. One judge synthesizes a phase-node plan, and <b>plan-reviewer</b> must PASS or the run stops as <code>planning-failed</code>.', sub: PLAN_LEAN },
       { id: 'p1', label: 'P1 · service', flow: 'nest',
         say: '<b>P1.</b> One executor for the phase. A small single-file slice → <b>one writer</b> (flat is correct), writing prod + tests together. Only <b>cheap gates</b> run here.',
         sub: [{ id: 'exec', label: 'executor', kind: 'executor', children: [{ id: 'sc', label: 'backend-scaffolder', kind: 'writer' }] }] },
       { id: 'pv', label: 'PV · validate', flow: 'skip', skip: true,
-        say: '<b>PV — Validate.</b> Small, clean scope with no enumerated test list → the prose validator is <b>skipped</b>. The mechanical <b>acceptance gates still run</b> — validation is never fully off.' },
+        say: '<b>PV: Validate.</b> Small, clean scope with no enumerated test list → the prose validator is <b>skipped</b>. The mechanical <b>acceptance gates still run</b>, so validation is never fully off.' },
       { id: 'pa', label: 'PA · audit', flow: 'single',
-        say: '<b>PA — Audit.</b> Starts with <b>one</b> agent: completeness. A clean round <b>passes</b> — the ladder climbs only when a round finds a defect.',
+        say: '<b>PA: Audit.</b> Starts with <b>one</b> agent: completeness. A clean round <b>passes</b>. The ladder climbs only when a round finds a defect.',
         sub: [{ id: 'comp', label: 'completeness', kind: 'audit', badge: 'always-on' }] },
       { id: 'pt', label: 'PT · tidy', flow: 'fork',
-        say: '<b>PT — Tidy.</b> Changed-module lint first, then a <b>path-routed</b> reviewer set, self-scaled to the change.',
+        say: '<b>PT: Tidy.</b> Changed-module lint first, then a <b>path-routed</b> reviewer set, self-scaled to the change.',
         sub: [{ id: 'dk', label: 'lint', kind: 'gate', badge: 'gate' }, { id: 'bp', label: 'backend-pattern-reviewer', kind: 'reviewer' }] },
       { id: 'pf', label: 'PF · finalize', flow: 'nest',
-        say: '<b>PF — Finalize.</b> Every deferred heavy gate runs for real — full suite, coverage, multi-target. Commit a <b>Green SHA</b>. <b>No push.</b>', sub: PF_SUB },
+        say: '<b>PF: Finalize.</b> Every deferred heavy gate runs for real (full suite, coverage, multi-target). Commit a <b>Green SHA</b>. <b>No push.</b>', sub: PF_SUB },
     ],
   },
   medium: {
     label: 'Medium', files: 'the middle band', agents: '≈52',
-    blurb: 'multiple files across 2–3 layers — a backend slice, its client binding, a screen. No fixed file threshold; the band between small and large.',
+    blurb: 'multiple files across 2-3 layers: a backend slice, its client binding, a screen. No fixed file threshold; the band between small and large.',
     phases: [
       { id: 'plan', label: 'Plan', flow: 'mixed',
         say: '<b>Plan.</b> Same lean discovery: four parallel finders → one judge → plan-reviewer PASS. The planner does <b>not</b> fork candidates at default intensity.', sub: PLAN_LEAN },
       { id: 'p1', label: 'P1 · backend', flow: 'nest',
-        say: '<b>P1 · backend.</b> The executor nests its own children — a scaffolder + a test-writer, prod and tests together. P1 and P2 touch <b>disjoint files</b>, so they can dispatch in parallel (one executor per walk step).',
+        say: '<b>P1 · backend.</b> The executor nests its own children: a scaffolder + a test-writer, prod and tests together. P1 and P2 touch <b>disjoint files</b>, so they can dispatch in parallel (one executor per walk step).',
         sub: [{ id: 'exec', label: 'executor', kind: 'executor', children: [{ id: 'sc', label: 'backend-scaffolder', kind: 'writer' }, { id: 'tw', label: 'backend-test-writer', kind: 'writer' }] }] },
       { id: 'p2', label: 'P2 · client API', flow: 'nest',
         say: '<b>P2 · client API.</b> A scoped codegen leaf writes the client stamp + its mock test. Glue would route to general-purpose; an artifact-shaped file routes to its named writer.',
         sub: [{ id: 'exec', label: 'executor', kind: 'executor', children: [{ id: 'ca', label: 'client-api-codegen', kind: 'writer' }] }] },
       { id: 'p3', label: 'P3 · UI screen', flow: 'loop',
-        say: '<b>P3 · UI.</b> The <b>executor runs a GAN loop</b>: it dispatches the writer, takes the component to the evaluator, then re-dispatches the writer with the feedback — <b>up to 3 iterations, one component per loop</b>. The writer and evaluator are both the executor\'s leaves.',
+        say: '<b>P3 · UI.</b> The <b>executor runs a GAN loop</b>: it dispatches the writer, takes the component to the evaluator, then re-dispatches the writer with the feedback, <b>up to 3 iterations, one component per loop</b>. The writer and evaluator are both the executor\'s leaves.',
         sub: [{ id: 'exec', label: 'executor', kind: 'executor', children: [{ id: 'w', label: 'ui-codegen', kind: 'writer' }, { id: 'e', label: 'ui-evaluator', kind: 'evaluator' }] }] },
       { id: 'pv', label: 'PV · validate', flow: 'single',
-        say: '<b>PV — Validate.</b> feature-validator diffs the build against the requirements table. A gap becomes a <b>fix-in-place</b> back-edge; a red or flaky test is a gap, never a missing capability.',
+        say: '<b>PV: Validate.</b> feature-validator diffs the build against the requirements table. A gap becomes a <b>fix-in-place</b> back-edge; a red or flaky test is a gap, never a missing capability.',
         sub: [{ id: 'fv', label: 'feature-validator', kind: 'judge' }] },
       { id: 'pa', label: 'PA · audit', flow: 'climb',
-        say: '<b>PA — Audit.</b> completeness runs first and <b>finds a defect</b> → the ladder climbs one rung to <b>+stubs</b>. Each round\'s seeded set runs in parallel; the climb is reactive — one rung per defect-finding round.',
+        say: '<b>PA: Audit.</b> completeness runs first and <b>finds a defect</b> → the ladder climbs one rung to <b>+stubs</b>. Each round\'s seeded set runs in parallel; the climb is reactive, one rung per defect-finding round.',
         sub: [{ id: 'comp', label: 'completeness', kind: 'audit', badge: 'always-on' }, { id: 'stubs', label: 'stubs', kind: 'audit-cond', badge: '+rung' }] },
       { id: 'pt', label: 'PT · tidy', flow: 'fork',
-        say: '<b>PT — Tidy.</b> Lint, then <b>path-routed reviewers in parallel</b>, scaled to the change. api-contract-reviewer is mandatory whenever <code>the API layer</code> is touched.',
+        say: '<b>PT: Tidy.</b> Lint, then <b>path-routed reviewers in parallel</b>, scaled to the change. api-contract-reviewer is mandatory whenever <code>the API layer</code> is touched.',
         sub: [{ id: 'dk', label: 'lint', kind: 'gate', badge: 'gate' }, { id: 'bp', label: 'backend-pattern-reviewer', kind: 'reviewer' }, { id: 'cu', label: 'ui-reviewer', kind: 'reviewer' }, { id: 'ac', label: 'api-contract-reviewer', kind: 'reviewer' }] },
       { id: 'pf', label: 'PF · finalize', flow: 'nest',
-        say: '<b>PF — Finalize.</b> All deferred heavy gates run for real, blocking until green. Commit a <b>Green SHA</b>. No push.', sub: PF_SUB },
+        say: '<b>PF: Finalize.</b> All deferred heavy gates run for real, blocking until green. Commit a <b>Green SHA</b>. No push.', sub: PF_SUB },
     ],
   },
   large: {
     label: 'Large', files: '≥20 files · ≥4 layers', agents: '≈110',
-    blurb: 'a high-risk feature across backend, storage, shared API, and UI — intensity raised, new risk logic triggers a framed re-audit. (Most tickets are small or medium; large is rare.)',
+    blurb: 'a high-risk feature across backend, storage, shared API, and UI. Intensity is raised, and new risk logic triggers a framed re-audit. (Most tickets are small or medium; large is rare.)',
     phases: [
       { id: 'plan', label: 'Plan', flow: 'candfork',
-        say: '<b>Plan.</b> Four finders fan out as always — but here, with <b>intensity raised</b>, the judge <b>forks into candidates</b> (reuse-first · risk-first · simplicity-first) and a synthesizer picks the best. Default runs do <b>not</b> fork; this is the raised-intensity path.',
+        say: '<b>Plan.</b> Four finders fan out as always. Here, with <b>intensity raised</b>, the judge <b>forks into candidates</b> (reuse-first · risk-first · simplicity-first) and a synthesizer picks the best. Default runs do <b>not</b> fork; this is the raised-intensity path.',
         sub: [
           { id: 'disc', label: 'Tier-0 discover', kind: 'mechanical' },
           { id: 't1', label: 'Tier-1 finders', kind: 'finder', badge: 'parallel ×4', children: [
@@ -104,22 +104,22 @@ const SCENARIOS = {
         say: '<b>P3 · shared API.</b> A compile-atomic multi-file slice → the executor fans out <b>parallel per-file writers</b> + a test-writer, then runs <b>one compile at the slice boundary</b>. Writer fan-out is scale-gated.',
         sub: [{ id: 'exec', label: 'executor', kind: 'executor', children: [{ id: 'wa', label: 'writer · file A', kind: 'writer' }, { id: 'wb', label: 'writer · file B', kind: 'writer' }, { id: 'tw', label: 'test-writer', kind: 'writer' }] }] },
       { id: 'p4', label: 'P4 · UI', flow: 'loop',
-        say: '<b>P4 · UI.</b> The executor runs a GAN loop — it dispatches ui-codegen, scores it with ui-evaluator, and re-dispatches with feedback, up to 3 iterations.',
+        say: '<b>P4 · UI.</b> The executor runs a GAN loop: it dispatches ui-codegen, scores it with ui-evaluator, and re-dispatches with feedback, up to 3 iterations.',
         sub: [{ id: 'exec', label: 'executor', kind: 'executor', children: [{ id: 'w', label: 'ui-codegen', kind: 'writer' }, { id: 'e', label: 'ui-evaluator', kind: 'evaluator' }] }] },
       { id: 'p5', label: 'P5 · UI', flow: 'loop',
         say: '<b>P5 · UI.</b> A second screen, its own GAN loop. UI / visual-mocks scope also seeds <b>fresh-eyes</b> in the audit up front.',
         sub: [{ id: 'exec', label: 'executor', kind: 'executor', children: [{ id: 'w', label: 'ui-codegen', kind: 'writer' }, { id: 'e', label: 'ui-evaluator', kind: 'evaluator' }] }] },
       { id: 'pv', label: 'PV · validate', flow: 'single',
-        say: '<b>PV — Validate.</b> feature-validator checks the diff against every requirement. ITERATE converts each gap to a fix-in-place back-edge and re-walks, bounded by a retry cap.',
+        say: '<b>PV: Validate.</b> feature-validator checks the diff against every requirement. ITERATE converts each gap to a fix-in-place back-edge and re-walks, bounded by a retry cap.',
         sub: [{ id: 'fv', label: 'feature-validator', kind: 'judge' }] },
       { id: 'pa', label: 'PA · audit', flow: 'wide',
-        say: '<b>PA — Audit.</b> New risk logic (permission / the domain / migration) triggers a <b>framed re-audit</b>: regression + fresh-eyes are <b>pre-seeded</b>, and the ladder also climbs completeness → stubs → edge-case. All seeded auditors run in parallel.',
+        say: '<b>PA: Audit.</b> New risk logic (permission / the domain / migration) triggers a <b>framed re-audit</b>: regression + fresh-eyes are <b>pre-seeded</b>, and the ladder also climbs completeness → stubs → edge-case. All seeded auditors run in parallel.',
         sub: [{ id: 'comp', label: 'completeness', kind: 'audit', badge: 'always-on' }, { id: 'stubs', label: 'stubs', kind: 'audit-cond' }, { id: 'edge', label: 'edge-case', kind: 'audit-cond' }, { id: 'reg', label: 'regression', kind: 'audit-cond', badge: 'framed' }, { id: 'fe', label: 'fresh-eyes', kind: 'audit-cond', badge: 'framed' }] },
       { id: 'pt', label: 'PT · tidy', flow: 'fork',
-        say: '<b>PT — Tidy.</b> A larger path-routed reviewer set in parallel — backend, UI, portability across targets, and api-contract (mandatory, the API layer is touched).',
+        say: '<b>PT: Tidy.</b> A larger path-routed reviewer set in parallel: backend, UI, portability across targets, and api-contract (mandatory, the API layer is touched).',
         sub: [{ id: 'dk', label: 'lint', kind: 'gate', badge: 'gate' }, { id: 'bp', label: 'backend-pattern-reviewer', kind: 'reviewer' }, { id: 'cu', label: 'ui-reviewer', kind: 'reviewer' }, { id: 'kt', label: 'portability-reviewer', kind: 'reviewer' }, { id: 'ac', label: 'api-contract-reviewer', kind: 'reviewer' }] },
       { id: 'pf', label: 'PF · finalize', flow: 'nest',
-        say: '<b>PF — Finalize.</b> Every deferred heavy gate runs for real, blocking until green; empty coverage is never a pass. Commit a <b>Green SHA</b>. No push.', sub: PF_SUB },
+        say: '<b>PF: Finalize.</b> Every deferred heavy gate runs for real, blocking until green; empty coverage is never a pass. Commit a <b>Green SHA</b>. No push.', sub: PF_SUB },
     ],
   },
 };
@@ -127,28 +127,28 @@ const SCENARIOS = {
 /* model · effort · role per agent. Named agents = their own definition frontmatter;
    orchestrator roles (executor, finders, judge…) = the /develop tier-map model. */
 const META = {
-  'Tier-0 discover':    { agent: 'discover (mechanical)', model: 'haiku', effort: '—', role: 'Runs the reuse-map scan (discover.py).' },
-  'Tier-1 finders':     { agent: 'Tier-1 finders', model: 'sonnet', effort: '—', role: 'Spawns four parallel evidence finders.' },
-  reuse:                { agent: 'plan:find:reuse', model: 'sonnet', effort: '—', role: 'Behavioural-equivalence / reuse check.' },
-  reference:            { agent: 'plan:find:reference', model: 'sonnet', effort: '—', role: 'Closest reference feature\'s layer trace.' },
-  scope:                { agent: 'plan:find:scope', model: 'sonnet', effort: '—', role: 'Which layers are in / out, and why.' },
-  questions:            { agent: 'plan:find:questions', model: 'sonnet', effort: '—', role: 'Under-determined decisions to surface.' },
-  'Tier-2 judge':       { agent: 'plan-explorer / spec-analyzer', model: 'opus', effort: '—', role: 'Synthesizes the phase-node plan.' },
-  'Tier-2 candidates':  { agent: 'judge (forked)', model: 'opus', effort: '—', role: 'Forks competing plan candidates.' },
-  'reuse-first':        { agent: 'plan candidate', model: 'opus', effort: '—', role: 'Plan, reuse-first angle.' },
-  'risk-first':         { agent: 'plan candidate', model: 'opus', effort: '—', role: 'Plan, risk-first angle.' },
-  'simplicity-first':   { agent: 'plan candidate', model: 'opus', effort: '—', role: 'Plan, simplicity-first angle.' },
-  synthesizer:          { agent: 'synthesizer', model: 'opus', effort: '—', role: 'Picks the best candidate.' },
+  'Tier-0 discover':    { agent: 'discover (mechanical)', model: 'haiku', effort: 'n/a', role: 'Runs the reuse-map scan (discover.py).' },
+  'Tier-1 finders':     { agent: 'Tier-1 finders', model: 'sonnet', effort: 'n/a', role: 'Spawns four parallel evidence finders.' },
+  reuse:                { agent: 'plan:find:reuse', model: 'sonnet', effort: 'n/a', role: 'Behavioural-equivalence / reuse check.' },
+  reference:            { agent: 'plan:find:reference', model: 'sonnet', effort: 'n/a', role: 'Closest reference feature\'s layer trace.' },
+  scope:                { agent: 'plan:find:scope', model: 'sonnet', effort: 'n/a', role: 'Which layers are in / out, and why.' },
+  questions:            { agent: 'plan:find:questions', model: 'sonnet', effort: 'n/a', role: 'Under-determined decisions to surface.' },
+  'Tier-2 judge':       { agent: 'plan-explorer / spec-analyzer', model: 'opus', effort: 'n/a', role: 'Synthesizes the phase-node plan.' },
+  'Tier-2 candidates':  { agent: 'judge (forked)', model: 'opus', effort: 'n/a', role: 'Forks competing plan candidates.' },
+  'reuse-first':        { agent: 'plan candidate', model: 'opus', effort: 'n/a', role: 'Plan, reuse-first angle.' },
+  'risk-first':         { agent: 'plan candidate', model: 'opus', effort: 'n/a', role: 'Plan, risk-first angle.' },
+  'simplicity-first':   { agent: 'plan candidate', model: 'opus', effort: 'n/a', role: 'Plan, simplicity-first angle.' },
+  synthesizer:          { agent: 'synthesizer', model: 'opus', effort: 'n/a', role: 'Picks the best candidate.' },
   'plan-reviewer':      { agent: 'plan-reviewer', model: 'sonnet', effort: 'max', role: 'Fresh-eyes PASS / FAIL gate on the plan.' },
-  executor:             { agent: 'executor (general-purpose)', model: 'sonnet', effort: '—', role: 'Runs the phase; nests its own children.' },
+  executor:             { agent: 'executor (general-purpose)', model: 'sonnet', effort: 'n/a', role: 'Runs the phase; nests its own children.' },
   'backend-scaffolder': { agent: 'backend-scaffolder', model: 'haiku', effort: 'medium', role: 'Repo + service + controller + tests for an entity.' },
   'backend-test-writer':{ agent: 'backend-test-writer', model: 'haiku', effort: 'medium', role: 'Backend tests; closes coverage gaps.' },
   'client-api-codegen': { agent: 'client-api-codegen', model: 'haiku', effort: 'medium', role: 'Client API stamp + mock-engine test.' },
   'storage-codegen':    { agent: 'storage-codegen', model: 'haiku', effort: 'medium', role: 'Shared storage impls + DI bindings.' },
   'ui-codegen':         { agent: 'ui-codegen', model: 'opus', effort: 'medium', role: 'Writes one UI component + tests.' },
-  'ui-evaluator':       { agent: 'ui-evaluator', model: 'sonnet', effort: 'medium', role: 'Scores the UI vs a rubric — the GAN discriminator.' },
-  'writer · file A':    { agent: 'per-file writer', model: 'sonnet', effort: '—', role: 'One file of a compile-atomic slice.' },
-  'writer · file B':    { agent: 'per-file writer', model: 'sonnet', effort: '—', role: 'One file of a compile-atomic slice.' },
+  'ui-evaluator':       { agent: 'ui-evaluator', model: 'sonnet', effort: 'medium', role: 'Scores the UI vs a rubric: the GAN discriminator.' },
+  'writer · file A':    { agent: 'per-file writer', model: 'sonnet', effort: 'n/a', role: 'One file of a compile-atomic slice.' },
+  'writer · file B':    { agent: 'per-file writer', model: 'sonnet', effort: 'n/a', role: 'One file of a compile-atomic slice.' },
   'test-writer':        { agent: 'backend-test-writer', model: 'haiku', effort: 'medium', role: 'Tests for the slice.' },
   'feature-validator':  { agent: 'feature-validator', model: 'opus', effort: 'medium', role: 'Diffs the build against the requirements table.' },
   completeness:         { agent: 'audit-completeness-checker', model: 'sonnet', effort: 'high', role: 'Cross-layer integration gaps (DB→…→UI).' },
@@ -156,21 +156,21 @@ const META = {
   'edge-case':          { agent: 'audit-edge-case-reviewer', model: 'sonnet', effort: 'medium', role: 'Missing edge cases + UX states.' },
   regression:           { agent: 'audit-regression-checker', model: 'sonnet', effort: 'high', role: 'Lost / silently degraded behaviour.' },
   'fresh-eyes':         { agent: 'audit-fresh-eyes-reviewer', model: 'sonnet', effort: 'medium', role: '"Correct, but obviously wrong."' },
-  lint:                 { agent: 'lint', model: '—', effort: '—', role: 'Changed-module lint gate.' },
+  lint:                 { agent: 'lint', model: 'n/a', effort: 'n/a', role: 'Changed-module lint gate.' },
   'backend-pattern-reviewer': { agent: 'backend-pattern-reviewer', model: 'sonnet', effort: 'low', role: 'Backend conventions + runtime hazards.' },
   'ui-reviewer':        { agent: 'ui-reviewer', model: 'sonnet', effort: 'low', role: 'UI conventions + reactivity.' },
   'api-contract-reviewer': { agent: 'api-contract-reviewer', model: 'haiku', effort: 'low', role: 'Bi-directional wire compatibility.' },
   'portability-reviewer':{ agent: 'portability-reviewer', model: 'haiku', effort: 'low', role: 'Cross-target portability.' },
-  'gate runners':       { agent: 'gate runners', model: 'haiku', effort: '—', role: 'Run the heavy build gates, blocking.' },
-  'Green SHA':          { agent: 'Green SHA', model: '—', effort: '—', role: 'The clean per-phase commit (no push).' },
+  'gate runners':       { agent: 'gate runners', model: 'haiku', effort: 'n/a', role: 'Run the heavy build gates, blocking.' },
+  'Green SHA':          { agent: 'Green SHA', model: 'n/a', effort: 'n/a', role: 'The clean per-phase commit (no push).' },
 };
-const metaFor = (label) => META[label] || { agent: label, model: '—', effort: '—', role: '' };
+const metaFor = (label) => META[label] || { agent: label, model: 'n/a', effort: 'n/a', role: '' };
 
 const FLOW_LEGEND = [
-  { tone: 'nest', label: 'nest — executor spawns its own agents' },
-  { tone: 'fork', label: 'fork / fan-out — agents run in parallel' },
-  { tone: 'gate', label: 'gate — passes on evidence' },
-  { tone: 'cond', label: 'conditional — fires only on its trigger' },
+  { tone: 'nest', label: 'nest: executor spawns its own agents' },
+  { tone: 'fork', label: 'fork / fan-out: agents run in parallel' },
+  { tone: 'gate', label: 'gate: passes on evidence' },
+  { tone: 'cond', label: 'conditional: fires only on its trigger' },
 ];
 const SHORT = {
   'backend-scaffolder': 'scaffolder', 'backend-test-writer': 'test-writer', 'client-api-codegen': 'client-api',
@@ -213,9 +213,9 @@ function buildSteps(scenario) {
       const exec = p.sub[0]; const w = exec.children[0]; const e = exec.children[1];
       steps.push({ kind: 'agent', p, pi, id: exec.id, label: exec.label });
       steps.push({ kind: 'agent', p, pi, id: w.id, label: w.label, iter: 'iteration 1', tag: 'writes the component' });
-      steps.push({ kind: 'agent', p, pi, id: e.id, label: e.label, iter: 'iteration 1', tag: 'scores it — needs a fix' });
+      steps.push({ kind: 'agent', p, pi, id: e.id, label: e.label, iter: 'iteration 1', tag: 'scores it: needs a fix' });
       steps.push({ kind: 'agent', p, pi, id: w.id, label: w.label, iter: 'iteration 2', tag: 'revises with the feedback' });
-      steps.push({ kind: 'agent', p, pi, id: e.id, label: e.label, iter: 'iteration 2', tag: 'scores it — PASS' });
+      steps.push({ kind: 'agent', p, pi, id: e.id, label: e.label, iter: 'iteration 2', tag: 'scores it: PASS' });
       return;
     }
     const walk = (nodes) => nodes.forEach((n) => { steps.push({ kind: 'agent', p, pi, id: n.id, label: n.label }); if (n.children) walk(n.children); });
@@ -323,7 +323,7 @@ function initFlow() {
 
   function setCallout(s) {
     const m = metaFor(s.label);
-    const mc = m.model && m.model !== '—' ? `m-${m.model}` : 'm-none';
+    const mc = m.model && m.model !== 'n/a' ? `m-${m.model}` : 'm-none';
     callout.innerHTML = `
       <div class="fco-top"><span class="fco-kind">agent</span><span class="fco-name">${m.agent}</span></div>
       <div class="fco-meta">
@@ -331,7 +331,7 @@ function initFlow() {
         <span class="fco-effort">effort · ${m.effort}</span>
         ${s.iter ? `<span class="fco-iter">${s.iter}</span>` : ''}
       </div>
-      ${m.role ? `<div class="fco-role">${m.role}${s.tag ? ` — <em>${s.tag}</em>` : ''}</div>` : ''}`;
+      ${m.role ? `<div class="fco-role">${m.role}${s.tag ? `: <em>${s.tag}</em>` : ''}</div>` : ''}`;
     callout.classList.add('show');
   }
 
@@ -368,7 +368,7 @@ function initFlow() {
     });
     if (s.p.flow === 'loop' && entry.loopEdge && reached.length >= 2) entry.loopEdge.classList.add('lit');
 
-    if (narration) narration.innerHTML = s.p.say + (entry.wide && s.kind === 'agent' ? ' <span class="paren">— these run in parallel.</span>' : '');
+    if (narration) narration.innerHTML = s.p.say + (entry.wide && s.kind === 'agent' ? ' <span class="paren">(these run in parallel).</span>' : '');
 
     if (s.kind === 'phase') {
       moveToken(entry.px, TRUNK_Y);
