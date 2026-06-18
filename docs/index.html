@@ -50,36 +50,41 @@
   </div>
 </section>
 
-<!-- ================= PROBLEM ================= -->
+<!-- ============= THE SHIFT · MANUAL vs ORCHESTRATED ============= -->
 <section id="problem">
-  <div class="section-eyebrow">The problem</div>
-  <h2>Manual orchestration doesn't scale</h2>
-  <p class="section-lead">Build a feature by hand and you babysit every seam — re-prompting at each handoff, eyeballing "done," watching reviewers re-find the same defects every PR. Context leaks at every hop; controls get waved through.</p>
-  <div class="shift-grid shift-solo">
+  <div class="section-eyebrow">The shift · manual vs orchestrated</div>
+  <h2>Same feature — you babysit it, or you don't</h2>
+  <p class="section-lead">Build it by hand and you're <strong>on the wheel the whole time</strong> — re-prompting at every handoff, eyeballing "done," looping back each time CI rejects. Hand the same spec to an orchestrator and you <strong>kick it off and walk away</strong>: it walks a durable plan, clears mechanical gates, resumes itself if it crashes, and hands back an audited branch.</p>
+
+  <div class="versus">
+    <!-- manual: hands-on, you drive every handoff -->
     <div class="shift-card before">
-      <h3>Manual flow <small>before</small></h3>
+      <h3>By hand <small>before</small></h3>
+      <div class="role-line role-manual">
+        <span class="role-ico" aria-hidden="true">👁</span>
+        <span><b>You run the session.</b> Drive every handoff, follow it to the end.</span>
+      </div>
       <div class="grind" id="grind"></div>
       <ul>
-        <li>Each handoff leaks context — the next step re-derives what the last knew.</li>
-        <li>Controls pass on judgement; under pressure, they're skipped.</li>
+        <li>You babysit every seam — re-prompt at each handoff, re-explain what the last step already knew.</li>
+        <li>Context leaks at every hop; controls pass on judgement and get waved through under pressure.</li>
         <li>Reviewers re-find the <em>same</em> defect classes every PR.</li>
       </ul>
     </div>
-  </div>
-</section>
 
-<!-- ================= SOLUTION ================= -->
-<section id="solution">
-  <div class="section-eyebrow">The solution</div>
-  <h2>One orchestrator walks a plan</h2>
-  <p class="section-lead">Put a thin orchestrator on the desk: it walks a durable plan — the system of record — and dispatches fresh-context agents to do the work. State lives in the plan file, controls are mechanical, and a crash resumes by re-reading it.</p>
-  <div class="shift-grid shift-solo">
-    <div class="shift-card after">
-      <h3>Orchestrated pipeline <small>after</small></h3>
+    <div class="versus-split" aria-hidden="true"><span>vs</span></div>
+
+    <!-- orchestrated: fire-and-forget -->
+    <div class="shift-card after" id="solution">
+      <h3>Orchestrated <small>after</small></h3>
+      <div class="role-line role-auto">
+        <span class="role-ico" aria-hidden="true">⏻</span>
+        <span><b>Fire-and-forget.</b> Hand it a spec, walk away — it resumes itself.</span>
+      </div>
       <div class="magic" id="magic"></div>
       <ul>
-        <li>State lives in the plan file — the system of record. A crash resumes by re-reading it.</li>
-        <li>Controls clear on evidence — a command ran and produced a result.</li>
+        <li>State lives in the plan file — the system of record. A crash resumes by re-reading it, with no one watching.</li>
+        <li>Controls clear on evidence — a command ran and produced a result, not a nod.</li>
         <li>Every escaped finding books a new control at the right layer — hook, gate, rule, agent, or plan. The line tightens itself.</li>
       </ul>
     </div>

@@ -140,7 +140,6 @@ h2 { font-size: clamp(28px, 4.2vw, 42px); }
 .keychip i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
 
 /* ---------- the "why" before/after ---------- */
-.shift-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 36px; }
 .shift-card {
   border: 1px solid var(--border); border-radius: var(--radius);
   background: var(--surface); padding: 26px;
@@ -158,6 +157,19 @@ h2 { font-size: clamp(28px, 4.2vw, 42px); }
 }
 .shift-card ul { margin: 0; padding-left: 18px; color: var(--text-dim); font-size: 15.5px; }
 .shift-card li { margin: 7px 0; }
+
+/* ---------- versus: manual vs orchestrated, head-to-head ---------- */
+.versus { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 0 20px; margin-top: 36px; }
+.versus .shift-card { display: flex; flex-direction: column; }
+.versus .shift-card ul { margin-top: auto; }
+.versus-split { display: flex; align-items: center; justify-content: center; position: relative; }
+.versus-split::before { content: ""; position: absolute; top: 10px; bottom: 10px; width: 1px; background: linear-gradient(var(--bg), var(--border-bright) 50%, var(--bg)); }
+.versus-split span { position: relative; z-index: 1; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-faint); background: var(--bg); border: 1px solid var(--border-bright); border-radius: 999px; padding: 6px 10px; }
+.role-line { display: flex; align-items: center; gap: 11px; margin: 2px 0; padding: 11px 14px; border-radius: 10px; font-size: 14.5px; line-height: 1.4; color: var(--text-dim); }
+.role-line b { color: var(--text); }
+.role-ico { font-size: 17px; line-height: 1; flex-shrink: 0; }
+.role-manual { background: rgba(240, 131, 107, 0.08); border: 1px solid #4a2b2b; }
+.role-auto { background: rgba(63, 185, 80, 0.08); border: 1px solid #234a35; }
 
 /* ---------- mental model trio ---------- */
 .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 34px; }
@@ -638,7 +650,6 @@ button.use-chip { font: inherit; color: var(--text); cursor: default; }
 .pat-ref { font-family: var(--mono); font-size: 9.5px; color: var(--tool); background: rgba(110, 168, 254, 0.1); border: 1px solid rgba(110, 168, 254, 0.3); padding: 2px 7px; border-radius: 999px; white-space: nowrap; }
 
 /* ---------- structural helpers (reordered layout) ---------- */
-.shift-solo { grid-template-columns: minmax(0, 660px); }
 .sub-h { font-size: 22px; letter-spacing: -0.02em; margin-top: 58px; }
 .sub-lead { color: var(--text-dim); font-size: 16.5px; margin: 10px 0 0; max-width: 720px; }
 .coming-soon { margin-top: 26px; border: 1px dashed var(--border-bright); border-radius: var(--radius); background: var(--bg-2); padding: 44px 30px; text-align: center; }
@@ -682,7 +693,10 @@ button.use-chip { font: inherit; color: var(--text); cursor: default; }
 
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {
-  .shift-grid, .trio, .mech-cards, .block-grid, .pattern-grid, .fly, .explorer, .split-cols { grid-template-columns: 1fr; }
+  .trio, .mech-cards, .block-grid, .pattern-grid, .fly, .explorer, .split-cols, .versus { grid-template-columns: 1fr; }
+  .versus { gap: 14px 0; }
+  .versus-split { padding: 2px 0; }
+  .versus-split::before { top: auto; bottom: auto; left: 10px; right: 10px; width: auto; height: 1px; }
   .phase-detail { position: static; min-height: 0; margin-top: 8px; }
   .phase-rail { gap: 0; }
   .flow-head { align-items: flex-start; }
