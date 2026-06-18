@@ -1,6 +1,8 @@
 # cjs-orchestrator
 
-Build a **self-improving, agentic `/develop` flow** fitted to *your* repo, not transplanted from someone else's.
+**Fire one prompt. Walk away. Get back a branch that already passed your own review.**
+
+Stop babysitting your agent at every handoff. `/develop` plans the change, builds it, audits the diff against your repo's own rules, and clears your gates before it hands the branch back. It's a **self-improving, agentic flow fitted to *your* repo**, not transplanted from someone else's.
 
 This repo is both a **Claude Code plugin marketplace** and the home of the **`develop`** plugin, plus an interactive explainer of how the underlying orchestration works.
 

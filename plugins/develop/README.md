@@ -1,6 +1,8 @@
 # develop
 
-Bootstrap a minimal, self-improving `/develop` orchestration flow fitted to your repo, then grow it via a feedback flywheel.
+**Fire one prompt. Walk away. Get back a branch that already passed your own review.**
+
+`/develop` plans the change, builds it, audits the diff against your repo's own rules, and clears your gates before it hands the branch back. It bootstraps a minimal orchestration flow fitted to your repo, then grows it via a feedback flywheel.
 
 ## Install
 

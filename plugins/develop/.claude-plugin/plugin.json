@@ -1,7 +1,7 @@
 {
   "name": "develop",
   "displayName": "Develop Orchestrator",
-  "description": "Bootstrap a minimal, self-improving /develop orchestration flow fitted to your repo, then grow it via a feedback flywheel.",
+  "description": "Fire one prompt, walk away, get back a branch that already passed your own review. /develop plans the change, builds it, and audits the diff against your repo's own rules, fitted to your stack and self-improving via a flywheel.",
   "version": "0.3.0",
   "author": {
     "name": "Chris Jenkins",
