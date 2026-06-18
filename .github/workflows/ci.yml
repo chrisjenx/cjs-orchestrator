@@ -34,4 +34,6 @@ jobs:
         run: python3 scripts/check-docs-subpath.py
 
       - name: Scan docs for private-data leaks
-        run: python3 scripts/check-docs-leaks.py
+        run: |
+          python3 scripts/check-docs-leaks.py --selftest
+          python3 scripts/check-docs-leaks.py
