@@ -5,6 +5,32 @@ users. Newest first.
 
 ---
 
+## 2026-06-17 — Per-run state stays markdown; flywheel gets a structured SSOT
+
+Where durable state lives, decided per layer because the two layers have opposite needs.
+
+- **Per-run plan/phase/gate state → the markdown plan file, unchanged.** Reject SQLite here:
+  it's single-writer-per-feature (no concurrency for transactions to solve), and a binary in
+  the hot loop trades away the plan's zero-dependency portability, git-diffability, hand-
+  editability, and its role as the explainer's teaching artifact — for a marginal token win
+  the executor brief already captures by inlining *excerpts, not the whole plan*. Resume is
+  already solved by re-reading the file. If the orchestrator's between-phase read needs to be
+  cheaper, lean on the existing `<!-- develop-state {…} -->` header (plan-anatomy.md) as the
+  authoritative quick-read — zero new dependency.
+- **Cross-run flywheel → add a structured SSOT.** This *is* the real multi-session problem
+  (append-heavy, aggregated across many runs; recurrence counting is a `GROUP BY` on the
+  `FINDING` fingerprint / `CONTRACT_GAP` records that already exist in schemas.md). Add an
+  append-only `develop-flywheel.jsonl` (one record per run, fingerprinted) + a read-time
+  aggregator (jq or a small bundled script) run **only** at `/develop:flywheel`.
+  `develop-flywheel.md` stays the human-curated promoted-anchors narrative; the `.jsonl` is
+  the machine SSOT that feeds it.
+- **Defer SQLite** until JSONL aggregation actually hurts (hundreds of runs, real query/index
+  needs) — the flywheel's own "earn the structure by repeated pain, never speculation" rule,
+  applied to its own storage.
+
+**Boundary principle (locked):** no new runtime dependency in the hot loop. Per-feature state
+is plain-text append-only journals; any shared script lives at read/aggregate time only.
+
 ## 2026-06-17 — Public names locked
 
 Renaming after install is painful (users have to re-add the marketplace, re-install,
