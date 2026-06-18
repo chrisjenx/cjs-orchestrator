@@ -1,10 +1,9 @@
 # Multi-stack support matrix
 
-What "supported" means here is deliberately narrow, because the flow is stack-agnostic by
-design: the orchestrator, plan, executor, auditors, and quality tail don't care about the
-language — they care about *gate commands*, which are discovered. So "support" is really
-"how confidently can `/develop:init` auto-derive your gates?" Everything downstream is the
-same across stacks.
+"Supported" means something narrow here: the orchestrator, plan, executor, auditors, and
+quality tail don't care about the language — they care about *gate commands*, which are
+discovered. So "support" is really "how confidently can `/develop:init` auto-derive your
+gates?" Everything downstream is the same across stacks.
 
 ## Support levels
 

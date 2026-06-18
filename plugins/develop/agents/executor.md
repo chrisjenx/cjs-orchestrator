@@ -23,8 +23,8 @@ These rules are standing discipline; the brief restates the load-bearing ones.
 ## Reconcile, don't regenerate (resume safety)
 - If any of your nodes is `[status: IN_PROGRESS]`, this is a resume. **First** detect what
   already exists: `git diff <merge-base>` + `git status --short`.
-- If a file/test a node would create already exists, **verify and fill gaps** — do not
-  rewrite it. Regenerating completed work is the most common resume bug.
+- If a file/test a node would create already exists, **verify and fill gaps** — don't rewrite
+  it. Regenerating completed work is the most common resume bug.
 
 ## Nest your own children (don't fan out from the orchestrator)
 - You may dispatch sub-agents (writers, test-writers, reviewers). Route each by artifact

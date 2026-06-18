@@ -47,6 +47,10 @@ Each docs file carries a `PUBLIC REPO` banner pointing back here.
 
 ---
 
+## Token frugality (first principle)
+
+Everything the plugin ships — skills, references, agent briefs, status lines — is paid **on every run, by every user, forever**. One wasted token compounds over millions of runs. Authoring rule: say it once, say it short, then stop — inline excerpts not whole files, one status line not a paragraph, fixed short return contracts, state each fact once and link rather than restate. The canonical statement is [`plugins/develop/references/token-frugality.md`](plugins/develop/references/token-frugality.md); keep all new and edited plugin prose tight against it.
+
 ## Working on it
 
 - **`docs/`** is a no-build static site. After any change, verify it loads with **zero JS errors** (open `index.html`, or headless via jsdom) before committing.

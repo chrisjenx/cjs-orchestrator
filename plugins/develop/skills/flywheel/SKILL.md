@@ -7,8 +7,8 @@ description: Manually evaluate the develop flow's accumulated postmortems and de
 
 `/develop:run` *logs* a postmortem after every run; this skill *acts* on the accumulated
 logs. It's the human-gated half of the [flywheel](../../references/flywheel.md): read what
-keeps escaping, decide where to tighten, and apply it — so the next run is stronger. Run it
-periodically once a few runs have accumulated, not after every feature.
+keeps escaping, decide where to tighten, and apply it. Run it once a few runs have
+accumulated, not after every feature.
 
 ## Read first
 - `.claude/develop-flywheel.md` — the postmortem log + this repo's promoted-anchors table.
@@ -41,7 +41,7 @@ grep -oE '"agents?"[[:space:]]*:[[:space:]]*(\[[^]]*\]|"[^"]*")' .claude/develop
 comm -23 /tmp/have /tmp/routed
 ```
 
-(If `comm` isn't available, just read both files and diff the name sets — it's a tiny list.)
+(If `comm` isn't available, read both files and diff the name sets — it's a tiny list.)
 Carry the unwired list into step 4: for each, ask **"should this have caught one of the
 recurring findings?"** If yes, wiring it is the cheapest possible fix — it already exists.
 Group the **preventable** escaped findings by category across runs; count recurrences and
@@ -60,9 +60,8 @@ For each flagged category, pick the remediation per
   If it exists and the finding still escapes, propose **strengthening that** — never add a
   duplicate alongside it.
 - **Is there an unwired agent (step 1b) that already covers this?** If one exists but nothing
-  routes to it, the fix is to **wire it in** — add a route in `develop-routing.json`. That's a
-  cheap, direct edit, not a build: an existing agent that should have been used beats authoring
-  a new one.
+  routes to it, **wire it in** — add a route in `develop-routing.json`. A cheap, direct edit,
+  not a build: an existing agent that should have been used beats authoring a new one.
 - **Otherwise pick the cheapest, earliest deterministic lever** that can express the check:
   `hook` → `gate` → `plan-anchor` → `rule` → `agent` (building a *new* reviewer is the last
   resort). Name the **concrete target** (which file / anchor / route / rule line).

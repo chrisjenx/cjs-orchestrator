@@ -17,6 +17,9 @@ Bootstrap a minimal, self-improving `/develop` orchestration flow fitted to your
 The plugin ships **static, portable skills**; per-project behaviour comes from
 **definitions the skills discover**, not from generating a bespoke flow per repo.
 
+Its **first principle is token frugality** — every shipped token is paid on every run, so the
+prose is kept tight by design (`references/token-frugality.md`).
+
 - **`skills/init/SKILL.md`** (`/develop:init`) — detects the stack, discovers the repo's
   real gate commands, and writes the repo-specific definitions into `.claude/`
   (`develop.config.json`, `develop-routing.json`, a starter `CLAUDE.md`, safe hooks, a

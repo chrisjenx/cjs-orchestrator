@@ -56,7 +56,7 @@ Match on the **marker files** (presence is the evidence). A repo may match sever
   command that runs them (a script/task/CI step). A config file with no runner is a weaker
   signal — note it as "configured but no runner found".
 - **CI (do this thoroughly):** read every workflow file and extract the actual command
-  lines. This is where the real, canonical gate commands live — exact flags, env, matrix.
+  lines — the canonical gate commands, with exact flags, env, matrix.
   - GitHub Actions: `.github/workflows/*.yml|*.yaml`
   - GitLab: `.gitlab-ci.yml`
   - CircleCI: `.circleci/config.yml`

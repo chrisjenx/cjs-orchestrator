@@ -2,8 +2,8 @@
 
 `/develop:run` keeps **all** durable state in one markdown file per feature:
 `<featureDir>/<feature>.plan.md` (default `build/develop/<feature>.plan.md`). Context is
-volatile; the plan is not. Everything the loop needs to resume after a crash is in this
-file — the orchestrator holds only "which phase am I on" in working memory.
+volatile; the plan is not. Everything needed to resume after a crash is in this file — the
+orchestrator holds only "which phase am I on" in working memory.
 
 > **Why a file, not memory:** crash-resume comes free. Re-reading the plan reconstructs the
 > entire run: skip `DONE`, re-enter the first `IN_PROGRESS`, continue. No separate state
@@ -107,6 +107,5 @@ Re-invoking `/develop:run` on an existing plan:
    [executor-brief.md](./executor-brief.md).
 4. Continue the walk from there.
 
-Because the breadcrumb row is appended *before* dispatch, a crash mid-phase still leaves a
-record that the phase was entered, so resume re-enters exactly one phase — no double-work,
-no skipped work.
+Because the breadcrumb row is appended *before* dispatch, a crash mid-phase still records that
+the phase was entered, so resume re-enters exactly one phase — no double-work, no skipped work.

@@ -27,7 +27,7 @@ You are the janitor of the PT phase: make the diff clean and consistent using th
 
 ## Don't
 - Don't make behavioural changes or "improve" logic — that's the executor's job under a plan
-  node, not tidy's.
+  node.
 - Don't touch files outside the branch diff.
 
 ## Output — what changed + what's left

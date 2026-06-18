@@ -52,5 +52,5 @@ Average across graders; pick the top candidate; synthesize. Bound the whole thin
   bound the rounds; `intensity` bounds the width. Keep both at `1` until a real signal
   justifies raising them — that signal usually comes from the [flywheel](./flywheel.md)
   (a finding class that keeps slipping through single-pass verification).
-- Forking is a *quality* lever, not a default. The lean path ships first; forks are added
+- Forking is a *quality* lever, not a default: the lean path ships first, forks are added
   exactly where repeated pain shows — same principle as specialists.

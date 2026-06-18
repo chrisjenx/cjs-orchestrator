@@ -86,6 +86,6 @@ repeating — they are exactly the specialists/forks that earned their place.
   `/develop:init` from [`templates/develop-flywheel.md`](../templates/develop-flywheel.md).
 - `PF` appends one postmortem block per run; the human curates the promoted-anchors list.
 
-The loop tightens every run: a defect that escaped becomes a control at the right layer — a
-hook, gate, rule, agent, or plan anchor — so it can't escape again, and the flow grows
-(and prunes) precisely the structure the repo's real failures call for, nothing more.
+The loop tightens every run: a defect that escaped becomes a control at the right layer so
+it can't escape again, and the flow grows (and prunes) precisely the structure the repo's
+real failures call for, nothing more.

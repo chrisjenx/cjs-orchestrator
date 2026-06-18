@@ -63,7 +63,7 @@ NESTED: <children spawned> · DEFERRED-PF: <tokens left for finalize>
 
 ## Why excerpts, not the whole plan
 
-A fresh executor with the whole plan in context is slower, costs more, and is tempted to
-work outside its slice. Two exceptions where a full read is warranted: a **mid-flight
-resume** (the executor needs to reconcile against everything done so far) and a
-**consolidation pass** (an auditor deduping across all findings). Otherwise: excerpts only.
+A fresh executor with the whole plan is slower, costs more, and is tempted to work outside its
+slice. Two exceptions warrant a full read: a **mid-flight resume** (reconcile against
+everything done so far) and a **consolidation pass** (an auditor deduping across all findings).
+Otherwise: excerpts only.

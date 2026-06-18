@@ -1,7 +1,7 @@
 # The quality tail — controls that can't fall off the end
 
 After the domain phases come four fixed phases: **Validate → Audit → Tidy → Finalize**
-(`PV → PA → PT → PF`). The critical property:
+(`PV → PA → PT → PF`).
 
 > **The orchestrator appends the tail, not the planner.** `/develop:run` writes `### PV`,
 > `### PA`, `### PT`, `### PF` into the plan *before* the walk begins. A planner that forgets
@@ -75,9 +75,8 @@ This is where the repo's **heavy** gates actually run and block the commit:
 5. **Commit** the worktree (no push). Derive the terminal status mechanically from the gate
    results + finding state (see the table in [run/SKILL.md](../skills/run/SKILL.md)).
 
-The commit is gated on the heavy gates passing. There is no path that commits "green"
-without the real commands having run and produced evidence — that is the whole point of the
-tail.
+No path commits "green" without the real commands having run and produced evidence — that is
+the whole point of the tail.
 
 ## Tiering recap
 

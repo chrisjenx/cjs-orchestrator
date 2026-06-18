@@ -1,8 +1,7 @@
 # Reuse first, defer creation to workflows
 
 Two rules govern how the flow gets the capabilities it needs (a planner, a reviewer, a rule,
-a skill). They keep the flow lean and stop it from quietly hand-rolling one-off helpers that
-nobody maintains.
+a skill) — keeping it lean and stopping it from hand-rolling one-off helpers nobody maintains.
 
 > **1. Reuse first.** Before doing a job, find the most specific *already-defined*
 > skill / agent / rule and use it. Don't reinvent what exists.
@@ -36,11 +35,10 @@ Two triggers:
   finding class escape (a reviewer that misses it, a rule too vague to apply).
 
 In both cases the flow **records the gap and defers** — it does not inline-author a quick
-agent or rule. Creation/improvement is a *workflow*: a deliberate, multi-step,
-human-gated build that uses the canonical authoring method (for skills/agents, the
-skill-authoring discipline — write the failing eval first, then the agent; for rules, the
-repo's rule-doc conventions). The heavy authoring + verification happens in that workflow,
-not in the middle of a feature run.
+agent or rule. Creation/improvement is a *workflow*: a deliberate, multi-step, human-gated
+build using the canonical authoring method (for skills/agents, the skill-authoring discipline —
+write the failing eval first, then the agent; for rules, the repo's rule-doc conventions). The
+heavy authoring + verification happens there, not in the middle of a feature run.
 
 ## How this maps onto the flywheel levers
 

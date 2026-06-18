@@ -83,5 +83,4 @@ Routes also come **out**. When a cheaper, deterministic lever — a hook, a gate
 starts catching what a reviewer was added for, that reviewer is now redundant run cost. The
 [flywheel](./flywheel.md)'s agent lever covers both directions: grow a route when judgement is
 the only thing that catches a recurring class, and **reduce or merge** a route once something
-earlier subsumes its catches. Removing a now-redundant reviewer is as much a flywheel outcome
-as adding one — keep the table only as large as the pain requires.
+earlier subsumes its catches. Keep the table only as large as the pain requires.

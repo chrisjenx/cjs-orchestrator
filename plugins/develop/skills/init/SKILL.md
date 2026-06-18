@@ -62,8 +62,8 @@ a real file. Follow [references/stack-detection.md](../../references/stack-detec
 - Build tool / package manager, test runner, linter/formatter/type-checker, and CI — each
   with file evidence. **CI is the source of truth** for what "green" means.
 - Detect per workspace in monorepos; record all matched ecosystems.
-- For unrecognised ecosystems, degrade gracefully (see
-  [references/stacks.md](../../references/stacks.md)): detect what you can, log what you
+- For unrecognised ecosystems, degrade gracefully
+  ([references/stacks.md](../../references/stacks.md)): detect what you can, log what you
   skipped, never block.
 
 Output the stack summary and **ask the user to confirm or correct it before Phase 2.**
@@ -110,7 +110,7 @@ timeouts. **Never** install a hook tied to a stack you didn't confirm. Follow
 - Point the user at `.claude/develop-flywheel.md`: after each real run, classify every
   audit/review finding *preventable* vs *irreducible*; promote preventable ones to
   plan-time anchors. This is how the flow grows specialists and forks **only where repeated
-  pain shows** — not by guessing up front.
+  pain shows**, not by guessing up front.
 
 ---
 

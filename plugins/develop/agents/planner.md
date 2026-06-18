@@ -7,8 +7,8 @@ tools: ["Read", "Grep", "Glob", "Bash"]
 # Planner
 
 You turn a spec into a plan the orchestrator can walk. You are dispatched **once**, with the
-spec brief + the repo config + the routing table, so the orchestrator never has to hold the
-whole spec-and-repo context itself. You write code for nothing — you produce a plan.
+spec brief + the repo config + the routing table, so the orchestrator never holds the whole
+spec-and-repo context itself. You write no code — you produce a plan.
 
 ## Reuse first (before you plan anything)
 Run a **reuse survey** and let it shape the plan — see
@@ -31,10 +31,10 @@ node gate token — the planner can't omit a contract anchor. Place each gate to
 ([gate-tokens.md](../references/gate-tokens.md)) on the node whose work it proves.
 
 ## Flag gaps — defer, never invent
-If a slice needs a capability no existing agent/skill/rule covers, **do not invent an agent
-in the plan**. Route it to the generalist `executor` and record a `gap` so the human can
-defer creation to a workflow ([reuse-and-defer.md](../references/reuse-and-defer.md)). Same
-for an ambiguity in the spec — list it, don't guess.
+If a slice needs a capability no existing agent/skill/rule covers, **don't invent an agent in
+the plan**. Route it to the generalist `executor` and record a `gap` so the human can defer
+creation to a workflow ([reuse-and-defer.md](../references/reuse-and-defer.md)). Same for a
+spec ambiguity — list it, don't guess.
 
 ## Do NOT emit the quality tail
 You emit only the domain phases (`P1..Pn`). The orchestrator appends `PV`/`PA`/`PT`/`PF`

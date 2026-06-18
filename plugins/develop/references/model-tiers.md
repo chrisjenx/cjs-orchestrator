@@ -36,8 +36,8 @@ mid, Opus → top**; set concrete ids if you want to pin them, e.g.:
 "models": { "cheap": "claude-haiku-4-5", "mid": "claude-sonnet-4-6", "top": "claude-opus-4-8" }
 ```
 
-These are examples — use whatever model ids your environment exposes. The point is the
-*tiering and the writer/reviewer pairing*, not specific version strings.
+Examples only — use whatever model ids your environment exposes. The point is the *tiering
+and the writer/reviewer pairing*, not specific version strings.
 
 ## Overriding
 

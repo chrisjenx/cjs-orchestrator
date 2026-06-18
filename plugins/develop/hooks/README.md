@@ -19,9 +19,9 @@ reason about git and worktrees, never about a language or build tool.
    It exits `2` with a reason to block, `0` to allow. It has zero stack knowledge.
 
 2. **A generic command timeout** — set via env in `settings.json`
-   (`BASH_DEFAULT_TIMEOUT_MS` / `BASH_MAX_TIMEOUT_MS`), so a hung command can't stall a run
-   forever. This is generic by construction — it's a wall-clock bound on *any* command, not
-   a hook that knows your build tool.
+   (`BASH_DEFAULT_TIMEOUT_MS` / `BASH_MAX_TIMEOUT_MS`): a wall-clock bound on *any* command,
+   so a hung command can't stall a run forever. Generic by construction — it knows nothing
+   about your build tool.
 
 ## How init installs them (idempotent, non-destructive)
 

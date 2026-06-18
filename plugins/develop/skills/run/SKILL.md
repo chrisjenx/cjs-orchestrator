@@ -34,12 +34,11 @@ improvement to a human-gated workflow. See
 ## Status output (what someone dropping in sees)
 
 A run is fire-and-forget, so make it glance-readable: emit **one status line per transition**
-— `▸` started · `✓` done/green · `⚠` needs a decision · `✗` failed/blocked — using the real
-phase ids and gate tokens. See [run-status.md](../../references/run-status.md) for the grammar
-and a full example stream. This line **replaces** prose narration (a glyph line is a few
-tokens; a paragraph is hundreds), and **only the orchestrator narrates** — sub-agents return
-their fixed short contracts, they don't narrate. The `say:` cues in the steps below show the
-line to emit; keep everything you write and dispatch terse.
+— `▸` started · `✓` done/green · `⚠` needs a decision · `✗` failed/blocked — with the real
+phase ids and gate tokens ([run-status.md](../../references/run-status.md)). The line
+**replaces** prose narration; only the orchestrator narrates. The `say:` cues below give the
+exact line. Keep everything you write and dispatch terse —
+[token-frugality.md](../../references/token-frugality.md) is the first principle.
 
 ## Control flow
 
@@ -157,6 +156,6 @@ _say:_ the final line is the mechanical status — `✓ committed <sha> · ready
   workflow — never hand-roll it inline ([reuse-and-defer.md](../../references/reuse-and-defer.md)).
 - The quality tail is appended structurally before the walk; it cannot be skipped.
 - Heavy gates run only in PF, blocking the commit until green.
-- **Narrate one status line per transition** ([run-status.md](../../references/run-status.md)),
-  never a prose paragraph; only the orchestrator narrates. Keep every brief, dispatch, and
-  return contract terse — tokens spent on narration or bloated briefs are tokens wasted.
+- **Token frugality is the first principle** ([token-frugality.md](../../references/token-frugality.md)):
+  one status line per transition (never a paragraph; only the orchestrator narrates), excerpts
+  not whole files in briefs, fixed short return contracts. A wasted token compounds every run.

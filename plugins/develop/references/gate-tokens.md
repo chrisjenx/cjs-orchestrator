@@ -1,8 +1,8 @@
 # Gate tokens — the repo's real checks, made un-skippable
 
 `/develop:init` Phase 2. A **gate** is a check that clears *only because a command ran and
-produced evidence* — never because an agent "felt done." This file defines how to discover
-gates from the repo and how `/develop:run` references them.
+produced evidence* — never because an agent "felt done." Below: how to discover gates from
+the repo and how `/develop:run` references them.
 
 > The single most important step: extract the **actual commands** that define "correct" in
 > this repo — the ones CI runs — and make each one a token a plan node can carry.
