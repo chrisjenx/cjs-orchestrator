@@ -18,6 +18,12 @@ tokens) lives in `plugins/develop/references/`; the stack-agnostic auditors in
 
 ---
 
+## Token frugality — first principle for every edit
+
+Everything the plugin ships loads on **every run, for every user, forever** — one wasted token compounds over millions of runs. So author tight: say it once, say it short, then stop. Inline excerpts not whole files; one status line not a paragraph; fixed short return contracts; state each fact once and link rather than restate. This governs all shipped prose — skills, references, agent prompts — and this file. Canonical statement + rules: [`plugins/develop/references/token-frugality.md`](plugins/develop/references/token-frugality.md). Before committing any prose edit, re-read it and cut what doesn't earn its tokens.
+
+---
+
 ## Keep it generic (public repo)
 
 The explainer in `docs/` is **genericized from a real but private case study**. It has been scrubbed of project-specific data and the brand. **Keep it that way** — the tool is meant to be stack-agnostic, so the explainer must be too.
@@ -46,10 +52,6 @@ Each docs file carries a `PUBLIC REPO` banner pointing back here.
 > **History:** the original (unscrubbed) docs were pushed in the first commit, so history was rewritten to purge them before the repo gained forks/clones (see the issues). If you ever reintroduce and then scrub private data, do the same — a working-tree scrub alone leaves it in the log.
 
 ---
-
-## Token frugality (first principle)
-
-Everything the plugin ships — skills, references, agent briefs, status lines — is paid **on every run, by every user, forever**. One wasted token compounds over millions of runs. Authoring rule: say it once, say it short, then stop — inline excerpts not whole files, one status line not a paragraph, fixed short return contracts, state each fact once and link rather than restate. The canonical statement is [`plugins/develop/references/token-frugality.md`](plugins/develop/references/token-frugality.md); keep all new and edited plugin prose tight against it.
 
 ## Working on it
 
