@@ -52,6 +52,8 @@ Cheap gates run in your turn; annotate heavy gates DEFERRED-PF.
   deduped).
 - Scope fence: only the files your nodes name; anything else → write a finding, don't do it.
 - Loop: honour [loop: max N]; after N failures set BLOCKED + an ESCALATE finding.
+- No narration: the orchestrator owns the status stream ([run-status.md](./run-status.md)) —
+  you write the plan and return the three lines below, nothing more.
 
 ## Return — three lines only
 ASSUMPTIONS: <one line>

@@ -21,6 +21,7 @@ never write feature code yourself.
   [gate-tokens.md](../../references/gate-tokens.md),
   [quality-tail.md](../../references/quality-tail.md),
   [schemas.md](../../references/schemas.md),
+  [run-status.md](../../references/run-status.md),
   [reuse-and-defer.md](../../references/reuse-and-defer.md).
 
 **Reuse first, defer creation to workflows.** At every step that needs a capability — plan,
@@ -30,12 +31,23 @@ one is inadequate, **don't hand-roll it inline** — record the gap and defer cr
 improvement to a human-gated workflow. See
 [reuse-and-defer.md](../../references/reuse-and-defer.md).
 
+## Status output (what someone dropping in sees)
+
+A run is fire-and-forget, so make it glance-readable: emit **one status line per transition**
+— `▸` started · `✓` done/green · `⚠` needs a decision · `✗` failed/blocked — using the real
+phase ids and gate tokens. See [run-status.md](../../references/run-status.md) for the grammar
+and a full example stream. This line **replaces** prose narration (a glyph line is a few
+tokens; a paragraph is hundreds), and **only the orchestrator narrates** — sub-agents return
+their fixed short contracts, they don't narrate. The `say:` cues in the steps below show the
+line to emit; keep everything you write and dispatch terse.
+
 ## Control flow
 
 ### 1. Intake
 Resolve the argument into a spec brief: a spec file/dir → read it; a ticket id/URL → fetch
 it; an inline description → use it as-is. Derive a kebab `feature` name. Write the brief to
 `<featureDir>/<feature>.spec.md`.
+_say:_ `▸ intake · spec → feature <feature>` (feature name in backticks)
 
 ### 2. Worktree (isolation)
 Work in an isolated git worktree so a run can't corrupt the user's workspace:
@@ -46,6 +58,7 @@ Capture its **absolute** path as `worktreeRoot`. **Hard-stop** if the resolved c
 `main`/`master` or outside the worktree. If `origin/main` has advanced past the branch base,
 rebase onto it first (a stale base poisons every diff). To resume an interrupted run, reuse
 the existing worktree instead of creating one.
+_say:_ `▸ worktree · develop/<feature>`
 
 ### 3. Assess
 Read `develop.config.json`. Build the run config: classify scope (small/medium/large by
@@ -53,11 +66,13 @@ Read `develop.config.json`. Build the run config: classify scope (small/medium/l
 (lean defaults — no forking unless raised; see
 [verify-by-forking.md](../../references/verify-by-forking.md)). Collect every blocking
 unknown into `ambiguities`.
+_say:_ `▸ assess · scope <s> · areas <list> · caps <profile>`
 
 ### 4. Clarify
 If the spec is thin or `ambiguities` is non-empty, ask the user the blocking questions now
 (`AskUserQuestion`) — this is the main human-in-the-loop seam. Fold answers into the brief.
 Skip only when the spec is genuinely unambiguous.
+_say:_ `⚠ clarify · <n> questions` (only when asking; skip the line when the spec is clear)
 
 ### 5. Plan
 Dispatch the [`planner`](../../agents/planner.md) agent (top tier) with the spec brief +
@@ -76,6 +91,8 @@ rules + contract anchors) and returns a structured `PLAN`
   route the slice to the generalist `executor` for now and offer to **defer** building the
   missing capability to a workflow ([reuse-and-defer.md](../../references/reuse-and-defer.md)).
 
+_say:_ `▸ plan · planner…` then `✓ plan · <p> phases · <r> reqs · <a> agents routed`
+
 **Pre-walk gate:** the plan must contain `### P` nodes and a Requirements Inventory. If not,
 terminate `planning-failed` (no code written).
 
@@ -84,17 +101,19 @@ Loop until no phase is ready:
 1. Read the plan. Find the **first** phase that is not `DONE`/`BLOCKED` and whose
    `[depends:]` are all `DONE`.
 2. Flip it `[status: IN_PROGRESS]` and append an Execution Log breadcrumb row **before**
-   dispatching (survives a crash).
+   dispatching (survives a crash). _say:_ `▸ <Pn> <short name> · <agent>…`
 3. Render the [executor brief](../../references/executor-brief.md) — this phase's nodes
    verbatim, `worktreeRoot`, the config/routing slices, prior-phase handoff Notes, the
    Finding Registry. Inline excerpts, not the whole plan.
 4. Dispatch **one** executor (`Agent`, `subagent_type: executor`, model = mid tier).
 5. **Re-read the plan** to confirm the phase reached `DONE`/`BLOCKED` — trust the file, not
-   the executor's reply message.
+   the executor's reply message. _say:_ `✓ <Pn> · done <x>/<y> · {gate}✓ …` (or
+   `✗ <Pn> · blocked · <reason>`).
 6. **Between-phase gate:** if the phase ended `BLOCKED` with unresolved HIGH findings or an
    `ESCALATE`, surface one `AskUserQuestion` (options include the tentative default) and
    fold the answer into the plan's `## Decisions`. Bounded by `caps.gate`; beyond that, fall
-   through to the tentative default (logged). The phase may re-open.
+   through to the tentative default (logged). The phase may re-open. _say:_
+   `⚠ <Pn> · <finding> → asking`.
 7. Advance.
 
 **Resume on crash:** re-invoking re-reads the plan, skips `DONE`, re-enters the first
@@ -107,6 +126,8 @@ the Requirements Inventory, deep **Audit** (parallel auditors + `code-reviewer` 
 [routing](../../references/routing.md)), **Tidy** (the [`tidy`](../../agents/tidy.md) worker +
 reviewers), **Finalize** (run every `DEFERRED-PF` heavy gate locally, blocking until green,
 then commit — no push — and write the report + flywheel postmortem).
+_say:_ one line per tail phase — `▸ PV validate · pass`, `✓ PA · <n> findings → fixed`,
+`▸ PT tidy · clean`, `▸ PF finalize · {build}✓ {test}✓ {cov>=80}✓`.
 
 ### 8. Relay
 Derive the terminal status **mechanically** from the plan's Decisions/finding state and the
@@ -123,6 +144,9 @@ finalize result — never from prose:
 Report status, the commit SHA, open findings, and escalations. **Never push and never open a
 PR** — `/develop:run` hands off a committed branch; the user (or a separate push/PR flow)
 takes it from there.
+_say:_ the final line is the mechanical status — `✓ committed <sha> · ready` (or
+`⚠ … · ready-with-escalations`, `✗ … · committed-with-failures` / `commit-failed` /
+`planning-failed`).
 
 ## Invariants
 - The plan file is the only source of truth. Phase `[status:]` is rewritten in place;
@@ -133,3 +157,6 @@ takes it from there.
   workflow — never hand-roll it inline ([reuse-and-defer.md](../../references/reuse-and-defer.md)).
 - The quality tail is appended structurally before the walk; it cannot be skipped.
 - Heavy gates run only in PF, blocking the commit until green.
+- **Narrate one status line per transition** ([run-status.md](../../references/run-status.md)),
+  never a prose paragraph; only the orchestrator narrates. Keep every brief, dispatch, and
+  return contract terse — tokens spent on narration or bloated briefs are tokens wasted.
