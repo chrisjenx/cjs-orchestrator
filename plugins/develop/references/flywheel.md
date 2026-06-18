@@ -66,9 +66,10 @@ repeating — they are exactly the specialists/forks that earned their place.
   The planner can't omit a contract anchor; that's the "satisfy by construction" half.
 - **Contract ← runs (periodic, human-gated):** `PF` runs the **contract-gaps classifier**
   over the residual findings (one `CONTRACT_GAP` per finding — `preventable` + a proposed
-  `remediation` lever + `target`; see [schemas.md](./schemas.md)) and appends them to the
-  postmortem. **`/develop:flywheel`** (run periodically between feature runs) reads the
-  accumulated postmortems and **promotes** any category that has appeared
+  `remediation` lever + `target`; see [schemas.md](./schemas.md)) and appends each as a
+  `FLYWHEEL_RECORD` line to `.claude/develop-flywheel.jsonl`. **`/develop:flywheel`** (run
+  periodically between feature runs) aggregates that SSOT and **promotes** any category that
+  has appeared
   **≥ 2 times across runs — or immediately if it's a breaking-class finding** — by applying its
   lever (a hook/gate/rule/agent, or an anchor on the contract). Prefer the earliest deterministic
   lever; promote a new agent only when nothing cheaper expresses the check. **Applying** a lever
@@ -81,10 +82,19 @@ repeating — they are exactly the specialists/forks that earned their place.
 
 ## Where it lives
 
-- This mechanism is bundled (portable). The **per-repo** flywheel doc — the running
-  postmortem log + this repo's promoted anchors — is `.claude/develop-flywheel.md`, seeded by
-  `/develop:init` from [`templates/develop-flywheel.md`](../templates/develop-flywheel.md).
-- `PF` appends one postmortem block per run; the human curates the promoted-anchors list.
+The mechanism is bundled (portable). Two per-repo files split machine record from human
+judgement:
+
+- **`.claude/develop-flywheel.jsonl`** — the **machine SSOT**. `PF` appends one
+  `FLYWHEEL_RECORD` per residual finding (append-only, never rewritten). Writing it is a plain
+  line-append — no script in the run hot loop.
+- **`.claude/develop-flywheel.md`** — **human-curated**: the remediation-lever reference, this
+  repo's promoted-anchors contract, and a promotion history. Seeded by `/develop:init` from
+  [`templates/develop-flywheel.md`](../templates/develop-flywheel.md); **never written from a
+  run** — only `/develop:flywheel` edits it, on human approval.
+
+`/develop:flywheel` runs the bundled `scripts/flywheel-aggregate.py` over the JSONL — at
+flywheel time only — to count recurrences across runs, cheapest lever first.
 
 The loop tightens every run: a defect that escaped becomes a control at the right layer so
 it can't escape again, and the flow grows (and prunes) precisely the structure the repo's

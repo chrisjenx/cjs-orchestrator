@@ -124,7 +124,8 @@ PV → PA → PT → PF are ordinary phases in the walk, but with fixed logic �
 the Requirements Inventory, deep **Audit** (parallel auditors + `code-reviewer` from
 [routing](../../references/routing.md)), **Tidy** (the [`tidy`](../../agents/tidy.md) worker +
 reviewers), **Finalize** (run every `DEFERRED-PF` heavy gate locally, blocking until green,
-then commit — no push — and write the report + flywheel postmortem).
+then commit — no push — write the report, and append one `FLYWHEEL_RECORD` per residual
+finding to `.claude/develop-flywheel.jsonl`, the machine SSOT).
 _say:_ one line per tail phase — `▸ PV validate · pass`, `✓ PA · <n> findings → fixed`,
 `▸ PT tidy · clean`, `▸ PF finalize · {build}✓ {test}✓ {cov>=80}✓`.
 

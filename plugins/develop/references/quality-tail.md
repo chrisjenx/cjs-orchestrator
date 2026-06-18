@@ -71,7 +71,10 @@ This is where the repo's **heavy** gates actually run and block the commit:
    residual findings ([flywheel.md](./flywheel.md)) — classify each preventable vs
    irreducible and, for preventable ones, propose a remediation lever (hook / gate /
    plan-anchor / rule / agent) + its target.
-4. Write the run **report** and append the **postmortem** to the flywheel doc.
+4. Write the run **report**, and **append one `FLYWHEEL_RECORD` per residual finding** to
+   `.claude/develop-flywheel.jsonl` — a plain line-append, the machine SSOT
+   ([schemas.md](./schemas.md)). No prose postmortem; `/develop:flywheel` aggregates the JSONL
+   later. `develop-flywheel.md` is human-curated, never written from a run.
 5. **Commit** the worktree (no push). Derive the terminal status mechanically from the gate
    results + finding state (see the table in [run/SKILL.md](../skills/run/SKILL.md)).
 

@@ -1,17 +1,20 @@
 ---
 name: flywheel
-description: Manually evaluate the develop flow's accumulated postmortems and decide what to tweak before the next run. Trigger on "/develop:flywheel", "tune the develop flow", "review the postmortems", "what should I improve before the next run", "grow the flow". Reads .claude/develop-flywheel.md across runs, flags recurring/breaking finding categories, and proposes the cheapest remediation lever + target for each — human-gated. Run periodically between feature runs, not per feature (PF already logs each run).
+description: Manually evaluate the develop flow's accumulated run records and decide what to tweak before the next run. Trigger on "/develop:flywheel", "tune the develop flow", "review the postmortems", "what should I improve before the next run", "grow the flow". Aggregates the .claude/develop-flywheel.jsonl SSOT across runs (via the bundled flywheel-aggregate.py), flags recurring/breaking finding categories, and proposes the cheapest remediation lever + target for each — human-gated. Run periodically between feature runs, not per feature (PF appends a record per run).
 ---
 
 # Tune the flow from its postmortems
 
-`/develop:run` *logs* a postmortem after every run; this skill *acts* on the accumulated
-logs. It's the human-gated half of the [flywheel](../../references/flywheel.md): read what
-keeps escaping, decide where to tighten, and apply it. Run it once a few runs have
-accumulated, not after every feature.
+`/develop:run` *records* each run's residual findings to the flywheel SSOT; this skill *acts*
+on the accumulated records. It's the human-gated half of the
+[flywheel](../../references/flywheel.md): read what keeps escaping, decide where to tighten,
+and apply it. Run it once a few runs have accumulated, not after every feature.
 
 ## Read first
-- `.claude/develop-flywheel.md` — the postmortem log + this repo's promoted-anchors table.
+- `.claude/develop-flywheel.jsonl` — the machine SSOT (one record per residual finding per
+  run); aggregate it with the bundled `scripts/flywheel-aggregate.py` (step 1).
+- `.claude/develop-flywheel.md` — human-curated: this repo's promoted-anchors table +
+  promotion history (so you don't re-propose what's already promoted).
 - `.claude/develop.config.json`, `.claude/develop-routing.json` — what gates/agents already
   exist (you reuse-first against these).
 - `.claude/agents/` — the repo's own agents (to spot unwired ones — step 1b).
@@ -23,8 +26,14 @@ accumulated, not after every feature.
 ## Control flow
 
 ### 1. Gather
-Read every postmortem block in `.claude/develop-flywheel.md` and the promoted-anchors table
-(so you don't re-propose what's already promoted).
+Aggregate the SSOT — run the bundled aggregator (read-only, counts recurrences across runs,
+cheapest lever first, irreducible floor set aside):
+```sh
+python3 "${CLAUDE_PLUGIN_ROOT}/scripts/flywheel-aggregate.py" .claude/develop-flywheel.jsonl
+```
+(No `python3`? The records are plain JSON lines — read the file and group by `category`
+yourself.) Then read the promoted-anchors table in `.claude/develop-flywheel.md` so you don't
+re-propose what's already promoted.
 
 ### 1b. Detect unwired agents (quick grep)
 A repo agent that exists but nothing routes to is a missed reuse — it *should have been

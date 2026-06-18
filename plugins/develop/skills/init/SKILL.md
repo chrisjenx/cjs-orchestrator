@@ -23,7 +23,8 @@ The plugin ships **static, portable skills**; per-project behaviour comes from
     cheap/heavy), build dir, model tiers, caps.
   - `.claude/develop-routing.json` — artifact-shape → specialist table (starts empty with a
     generalist fallback; grows via the flywheel).
-  - a starter `CLAUDE.md`, safe stack-agnostic hooks, and a `.claude/develop-flywheel.md`.
+  - a starter `CLAUDE.md`, safe stack-agnostic hooks, a `.claude/develop-flywheel.md`, and an
+    empty `.claude/develop-flywheel.jsonl` (the append-only flywheel SSOT).
 - **`/develop:run`** — the static orchestrator loop. It reads the definitions above, so it
   behaves fitted to the repo without being rewritten per repo.
 - **Bundled references** (the portable mechanism, read by `/develop:run`, never copied into
@@ -91,7 +92,9 @@ Write (showing the diff first):
 - a starter `CLAUDE.md` from the discovered conventions, kept short
   ([references/claude-md-starter.md](../../references/claude-md-starter.md)).
 - `.claude/develop-flywheel.md` — how the flow grows
-  ([references/flywheel.md](../../references/flywheel.md)).
+  ([references/flywheel.md](../../references/flywheel.md)) — plus an **empty**
+  `.claude/develop-flywheel.jsonl`, the append-only SSOT `PF` appends records to (create it
+  empty so the first run can append).
 
 The plan file, plan-anatomy, executor brief, and quality tail are **not** written here —
 they live in the plugin and are used by `/develop:run` at runtime.
@@ -141,6 +144,6 @@ timeouts. **Never** install a hook tied to a stack you didn't confirm. Follow
 - [ ] Starter `CLAUDE.md` written
 - [ ] Safe hooks only
 - [ ] Dry run passes and a gate failure actually blocks
-- [ ] Flywheel doc in place for the user to grow it over time
+- [ ] Flywheel doc + empty `.jsonl` SSOT in place for the flow to grow over time
 
 Philosophy and a worked case study: https://chrisjenx.github.io/cjs-orchestrator/

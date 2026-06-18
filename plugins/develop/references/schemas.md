@@ -99,6 +99,26 @@ Default to `refuted: true` when uncertain — the refuter's job is to *try to ki
 }
 ```
 
+## FLYWHEEL_RECORD — one line of the flywheel SSOT ([flywheel.md](./flywheel.md))
+
+`PF` appends one line per residual finding to `.claude/develop-flywheel.jsonl` (append-only,
+the machine SSOT) — a `CONTRACT_GAP` stamped with the run + the finding's fingerprint:
+
+```json
+{
+  "run": "<feature>", "date": "YYYY-MM-DD",
+  "fingerprint": "severity:file:line:slug",
+  "category": "the finding class", "severity": "high|medium|low|quality",
+  "preventable": true, "breaking": false,
+  "remediation": "hook | gate | plan-anchor | rule | agent",
+  "target": "the concrete destination"
+}
+```
+
+Irreducible findings carry `preventable: false` and may omit `remediation`/`target`. The
+bundled `scripts/flywheel-aggregate.py` reads this file at `/develop:flywheel` time — never
+in the run loop — to count recurrences across runs.
+
 ## Conventions
 
 - Severities: `high` blocks; `medium` should be fixed; `low`/`quality` are cleanup.

@@ -1,11 +1,11 @@
 # develop flywheel — <repo name>
 
-How this repo's `/develop` flow grows. `/develop:run`'s `PF` appends a postmortem block
-below after each run; run **`/develop:flywheel`** periodically to evaluate the accumulated
-log and promote tweaks for the next run. See the mechanism in the plugin's
-`references/flywheel.md`. Start minimal; promote a remediation only when a finding category
-recurs (≥ 2 runs) **or** is breaking-class. Promotion is always a human-gated edit — never
-auto-edited from a run.
+How this repo's `/develop` flow grows. Each run, `PF` appends one record per residual finding
+to the companion **`develop-flywheel.jsonl`** (the machine SSOT). Run **`/develop:flywheel`**
+periodically to aggregate that SSOT and promote tweaks for the next run. This doc is
+**human-curated** — never written from a run; only `/develop:flywheel` edits it, on your
+approval. See the mechanism in the plugin's `references/flywheel.md`. Start minimal; promote a
+remediation only when a finding category recurs (≥ 2 runs) **or** is breaking-class.
 
 ## Remediation levers (route each preventable finding to the cheapest, earliest one)
 
@@ -22,7 +22,7 @@ run cost).
 
 ## Promoted anchors (this repo's plan-completeness contract — the plan-anchor lever)
 
-Starts with the stack-neutral defaults. Add a row only after the postmortem shows a category
+Starts with the stack-neutral defaults. Add a row only after the SSOT shows a category
 repeating. Each anchor must be *mechanical* (true/false without judgement).
 
 | Anchor | Prevents | Promoted on (date / runs seen) |
@@ -34,12 +34,6 @@ repeating. Each anchor must be *mechanical* (true/false without judgement).
 | Reuse map stated | duplicate-of-existing | default |
 | Cross-area edges wired end to end | unwired layer | default |
 
-## Postmortem log (append one block per run; newest first)
+## Promotion history (curated by `/develop:flywheel` on approval; newest first)
 
-<!-- PF appends a block like this after each run -->
-### <feature> — <date>
-- Terminal status: <ready | ...>
-- Preventable findings that escaped to audit/tidy: <n>
-  - <category> → proposed remediation: <hook|gate|plan-anchor|rule|agent> → <target>  (seen <count>x total)
-- Irreducible findings (floor): <n>
-- Promotion candidates (≥2 runs or breaking-class): <list, or none>
+<!-- one line per promotion: <date> — <category> ×<n> runs → <lever>: <target> -->
