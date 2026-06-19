@@ -15,6 +15,7 @@ detection makes an eval fail.
 evals/
   README.md            # this file
   triggering.md        # should-trigger / should-NOT-trigger phrase matrix
+  scaffold-eval.md     # full WRITE eval: run init, validate the .claude/ it writes
   fixtures/
     node-ts/           # a realistic minimal repo per stack
     python-uv/
@@ -42,6 +43,14 @@ Then compare the subagent's report to `expected.json`:
 
 Score each fixture pass/fail and report the matrix. A red fixture = a detection regression to
 fix in the skill/references, not in the eval.
+
+## Scaffold eval (full write)
+
+The detection eval above is **read-only** — it checks Phase 1–2 discovery and forbids writes.
+To validate the **whole scaffold** init writes (config, routing, safe hook, flywheel seed,
+`CLAUDE.md`), measure run-to-run determinism, or diff against an existing repo's hand-built
+`.claude/` golden, see [scaffold-eval.md](./scaffold-eval.md) and
+[`../scripts/check-scaffold.py`](../scripts/check-scaffold.py).
 
 ## Triggering evals
 
