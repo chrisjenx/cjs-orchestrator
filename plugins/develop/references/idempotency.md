@@ -43,6 +43,8 @@ nothing on a no-change re-run is a valid, expected outcome.
   prose ([claude-md-starter.md](./claude-md-starter.md)).
 - **`develop-flywheel.md`** — create only if absent. It accumulates postmortems and the
   user's promoted anchors — **never** regenerate it.
+- **`develop-flywheel.jsonl`** — preserve; the append-only machine SSOT, never recreate or
+  truncate on a re-run.
 - **Hooks / `settings.json`** — merge, don't overwrite; preserve existing hooks and any user
   timeout ([../hooks/README.md](../hooks/README.md)).
 

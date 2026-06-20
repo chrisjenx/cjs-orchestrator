@@ -40,7 +40,7 @@ invent a command.
 | `grep` | a required (or forbidden) pattern is present/absent in the diff | derived anchor, see [flywheel.md](./flywheel.md) |
 
 Each gate stores **both** a `command` (whole-repo) and, where the tool supports it, a
-`scoped_command` template (e.g. one package, one test selector) used for the cheap inline run.
+`scopedCommand` template (e.g. one package, one test selector) used for the cheap inline run.
 
 ## Tiers — cheap (inline) vs heavy (final)
 
@@ -69,7 +69,9 @@ in `{…}`:
 - `{test:<selector>}` → run only the named test(s); the selector is whatever the runner
   accepts (file path, test name, tag). Forces a **fresh** run (no cached results).
 - `{cov>=N}` → diff coverage must be ≥ N% (a `coverage` gate must be configured).
-- `{grep:<id>}` → a required-pattern anchor from the routing/flywheel layer.
+- `{grep:<id>}` → a required/forbidden-pattern anchor: the `id` *names the pattern* (e.g.
+  `no-todo`, `reuse:<ref>`, a wiring anchor), checked by grepping the diff and resolved by the
+  executor/flywheel layer — **not** a `develop.config.json` gate ([flywheel.md](./flywheel.md)).
 - **Placement is load-bearing.** Put the gate on the node whose work it proves — a perm/
   auth test on the node that adds the guarded route, coverage on the node that adds the
   logic. An executor checks a node's gates in node order.
@@ -82,5 +84,7 @@ in `{…}`:
   record it `DEFERRED-PF` and move on — don't burn the loop budget retrying a broken env.
 - **Cheap in the executor's turn; heavy deferred.** The executor never runs heavy gates;
   it tags them `DEFERRED-PF`. Only `PF` finalize runs heavy gates, blocking until green.
-- **Unrecognised token = planner error.** If a node carries a token with no matching gate
-  in `develop.config.json`, that's a bug in the plan — write a finding, don't guess.
+- **Unrecognised command-token = planner error.** If a node carries a command-gate token
+  (`build`/`test`/`lint`/`format`/`types`/`cov`) with no matching gate in
+  `develop.config.json`, that's a bug in the plan — write a finding, don't guess. `{grep:<id>}`
+  anchors are exempt: they self-resolve from the id (no config gate needed).

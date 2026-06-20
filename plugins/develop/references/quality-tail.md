@@ -11,12 +11,15 @@ After the domain phases come four fixed phases: **Validate → Audit → Tidy �
 
 All four are ordinary phases the walk processes; they just have fixed logic instead of
 planner-authored nodes. Findings flow into the same Finding Registry, deduped by
-fingerprint ([schemas.md](./schemas.md)).
+fingerprint ([schemas.md](./schemas.md)). Every validate/audit/review dispatch in the tail
+runs at the **top** tier — paired against the mid-tier executor so review can't rubber-stamp
+([model-tiers.md](./model-tiers.md)); the `tidy` worker writes cheap, its reviewers run top.
 
 ## PV — Validate (does the diff satisfy the requirements?)
 
-- Assemble the branch diff (`git diff <merge-base>`). Dispatch a validator with the diff +
-  the **Requirements Inventory**. It returns a `VERDICT`.
+- Assemble the branch diff (`git diff <merge-base>`). Dispatch a validator — reuse-first, a
+  bundled reviewer at **top** tier (`code-reviewer` for requirement compliance, or
+  `completeness-auditor`) — with the diff + the **Requirements Inventory**. It returns a `VERDICT`.
 - `pass` → advance to PA.
 - `iterate` → append fix-in-place subtasks (and, if a requirement was missed entirely, a
   small bounded re-plan) and re-walk. Bounded by `caps.validator` rounds; on exhaustion,
@@ -40,7 +43,9 @@ fingerprint ([schemas.md](./schemas.md)).
 - **Audit ladder** — climb one rung per round *that finds defects* (most- to least-likely to
   surface): completeness → stubs → edge-case → regression → fresh-eyes → architecture. A
   round that finds nothing new ends the climb. Bounded by `caps.audit`; a convergence check
-  (same finding count two rounds running) forces a stop → escalate.
+  (same finding count two rounds running) forces a stop → escalate. Day-one PA dispatches only
+  the bundled auditors (completeness/stubs/regression/general-quality) from `routing.json`'s
+  `audit` set; the `edge-case`/`architecture` rungs fill in as specialists grow via the flywheel.
 - Outcome: clean → PT; fixable → append fix subtasks + re-walk; needs a human decision →
   between-phase gate.
 
@@ -67,10 +72,11 @@ This is where the repo's **heavy** gates actually run and block the commit:
    `caps.gate`), then re-run the gate. A flake (passes on rerun) is logged, not treated as a
    failure; a real failure that survives the budget → terminal status
    `committed-with-failures` (recorded, surfaced, never pushed).
-3. Run the **completeness critic** + the flywheel **contract-gaps classifier** over the
-   residual findings ([flywheel.md](./flywheel.md)) — classify each preventable vs
-   irreducible and, for preventable ones, propose a remediation lever (hook / gate /
-   plan-anchor / rule / agent) + its target.
+3. **Classify the residual findings** — a top-tier pass (reuse a bundled reviewer, or the
+   orchestrator inline; not a separate bundled agent): the flywheel **contract-gaps classifier**
+   ([flywheel.md](./flywheel.md)) marks each preventable vs irreducible and, for preventable
+   ones, proposes a remediation lever (hook / gate / plan-anchor / rule / agent) + its target
+   (one `CONTRACT_GAP` each).
 4. Write the run **report**, and **append one `FLYWHEEL_RECORD` per residual finding** to
    `.claude/develop-flywheel.jsonl` — a plain line-append, the machine SSOT
    ([schemas.md](./schemas.md)). No prose postmortem; `/develop:flywheel` aggregates the JSONL

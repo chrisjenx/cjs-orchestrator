@@ -57,13 +57,15 @@ repo. Keep it small and human-editable; the user owns it.
 | `caps` | init / run | Loop bounds: validator rounds, audit rounds, fork rounds, between-phase gate rounds. |
 | `intensity` | [verify-by-forking.md](./verify-by-forking.md) | `refuters` and `planCandidates` counts. `1` = lean default (no forking). |
 | `routingFile` | init | Path to the routing table ([routing.md](./routing.md)). |
-| `flywheelFile` | init | Path to the flywheel doc ([flywheel.md](./flywheel.md)). |
+| `flywheelFile` | init | Path to the **human-curated** flywheel doc ([flywheel.md](./flywheel.md)). The machine SSOT is its sibling `.claude/develop-flywheel.jsonl`, which `PF` appends to; the `.md` is never written from a run. |
 
 ## Rules
 
 - **Only commands the user confirmed go in `gates`.** No invented commands.
 - The config is the contract between `/develop:init` (writer) and `/develop:run` (reader).
-  A gate token on a plan node with no matching `gates[].id`/`kind` is a planner error.
+  A *command-gate* token (`build`/`test`/`lint`/`format`/`types`/`cov`) on a plan node with no
+  matching `gates[].id`/`kind` is a planner error; `{grep:<id>}` anchors self-resolve
+  ([gate-tokens.md](./gate-tokens.md)).
 - Defaults shown for `models`, `caps`, `intensity` are the lean starting point; the user
   edits them. `/develop:run` reads them every run, so edits take effect immediately.
 - On a re-run, `/develop:init` reconciles this file rather than overwriting it (see

@@ -49,7 +49,7 @@ itself ([quality-tail.md](../references/quality-tail.md)) — never put them in 
     "nodes": [{ "id": "P1.a", "action": "...", "agent": "executor", "gates": ["build", "test:..."], "reuse": "extend path/Existing" }]
   }],
   "gaps": ["capability/spec gap to defer or clarify"],
-  "notes": "one line"
+  "summary": "one line"
 }
 ```
 Return only the PLAN object.
