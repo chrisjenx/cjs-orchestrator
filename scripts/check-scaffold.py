@@ -82,10 +82,15 @@ def validate(target, expected_path):
         for key in ("schema", "featureDir", "stack", "gates", "models", "caps"):
             chk(f"config.{key} present", key in cfg)
         stack = cfg.get("stack", {})
-        want_eco = set(exp.get("stack", {}).get("ecosystems", []))
-        got_eco = set(stack.get("ecosystems", []))
-        chk("stack.ecosystems == expected", want_eco == got_eco,
-            f"want {sorted(want_eco)} got {sorted(got_eco)}")
+        want_eco = exp.get("stack", {}).get("ecosystems", [])
+        got_eco = stack.get("ecosystems", [])
+        # Substring-in-label, not set equality: the ecosystem label is free-form and varies
+        # run to run (["jvm-gradle","kotlin-multiplatform"] vs ["jvm-gradle-kotlin-multiplatform"]).
+        # Assert each expected term appears somewhere in the produced label; ignore tokenisation.
+        joined = " ".join(got_eco).lower()
+        miss = [w for w in want_eco if w.lower() not in joined]
+        chk("stack.ecosystems mention expected terms", not miss,
+            f"missing {miss} in {got_eco}")
         want_bt = exp.get("stack", {}).get("buildTool")
         chk("stack.buildTool == expected", stack.get("buildTool") == want_bt,
             f"want {want_bt!r} got {stack.get('buildTool')!r}")
@@ -96,8 +101,11 @@ def validate(target, expected_path):
             chk(f"gate '{g.get('kind')}' tier cheap|heavy",
                 g.get("tier") in ("cheap", "heavy"), repr(g.get("tier")))
         for eg in exp.get("gates", []):
-            kind, ecmd = eg.get("kind"), norm(eg.get("command"))
-            hit = any(k == kind and ecmd in c for k, c in got_pairs)
+            kind = eg.get("kind")
+            # expected `command` may list "|"-separated acceptable alternatives (e.g. a build
+            # umbrella that is either "assemble" or "gradlew build"); any one matching passes.
+            alts = [norm(a) for a in (eg.get("command") or "").split("|") if a.strip()]
+            hit = any(k == kind and any(a in c for a in alts) for k, c in got_pairs)
             chk(f"gate {kind!r} mirrors CI {eg.get('command')!r}", hit,
                 "" if hit else f"got {got_pairs}")
 

@@ -19,6 +19,11 @@ the repo and how `/develop:run` references them.
    these the commands that decide green here, and did I miss any?" Write the confirmed set
    into `.claude/develop.config.json` (see [config-schema.md](./config-schema.md)).
 
+**Build gate = whole-project, not one module.** CI often shards compile per module/target for
+speed, but one module's compile is too narrow a `build` gate. Use the umbrella the build tool
+always provides (Gradle `build`/`assemble`, `cargo build`, `tsc -b`, `make`); scope only the
+*cheap* run to changed modules. The gate must catch compile breakage anywhere the change touches.
+
 If a gate can't be derived from a real command, it is not a gate — drop it or ask. Never
 invent a command.
 
