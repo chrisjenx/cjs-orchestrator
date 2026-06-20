@@ -17,9 +17,11 @@ runs at the **top** tier — paired against the mid-tier executor so review can'
 
 ## PV — Validate (does the diff satisfy the requirements?)
 
-- Assemble the branch diff (`git diff <merge-base>`). Dispatch a validator — reuse-first, a
+- Assemble the branch diff (`git diff <merge-base>`). Dispatch a reviewer — reuse-first, a
   bundled reviewer at **top** tier (`code-reviewer` for requirement compliance, or
-  `completeness-auditor`) — with the diff + the **Requirements Inventory**. It returns a `VERDICT`.
+  `completeness-auditor`) — with the diff + the **Requirements Inventory**; it returns
+  `FINDINGS`. The orchestrator derives the outcome: none blocking → `pass`; fixable in place →
+  `iterate`; a requirement needs a human call → `escalate`.
 - `pass` → advance to PA.
 - `iterate` → append fix-in-place subtasks (and, if a requirement was missed entirely, a
   small bounded re-plan) and re-walk. Bounded by `caps.validator` rounds; on exhaustion,

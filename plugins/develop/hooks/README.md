@@ -11,12 +11,15 @@ reason about git and worktrees, never about a language or build tool.
 ## What gets installed
 
 1. **`worktree-guard.sh`** — a `PreToolUse(Bash)` guard that:
-   - refuses destructive git (`checkout` / `restore` / `reset --hard` / `clean` / `stash`)
-     so a run can't wipe another phase's uncommitted work — the develop flow is read-only
-     git by design;
+   - refuses destructive working-tree git (`checkout` / `switch` / `restore` / `clean` /
+     `stash`, and `reset --hard|--keep|--merge`) so a run can't wipe another phase's or a
+     sibling worktree's uncommitted work — the develop flow is read-only git by design;
    - refuses mutating git (`commit` / `push` / `merge` / `rebase`) while on `main`/`master`
-     — feature work belongs on a worktree branch.
-   It exits `2` with a reason to block, `0` to allow. It has zero stack knowledge.
+     or a detached HEAD — feature work belongs on a worktree branch (recovery forms like
+     `--abort`/`--continue` are allowed).
+   Matching is anchored to command position and accounts for git global flags (`-C`,
+   `--git-dir`, `--work-tree`), so `git -C <dir> reset --hard` is caught while `echo "git
+   commit"` is not. Exits `2` with a reason to block, `0` to allow. Zero stack knowledge.
 
 2. **A generic command timeout** — set via env in `settings.json`
    (`BASH_DEFAULT_TIMEOUT_MS` / `BASH_MAX_TIMEOUT_MS`): a wall-clock bound on *any* command,

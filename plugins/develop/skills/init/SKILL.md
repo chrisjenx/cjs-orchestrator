@@ -27,14 +27,12 @@ The plugin ships **static, portable skills**; per-project behaviour comes from
     empty `.claude/develop-flywheel.jsonl` (the append-only flywheel SSOT).
 - **`/develop:run`** — the static orchestrator loop. It reads the definitions above, so it
   behaves fitted to the repo without being rewritten per repo.
-- **Bundled references** (the portable mechanism, read by `/develop:run`, never copied into
-  the repo): `references/plan-anatomy.md`, `references/executor-brief.md`,
-  `references/gate-tokens.md`, `references/quality-tail.md`, `references/flywheel.md`,
-  `references/routing.md`, `references/config-schema.md`, `references/schemas.md`,
-  `references/stacks.md`, `references/reuse-and-defer.md`.
+- **Bundled references** — the portable mechanism in `references/`, read by `/develop:run`
+  and by this skill per phase as linked below; never copied into the repo.
 - **Bundled agents** (`agents/`, available because the plugin is installed — **not** copied
-  into the repo): `planner`, `executor`, the diff-reading auditors (`completeness`, `stubs`,
-  `regression`), `general-quality-reviewer`, `code-reviewer`, `tidy`, `refuter`. The
+  into the repo): `planner`, `executor`, the diff-reading auditors (`completeness-auditor`,
+  `stubs-auditor`, `regression-auditor`), `general-quality-reviewer`, `code-reviewer`, `tidy`,
+  `refuter`. The
   repo's `develop-routing.json` references these by name; repo-specific specialists the user
   adds later live in the repo's own `.claude/agents/` (grown via the flywheel).
 

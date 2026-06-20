@@ -30,7 +30,7 @@ For each requirement row:
 
 ## Output
 Return `FINDINGS` ([../references/schemas.md](../references/schemas.md)). One finding per
-incomplete requirement, `category: incomplete` (or `unwired`), with the requirement id, the
+incomplete requirement, `category: incomplete`, with the requirement id, the
 file:line where the chain breaks (or "absent" if no code at all), and what's missing.
 `severity: high` for a requirement with no working implementation; `medium` for a wired-but-
 partial one. Empty `findings` if everything traces. Keep `summary` to one line.

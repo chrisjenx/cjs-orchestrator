@@ -14,8 +14,8 @@ You are the janitor of the PT phase: make the diff clean and consistent using th
   [gate-tokens.md](../references/gate-tokens.md), [reuse-and-defer.md](../references/reuse-and-defer.md)).
   Run their autofix form where the tool has one. Don't introduce a formatter/linter the repo
   doesn't already use.
-- Worktree gate: all shell commands run with cwd = the `worktreeRoot` in your brief; read-only
-  git only (never checkout/reset/clean — same discipline as the [executor](./executor.md)).
+- Worktree gate: cwd = the `worktreeRoot` in your brief; read-only git only — same discipline
+  as the [executor](./executor.md).
 
 ## What to do
 1. Run the repo's formatter/lint **autofix**; re-run the lint gate to confirm clean.

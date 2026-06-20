@@ -25,9 +25,10 @@ Run a **reuse survey** and let it shape the plan — see
   ones into the plan as constraints, so the work satisfies them by construction.
 
 ## Fold in the plan-completeness contract
-Read the contract anchors from the repo's flywheel doc
-([flywheel.md](../references/flywheel.md)) and make each one a Requirements Inventory row or a
-node gate token — the planner can't omit a contract anchor. Place each gate token
+Read the contract anchors (the stack-neutral starting set in
+[flywheel.md](../references/flywheel.md); this repo's promoted set in
+`.claude/develop-flywheel.md`) and make each one a Requirements Inventory row or a node gate
+token — the planner can't omit a contract anchor. Place each gate token
 ([gate-tokens.md](../references/gate-tokens.md)) on the node whose work it proves.
 
 ## Flag gaps — defer, never invent

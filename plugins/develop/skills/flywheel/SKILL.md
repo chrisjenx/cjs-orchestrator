@@ -53,6 +53,8 @@ comm -23 /tmp/have /tmp/routed
 (If `comm` isn't available, read both files and diff the name sets — it's a tiny list.)
 Carry the unwired list into step 4: for each, ask **"should this have caught one of the
 recurring findings?"** If yes, wiring it is the cheapest possible fix — it already exists.
+
+### 2. Categorize
 Group the **preventable** escaped findings by category across runs; count recurrences and
 flag any **breaking-class** ones. Set the **irreducible** floor aside — those aren't
 preventable; don't try to "fix" them, just confirm they're staying flat.

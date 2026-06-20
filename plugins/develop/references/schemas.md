@@ -51,7 +51,7 @@ the row's status instead of adding a duplicate.
 Domain phases only — the orchestrator appends the quality tail. `agent` on each node is an
 *already-defined* agent chosen by routing; an uncovered slice goes to `executor` + a `gap`.
 
-## VERDICT — a validator / auditor / refuter result
+## VERDICT — a phase outcome (`pass` | `iterate` | `escalate`)
 
 ```json
 {
@@ -64,6 +64,10 @@ Domain phases only — the orchestrator appends the quality tail. `agent` on eac
 - `pass` — nothing blocking found.
 - `iterate` — fixable in place; the loop re-dispatches with these findings.
 - `escalate` — needs a human decision; surfaces at the between-phase gate.
+
+Reviewers/auditors return `FINDINGS`; the orchestrator **derives** the VERDICT from them
+(none blocking → `pass`, fixable → `iterate`, needs-a-human → `escalate`). Refuters return
+`REFUTER_VERDICT`, below.
 
 ## GATE_RESULT — a gate command's outcome
 
