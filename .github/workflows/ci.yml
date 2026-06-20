@@ -37,3 +37,6 @@ jobs:
         run: |
           python3 scripts/check-docs-leaks.py --selftest
           python3 scripts/check-docs-leaks.py
+
+      - name: Self-test the scaffold validator
+        run: python3 scripts/check-scaffold.py --selftest

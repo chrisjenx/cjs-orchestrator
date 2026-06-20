@@ -7,7 +7,7 @@ come from fixed templates), so they can be asserted. This is the structural vali
 that deterministic core. Prose (CLAUDE.md text, config `evidence`, `notes`) varies per run
 and is NOT asserted.
 
-Two modes:
+Modes:
 
   check-scaffold.py <target_dir> <expected.json>
       Assert the scaffold init wrote under <target_dir> matches the contract: required
@@ -22,8 +22,12 @@ Two modes:
       run-to-run variance probe: a well-authored init yields an identical core across runs
       even though prose varies.  Exit 0 = cores identical, 1 = they diverge.
 
-A red result drives a fix in the init SKILL.md / references, never a tweak here
-(evals/README Iron Law).
+  check-scaffold.py --selftest
+      Guard the guard: unit-checks the (deliberately lenient) matchers and runs validate()
+      end-to-end over a temp scaffold. Deterministic, no LLM — safe to run in CI.
+
+A red validate/compare result drives a fix in the init SKILL.md / references, never a
+tweak here (evals/README Iron Law).
 """
 import json, os, sys
 
@@ -55,6 +59,34 @@ def claude_md(target):
     return None
 
 
+# ---- matchers (lenient by design: init's labelling varies, the substance is stable) ----
+
+def eco_missing(want_list, got_list):
+    """Each expected ecosystem term must appear somewhere in the produced (free-form)
+    label; returns the list of missing terms ([] == match). Substring, not set equality:
+    ["kotlin-multiplatform"] is satisfied by ["jvm-gradle-kotlin-multiplatform"]."""
+    joined = " ".join(got_list or []).lower()
+    return [w for w in (want_list or []) if w.lower() not in joined]
+
+
+def bt_match(want, got):
+    """Exact, or expected is a boundary-terminated leading token of the produced label
+    (a free-form 'zig (unrecognised ...)' passes on 'zig'), so 'npm' still != 'pnpm'
+    and 'go' still != 'golang'."""
+    g, w = (got or ""), (want or "")
+    return g == w or (g.lower().startswith(w.lower())
+                      and (len(g) == len(w) or not g[len(w)].isalnum()))
+
+
+def gate_match(expected_gate, got_pairs):
+    """A gate's expected `command` may list '|'-separated acceptable alternatives (e.g. a
+    build umbrella that is either 'assemble' or 'gradlew build'); the produced gate of the
+    same kind must contain at least one alternative as a substring."""
+    kind = expected_gate.get("kind")
+    alts = [norm(a) for a in (expected_gate.get("command") or "").split("|") if a.strip()]
+    return any(k == kind and any(a in c for a in alts) for k, c in got_pairs)
+
+
 def validate(target, expected_path):
     exp = jload(expected_path)
     checks = []  # (label, ok, detail)
@@ -82,17 +114,12 @@ def validate(target, expected_path):
         for key in ("schema", "featureDir", "stack", "gates", "models", "caps"):
             chk(f"config.{key} present", key in cfg)
         stack = cfg.get("stack", {})
-        want_eco = exp.get("stack", {}).get("ecosystems", [])
-        got_eco = stack.get("ecosystems", [])
-        # Substring-in-label, not set equality: the ecosystem label is free-form and varies
-        # run to run (["jvm-gradle","kotlin-multiplatform"] vs ["jvm-gradle-kotlin-multiplatform"]).
-        # Assert each expected term appears somewhere in the produced label; ignore tokenisation.
-        joined = " ".join(got_eco).lower()
-        miss = [w for w in want_eco if w.lower() not in joined]
+        miss = eco_missing(exp.get("stack", {}).get("ecosystems", []), stack.get("ecosystems", []))
         chk("stack.ecosystems mention expected terms", not miss,
-            f"missing {miss} in {got_eco}")
+            f"missing {miss} in {stack.get('ecosystems', [])}")
         want_bt = exp.get("stack", {}).get("buildTool")
-        chk("stack.buildTool == expected", stack.get("buildTool") == want_bt,
+        chk("stack.buildTool matches expected (leading token)",
+            bt_match(want_bt, stack.get("buildTool")),
             f"want {want_bt!r} got {stack.get('buildTool')!r}")
 
         got_gates = cfg.get("gates", []) or []
@@ -101,12 +128,8 @@ def validate(target, expected_path):
             chk(f"gate '{g.get('kind')}' tier cheap|heavy",
                 g.get("tier") in ("cheap", "heavy"), repr(g.get("tier")))
         for eg in exp.get("gates", []):
-            kind = eg.get("kind")
-            # expected `command` may list "|"-separated acceptable alternatives (e.g. a build
-            # umbrella that is either "assemble" or "gradlew build"); any one matching passes.
-            alts = [norm(a) for a in (eg.get("command") or "").split("|") if a.strip()]
-            hit = any(k == kind and any(a in c for a in alts) for k, c in got_pairs)
-            chk(f"gate {kind!r} mirrors CI {eg.get('command')!r}", hit,
+            hit = gate_match(eg, got_pairs)
+            chk(f"gate {eg.get('kind')!r} mirrors CI {eg.get('command')!r}", hit,
                 "" if hit else f"got {got_pairs}")
 
     # 3. routing: generalist fallback present
@@ -138,9 +161,8 @@ def validate(target, expected_path):
         try:
             s = jload(st)
             chk("settings.json valid JSON", True)
-            txt = json.dumps(s)
             chk("settings: hook or bash timeout wired",
-                "hooks" in s or "TIMEOUT_MS" in txt)
+                "hooks" in s or "TIMEOUT_MS" in json.dumps(s))
         except Exception as e:  # noqa: BLE001
             chk("settings.json valid JSON", False, str(e))
 
@@ -196,14 +218,96 @@ def compare(a, b):
     return 0 if not diverged else 1
 
 
+def _write_scaffold(d, gates, eco="node", bt="npm"):
+    """Write a minimal but complete, passing scaffold under d (for selftest)."""
+    os.makedirs(os.path.join(d, ".claude/hooks"), exist_ok=True)
+    cfg = {"schema": 1, "featureDir": "build/develop",
+           "stack": {"ecosystems": [eco], "buildTool": bt, "monorepo": False},
+           "gates": gates,
+           "models": {"cheap": "default-cheap", "mid": "default-mid", "top": "default-top"},
+           "caps": {"validator": 3, "audit": 2, "fork": 1, "gate": 2}}
+    json.dump(cfg, open(os.path.join(d, ".claude/develop.config.json"), "w"))
+    json.dump({"writers": [{"glob": ["**/*"], "agent": "executor"}],
+               "reviewers": [{"glob": ["**/*"], "agent": "general-quality-reviewer"}],
+               "audit": []}, open(os.path.join(d, ".claude/develop-routing.json"), "w"))
+    open(os.path.join(d, ".claude/develop-flywheel.md"), "w").write("# flywheel\n")
+    open(os.path.join(d, ".claude/develop-flywheel.jsonl"), "w").close()
+    gp = os.path.join(d, ".claude/hooks/worktree-guard.sh")
+    open(gp, "w").write("#!/bin/sh\n")
+    os.chmod(gp, 0o755)
+    json.dump({"hooks": {}}, open(os.path.join(d, ".claude/settings.json"), "w"))
+    open(os.path.join(d, "CLAUDE.md"), "w").write("# x\n## Commands\nsee develop.config.json\n")
+
+
+def selftest():
+    """Guard the guard: the matchers must accept real label/command variation while still
+    catching real regressions; validate() must pass a complete scaffold and fail a broken one."""
+    import tempfile, shutil, contextlib, io
+    ok = True
+
+    def expect(cond, msg):
+        nonlocal ok
+        if not cond:
+            print(f"  SELFTEST FAIL: {msg}")
+            ok = False
+
+    # ecosystem matcher
+    expect(not eco_missing(["kotlin-multiplatform"], ["jvm-gradle-kotlin-multiplatform"]), "eco term in combined label")
+    expect(not eco_missing(["kotlin-multiplatform"], ["jvm-gradle", "kotlin-multiplatform"]), "eco term across tags")
+    expect(eco_missing(["node"], ["python"]), "eco mismatch must be reported")
+    # buildTool matcher
+    expect(bt_match("pnpm", "pnpm"), "bt exact")
+    expect(bt_match("zig", "zig (unrecognised — not in support matrix)"), "bt free-form leading token")
+    expect(not bt_match("npm", "pnpm"), "bt npm must NOT match pnpm")
+    expect(not bt_match("pnpm", "npm"), "bt pnpm must NOT match npm")
+    expect(not bt_match("go", "golang"), "bt go must NOT match golang")
+    # gate matcher
+    gp = [("build", "./gradlew assemble --stacktrace"), ("test", "./gradlew alltests test"),
+          ("lint", "./gradlew detektall --continue")]
+    expect(gate_match({"kind": "build", "command": "assemble|gradlew build"}, gp), "build umbrella alt matches assemble")
+    expect(gate_match({"kind": "test", "command": "test"}, gp), "test substring matches")
+    expect(gate_match({"kind": "lint", "command": "detekt"}, gp), "lint substring matches")
+    expect(not gate_match({"kind": "build", "command": "assemble|gradlew build"},
+                          [("build", "./gradlew :app:compiledebugkotlin")]),
+           "single-module compile must NOT satisfy build umbrella")
+
+    # validate() end-to-end over a temp scaffold
+    gates = [{"id": "lint", "kind": "lint", "tier": "cheap", "command": "npm run lint"},
+             {"id": "test", "kind": "test", "tier": "heavy", "command": "npm test"}]
+    expd = {"stack": {"ecosystems": ["node"], "buildTool": "npm"},
+            "gates": [{"kind": "lint", "command": "npm run lint"},
+                      {"kind": "test", "command": "npm test"}]}
+    d = tempfile.mkdtemp()
+    try:
+        ej = os.path.join(d, "expected.json")
+        json.dump(expd, open(ej, "w"))
+        _write_scaffold(d, gates)
+        with contextlib.redirect_stdout(io.StringIO()):
+            expect(validate(d, ej) == 0, "a complete valid scaffold must PASS")
+            cfgp = os.path.join(d, ".claude/develop.config.json")
+            c = jload(cfgp); c["gates"] = c["gates"][:1]; json.dump(c, open(cfgp, "w"))  # drop test gate
+            expect(validate(d, ej) == 1, "a missing expected gate must FAIL")
+            _write_scaffold(d, gates)  # rebuild valid
+            os.remove(os.path.join(d, ".claude/develop-routing.json"))
+            expect(validate(d, ej) == 1, "a missing required file must FAIL")
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+    print("check-scaffold selftest:", "PASS" if ok else "FAIL")
+    return 0 if ok else 1
+
+
 def usage():
     print("usage: check-scaffold.py <target_dir> <expected.json>")
     print("       check-scaffold.py --compare <dirA> <dirB>")
+    print("       check-scaffold.py --selftest")
     return 2
 
 
 if __name__ == "__main__":
     args = sys.argv[1:]
+    if args == ["--selftest"]:
+        sys.exit(selftest())
     if len(args) == 3 and args[0] == "--compare":
         sys.exit(compare(args[1], args[2]))
     if len(args) == 2 and not args[0].startswith("--"):

@@ -1,7 +1,7 @@
 {
   "stack": {
     "ecosystems": ["unknown"],
-    "buildTool": "zig (unrecognised)",
+    "buildTool": "zig",
     "monorepo": false
   },
   "gates": [
