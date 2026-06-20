@@ -7,6 +7,11 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-19
+
+First tagged release. The orchestration system from `[0.2.0]` plus its third skill and the
+reuse-first planner/reviewer/tidy agents, hardened by a full validation sweep and code review.
+
 ### Added
 - **`/develop:flywheel` skill**: the manually-triggered tuner (third plugin skill). Reads
   the accumulated postmortems in `.claude/develop-flywheel.md`, flags recurring (≥2 runs) or
@@ -28,6 +33,19 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ### Changed
 - `develop-routing.json` default reviewers now include `code-reviewer`.
+
+### Fixed
+- **Build gate** now uses the build tool's whole-project umbrella (e.g. `gradle assemble`)
+  rather than a single module's compile, so it catches breakage anywhere a change touches.
+- **`/develop:run` loop coherence**: `{grep:<id>}` anchors self-resolve (no longer tripping
+  the unrecognised-token rule); the flywheel machine SSOT (`.jsonl`) and human doc (`.md`) are
+  unambiguous; `PV` derives its verdict from a reviewer's `FINDINGS`; the quality tail states
+  its model tiers; locked auditor names are used consistently.
+- **`worktree-guard.sh`** hardened with command-position matching that closes the
+  `git -C <dir>` / `--git-dir` and detached-HEAD bypasses and stops false positives like a
+  command that merely mentions `git commit` in a string.
+- **Eval harness** (`evals/scaffold-eval.md`, `scripts/check-scaffold.py`): validates the full
+  `.claude/` scaffold init writes, with a deterministic `--selftest` wired into CI.
 
 ## [0.2.0] - 2026-06-17
 
@@ -70,6 +88,7 @@ bootstrapper into static, portable skills that read per-repo discovered definiti
 - Marketplace and `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
   genericized explainer site.
 
-[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.3.0
 [0.2.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.2.0
 [0.1.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.1.0
