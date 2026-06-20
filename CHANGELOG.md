@@ -7,6 +7,11 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+### Changed
+- `references/quality-tail.md` (PF): document two diff-coverage gate traps: commit before the
+  coverage gate (an uncommitted tree shows zero changed files and passes vacuously), plus a
+  scoped-coverage fallback when an environmental flake blocks the full suite. (#28)
+
 ## [0.3.0] - 2026-06-19
 
 First tagged release. The orchestration system from `[0.2.0]` plus its third skill and the

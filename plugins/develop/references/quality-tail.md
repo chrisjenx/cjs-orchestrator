@@ -74,6 +74,14 @@ This is where the repo's **heavy** gates actually run and block the commit:
    `caps.gate`), then re-run the gate. A flake (passes on rerun) is logged, not treated as a
    failure; a real failure that survives the budget → terminal status
    `committed-with-failures` (recorded, surfaced, never pushed).
+   **Two coverage-gate traps.** Diff-coverage diffs the merge-base, so the change must be
+   **committed before** the coverage gate runs — an uncommitted/untracked tree shows zero
+   changed files and the gate passes *vacuously* (false green). Per-phase `commit_on_green`
+   satisfies this; otherwise commit before this step, not at step 5. And if an environmental
+   flake keeps the full suite from producing a report, don't re-fight it: soak the failing
+   tests in isolation to confirm they're environmental, then scope the coverage run to the
+   tests over the changed area, build the report from that, gate diff-coverage against it, and
+   flag the quarantined tests in the report.
 3. **Classify the residual findings** — a top-tier pass (reuse a bundled reviewer, or the
    orchestrator inline; not a separate bundled agent): the flywheel **contract-gaps classifier**
    ([flywheel.md](./flywheel.md)) marks each preventable vs irreducible and, for preventable
