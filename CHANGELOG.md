@@ -7,6 +7,15 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+### Added
+- **Flywheel escape ingestion.** `/develop:flywheel` now pulls confirmed escapes (PR-review
+  comments you agreed to, and CI failures) into the SSOT over two mechanical GitHub paths (a
+  connected MCP server, else the `gh` CLI), attributes each to the phase that should have caught
+  it (`escaped_phase`), and treats it as promotion-ready at x1 (a proven miss, versus >=2
+  recurrences for an internal residual). A new bundled `scripts/flywheel-ingest.py` fills the
+  phase/lever mapping deterministically (selftested in CI), and `flywheel-aggregate.py` flags
+  escapes distinctly.
+
 ### Changed
 - `references/quality-tail.md` (PF): document two diff-coverage gate traps: commit before the
   coverage gate (an uncommitted tree shows zero changed files and passes vacuously), plus a

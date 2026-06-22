@@ -5,7 +5,9 @@ to the companion **`develop-flywheel.jsonl`** (the machine SSOT). Run **`/develo
 periodically to aggregate that SSOT and promote tweaks for the next run. This doc is
 **human-curated** — never written from a run; only `/develop:flywheel` edits it, on your
 approval. See the mechanism in the plugin's `references/flywheel.md`. Start minimal; promote a
-remediation only when a finding category recurs (≥ 2 runs) **or** is breaking-class.
+remediation only when a finding category recurs (≥ 2 runs), is breaking-class, **or** is a
+confirmed escape (a PR review you agreed to, or a CI failure), which `/develop:flywheel` pulls in
+and promotes at ×1 (a proven miss).
 
 ## Remediation levers (route each preventable finding to the cheapest, earliest one)
 

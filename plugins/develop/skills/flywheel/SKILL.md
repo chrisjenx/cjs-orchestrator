@@ -1,6 +1,6 @@
 ---
 name: flywheel
-description: Manually evaluate the develop flow's accumulated run records and decide what to tweak before the next run. Trigger on "/develop:flywheel", "tune the develop flow", "review the postmortems", "what should I improve before the next run", "grow the flow". Aggregates the .claude/develop-flywheel.jsonl SSOT across runs (via the bundled flywheel-aggregate.py), flags recurring/breaking finding categories, and proposes the cheapest remediation lever + target for each — human-gated. Run periodically between feature runs, not per feature (PF appends a record per run).
+description: Manually evaluate the develop flow's accumulated run records and decide what to tweak before the next run. Trigger on "/develop:flywheel", "tune the develop flow", "review the postmortems", "what should I improve before the next run", "grow the flow". Aggregates the .claude/develop-flywheel.jsonl SSOT across runs (via the bundled flywheel-aggregate.py), pulls confirmed PR-review + CI escapes into it (flywheel-ingest.py), flags recurring/breaking/escaped finding categories, and proposes the cheapest remediation lever + target for each — human-gated. Run periodically between feature runs, not per feature (PF appends a record per run).
 ---
 
 # Tune the flow from its postmortems
@@ -11,13 +11,14 @@ on the accumulated records. It's the human-gated half of the
 and apply it. Run it once a few runs have accumulated, not after every feature.
 
 ## Read first
-- `.claude/develop-flywheel.jsonl` — the machine SSOT (one record per residual finding per
-  run); aggregate it with the bundled `scripts/flywheel-aggregate.py` (step 1).
+- `.claude/develop-flywheel.jsonl` — the machine SSOT (one record per residual finding per run,
+  plus the escapes you ingest in step 1); aggregate it with the bundled
+  `scripts/flywheel-aggregate.py` (step 2).
 - `.claude/develop-flywheel.md` — human-curated: this repo's promoted-anchors table +
   promotion history (so you don't re-propose what's already promoted).
 - `.claude/develop.config.json`, `.claude/develop-routing.json` — what gates/agents already
   exist (you reuse-first against these).
-- `.claude/agents/` — the repo's own agents (to spot unwired ones — step 1b).
+- `.claude/agents/` — the repo's own agents (to spot unwired ones — step 2b).
 - `.claude/CLAUDE.md` — the repo's existing rules.
 - The mechanism: [flywheel.md](../../references/flywheel.md),
   [reuse-and-defer.md](../../references/reuse-and-defer.md),
@@ -25,7 +26,33 @@ and apply it. Run it once a few runs have accumulated, not after every feature.
 
 ## Control flow
 
-### 1. Gather
+### 1. Ingest escapes (PR review + CI) — the highest-signal records
+A finding the tail missed but a **human reviewer** (agreed) or **CI** caught is a *confirmed
+escape* ([flywheel.md](../../references/flywheel.md)) — pull these into the SSOT before
+aggregating. Mechanical, two GitHub paths; use the first available, don't improvise:
+- **A GitHub MCP server is connected** → use its tools (structured, no parsing): the repo's PRs
+  merged since the last flywheel run, each one's **resolved** review threads and its **check runs**.
+- **else `gh` is on PATH and the remote is GitHub** → fixed queries: `gh pr list --state merged
+  --json number,mergedAt,title`, `gh api repos/{owner}/{repo}/pulls/{n}/comments`,
+  `gh pr checks {n} --json name,state,bucket`.
+- **neither** → say so and skip to step 2 (aggregate existing records only).
+
+Keep only the **agreed/real** survivors (field-based, not judgement):
+- review comment: thread **resolved** *and* a commit landed after it — drop dismissed/`wontfix`,
+  nits, praise.
+- CI check: **failed then passed** on a later commit — drop flakes (passed on rerun, no change)
+  and still-red.
+
+Normalise each survivor to a signal (CI: `checkKind`; review: a `category` from the FINDING
+enum — the agent's *only* call here) and pipe the array through the bundled mapper, which fills
+`escaped_phase` + the cheapest lever deterministically and appends append-only:
+```sh
+echo "$signals" | python3 "${CLAUDE_PLUGIN_ROOT}/scripts/flywheel-ingest.py" \
+  >> .claude/develop-flywheel.jsonl
+```
+(No `python3`? Apply the attribution table in [flywheel.md](../../references/flywheel.md) by hand.)
+
+### 2. Gather
 Aggregate the SSOT — run the bundled aggregator (read-only, counts recurrences across runs,
 cheapest lever first, irreducible floor set aside):
 ```sh
@@ -35,7 +62,7 @@ python3 "${CLAUDE_PLUGIN_ROOT}/scripts/flywheel-aggregate.py" .claude/develop-fl
 yourself.) Then read the promoted-anchors table in `.claude/develop-flywheel.md` so you don't
 re-propose what's already promoted.
 
-### 1b. Detect unwired agents (quick grep)
+### 2b. Detect unwired agents (quick grep)
 A repo agent that exists but nothing routes to is a missed reuse — it *should have been
 used*. A quick light grep finds them: list the repo's agents, list the names referenced in
 routing, and report the difference.
@@ -51,26 +78,28 @@ comm -23 /tmp/have /tmp/routed
 ```
 
 (If `comm` isn't available, read both files and diff the name sets — it's a tiny list.)
-Carry the unwired list into step 4: for each, ask **"should this have caught one of the
+Carry the unwired list into step 5: for each, ask **"should this have caught one of the
 recurring findings?"** If yes, wiring it is the cheapest possible fix — it already exists.
 
-### 2. Categorize
+### 3. Categorize
 Group the **preventable** escaped findings by category across runs; count recurrences and
 flag any **breaking-class** ones. Set the **irreducible** floor aside — those aren't
 preventable; don't try to "fix" them, just confirm they're staying flat.
 
-### 3. Flag promotion-ready
-A category is promotion-ready when it has appeared **≥ 2 times across runs** *or* is
-**breaking-class**. A category already promoted but **still recurring** is a signal its
-existing lever is **inadequate** → mark it for *strengthening*, not a duplicate.
+### 4. Flag promotion-ready
+A category is promotion-ready when it has appeared **≥ 2 times across runs**, is
+**breaking-class**, *or* includes a **confirmed escape** (`source: pr-review|ci`) — an escape is
+a proven miss, so it promotes at ×1 (the aggregator flags it and names the `escaped_phase`). A
+category already promoted but **still recurring or escaping** signals its existing lever is
+**inadequate** → mark it for *strengthening*, not a duplicate.
 
-### 4. Evaluate each (reuse first)
+### 5. Evaluate each (reuse first)
 For each flagged category, pick the remediation per
 [reuse-and-defer.md](../../references/reuse-and-defer.md):
 - **Does something already target this?** A rule in `CLAUDE.md`, a gate, a hook, a reviewer?
   If it exists and the finding still escapes, propose **strengthening that** — never add a
   duplicate alongside it.
-- **Is there an unwired agent (step 1b) that already covers this?** If one exists but nothing
+- **Is there an unwired agent (step 2b) that already covers this?** If one exists but nothing
   routes to it, **wire it in** — add a route in `develop-routing.json`. A cheap, direct edit,
   not a build: an existing agent that should have been used beats authoring a new one.
 - **Otherwise pick the cheapest, earliest deterministic lever** that can express the check:
@@ -79,24 +108,25 @@ For each flagged category, pick the remediation per
 - **Pruning:** if a cheaper lever now subsumes a reviewer's catches, propose **reducing or
   merging** that routing entry — removing run cost is as valid an outcome as adding.
 
-### 5. Propose (prioritized)
-Present a report, cheapest/earliest lever first:
+### 6. Propose (prioritized)
+Present a report, escaped (proven) then cheapest/earliest lever first:
 
 ```
 Tweaks before next run (you approve which to apply):
-  1. <category>  ×<n> runs [breaking?]  → <lever>: <target>
+  1. <category>  ×<n> runs · ESCAPED→<phase>  → <lever>: <target>   (proven miss, x1)
      edit: <the exact change>            apply: direct | defer-to-workflow
-  2. ...
+  2. <category>  ×<n> runs [breaking?]  → <lever>: <target>
+  3. ...
   Irreducible floor: <n> (unchanged — expected)
   Unwired: <agent> exists but isn't routed — should have caught <category>? → wire it  (cheap)
   Prune: <reviewer> — subsumed by <lever>  (optional)
 ```
 
-### 6. Human-gate
+### 7. Human-gate
 Ask the user which proposals to apply (`AskUserQuestion`, or an explicit approve list).
 **Nothing is applied without approval** — this is the promotion gate.
 
-### 7. Apply
+### 8. Apply
 - **Simple deterministic levers — edit directly (after approval, show the diff):** a
   contract-anchor row in `.claude/develop-flywheel.md`; a `gates[]` entry in
   `develop.config.json`; a route added/pruned in `develop-routing.json`; a rule line in
@@ -106,14 +136,15 @@ Ask the user which proposals to apply (`AskUserQuestion`, or an explicit approve
   it eval-first ([reuse-and-defer.md](../../references/reuse-and-defer.md)); its output lands
   in the repo's `.claude/` for review.
 
-### 8. Record
+### 9. Record
 Update the promoted-anchors table (date / runs seen / lever applied), mark deferred items as
 pending-workflow, and annotate the postmortem entries you addressed. Next `/develop:run`
 reads the strengthened definitions automatically.
 
 ## Invariants
 - **Never auto-edit `.claude/` without approval.** The classifier proposes; the human
-  promotes.
+  promotes. (Ingest *appends* escape records to the SSOT — a log write, not a `.claude/` edit.)
+- **A confirmed escape (PR/CI) promotes at ×1** — a proven miss; internal residuals still need ≥2.
 - **Reuse first** — strengthen what exists before adding anything new.
 - **Cheapest, earliest lever first**; a new agent is the last resort.
 - Drives the **preventable** count toward zero; the **irreducible** floor stays.

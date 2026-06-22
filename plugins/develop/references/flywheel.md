@@ -20,6 +20,30 @@ Every finding the quality tail surfaces is one of:
 
 The flywheel drives the **preventable** count toward zero. The irreducible floor stays.
 
+## Escapes — the highest-signal input
+
+The quality tail is an *internal approximation* of what a human reviewer and CI will catch.
+When a finding slips the whole tail and is caught downstream — a PR-review comment the author
+**agreed and acted on**, or a CI check that **failed then got fixed** — that's a *confirmed
+escape*: a preventable miss with a real oracle, not a hypothesis. It's the strongest signal the
+flywheel gets, the "reaches audit/tidy is a plan-contract bug" rule one ring further out, so a
+confirmed escape is **promotion-ready at ×1** (versus ≥2 recurrences for an internal residual).
+Still human-gated: the classifier proposes, the human promotes.
+
+`/develop:flywheel` pulls escapes mechanically over two GitHub paths (a connected **MCP server**,
+else the **`gh` CLI**), keeps only the agreed/real ones by field (review thread resolved + a
+later commit; CI check failed-then-passed), and appends each as a `FLYWHEEL_RECORD` with
+`source: pr-review|ci` and the `escaped_phase` that should have caught it. Attribute each to that
+phase, then route to its cheapest lever:
+
+| Escaped signal | escaped_phase | Cheapest lever |
+|---|---|---|
+| Missing/unstated requirement | `planner` | Requirements-Inventory / contract anchor |
+| Untested flow (coverage gap, a missed test) | `PV` | tests-named anchor / coverage gate |
+| Unwired layer, stub, regression, edge | `PA` | wiring / `{grep:no-todo}` anchor, or a reviewer route |
+| Style, leftover, dead code, lint | `PT` | lint rule / hook |
+| A check CI runs that local finalize didn't | `PF` | add the gate to `develop.config.json` |
+
 ## Route the finding to the right lever
 
 Not every preventable finding is a plan step. Route each to the cheapest, most deterministic lever
@@ -85,9 +109,10 @@ repeating — they are exactly the specialists/forks that earned their place.
 The mechanism is bundled (portable). Two per-repo files split machine record from human
 judgement:
 
-- **`.claude/develop-flywheel.jsonl`** — the **machine SSOT**. `PF` appends one
-  `FLYWHEEL_RECORD` per residual finding (append-only, never rewritten). Writing it is a plain
-  line-append — no script in the run hot loop.
+- **`.claude/develop-flywheel.jsonl`** — the **machine SSOT** (append-only, never rewritten).
+  `PF` appends one `FLYWHEEL_RECORD` per residual finding (a plain line-append, no script in the
+  run hot loop); `/develop:flywheel`'s ingest step appends one per confirmed escape via
+  `scripts/flywheel-ingest.py`.
 - **`.claude/develop-flywheel.md`** — **human-curated**: the remediation-lever reference, this
   repo's promoted-anchors contract, and a promotion history. Seeded by `/develop:init` from
   [`templates/develop-flywheel.md`](../templates/develop-flywheel.md); **never written from a

@@ -113,15 +113,21 @@ the machine SSOT) — a `CONTRACT_GAP` stamped with the run + the finding's fing
   "run": "<feature>", "date": "YYYY-MM-DD",
   "fingerprint": "severity:file:line:slug",
   "category": "the finding class", "severity": "high|medium|low|quality",
+  "source": "run | pr-review | ci",
   "preventable": true, "breaking": false,
+  "escaped_phase": "planner | PV | PA | PT | PF",
   "remediation": "hook | gate | plan-anchor | rule | agent",
   "target": "the concrete destination"
 }
 ```
 
-Irreducible findings carry `preventable: false` and may omit `remediation`/`target`. The
-bundled `scripts/flywheel-aggregate.py` reads this file at `/develop:flywheel` time — never
-in the run loop — to count recurrences across runs.
+`source` defaults to `run` (a tail residual). `source: pr-review | ci` marks a **confirmed
+escape** — a finding the whole tail missed but an agreed PR review or CI caught — so it's
+preventable by definition and **promotion-ready at ×1**; `escaped_phase` records which phase
+should have caught it ([flywheel.md](./flywheel.md)). Irreducible findings carry
+`preventable: false` and may omit `remediation`/`target`. The bundled
+`scripts/flywheel-aggregate.py` reads this file at `/develop:flywheel` time — never in the run
+loop — to count recurrences across runs; `scripts/flywheel-ingest.py` writes the escape lines.
 
 ## Conventions
 

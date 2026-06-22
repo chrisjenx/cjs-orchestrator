@@ -40,3 +40,8 @@ jobs:
 
       - name: Self-test the scaffold validator
         run: python3 scripts/check-scaffold.py --selftest
+
+      - name: Self-test the flywheel scripts
+        run: |
+          python3 plugins/develop/scripts/flywheel-aggregate.py --selftest
+          python3 plugins/develop/scripts/flywheel-ingest.py --selftest
