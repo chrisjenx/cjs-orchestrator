@@ -17,6 +17,11 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
   escapes distinctly.
 
 ### Changed
+- `references/quality-tail.md` (PF step 2, PT): run any long fix/review loop (coverage tuning,
+  flaky-test soak, a lint cluster, reviewer-finding validation) in its own nested subagent group
+  that returns only the conclusion, protecting the orchestrator's context. Agent spend can stay
+  well under budget while the orchestrator's own context exhausts on inline gate churn; the two
+  metrics decouple. (#29)
 - `references/quality-tail.md` (PF): document two diff-coverage gate traps: commit before the
   coverage gate (an uncommitted tree shows zero changed files and passes vacuously), plus a
   scoped-coverage fallback when an environmental flake blocks the full suite. (#28)
