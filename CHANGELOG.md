@@ -7,6 +7,11 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-23
+
+The flywheel learns from downstream signal (PR review + CI), and the quality tail protects the
+orchestrator's own context.
+
 ### Added
 - **Flywheel escape ingestion.** `/develop:flywheel` now pulls confirmed escapes (PR-review
   comments you agreed to, and CI failures) into the SSOT over two mechanical GitHub paths (a
@@ -109,7 +114,8 @@ bootstrapper into static, portable skills that read per-repo discovered definiti
 - Marketplace and `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
   genericized explainer site.
 
-[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.4.0
 [0.3.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.3.0
 [0.2.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.2.0
 [0.1.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.1.0
