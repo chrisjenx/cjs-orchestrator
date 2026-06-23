@@ -166,7 +166,7 @@
     <div class="fly-panel">
       <div class="fly-live" id="fly-live"></div>
       <ol class="fly-steps">
-        <li>A run settles; the <strong>audit + tidy tail</strong> logs every residual finding.</li>
+        <li>A run settles; the <strong>audit + tidy tail</strong> logs every residual finding, and the flow pulls in the strongest signal of all: anything a <strong>human reviewer or CI</strong> caught that the tail missed (a proven escape).</li>
         <li>Each is marked <strong>preventable</strong> (some check could have required it) or <strong>irreducible</strong> (the floor: "compiles but subtly wrong").</li>
         <li>For each preventable one, <strong>route it to the cheapest lever</strong> that catches it earliest: a hook, gate, rule, agent, or plan step, not always a plan step.</li>
         <li>Next run, that lever <strong>fires at the right layer</strong>, and that defect class stops escaping.</li>
