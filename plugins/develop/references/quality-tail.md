@@ -62,9 +62,10 @@ runs at the **top** tier — paired against the mid-tier executor so review can'
   co-listed reviewers for that path). The default reviewers are `general-quality` and
   `code-reviewer`; specialists join as the routing table grows.
 - **Validate findings in a child, not inline.** Deciding whether a reviewer finding is real
-  takes the same discipline: if it needs reading source, dispatch a verifier that returns a
-  verdict + one-line reason (the [refuter](./verify-by-forking.md) shape), not an inline source
-  peek.
+  takes the same discipline: if it needs reading source, dispatch a verifier that reads it and
+  returns a verdict + one-line reason — **keep the finding when the verdict is uncertain** (a
+  missed defect outranks a redundant decision; this is *not* the refuter's kill-on-doubt bias).
+  The source-reading churn stays out of the orchestrator.
 - Zero "needs-decision" + clean lint → PF. Any needs-decision → between-phase gate.
 
 ## PF — Finalize (the real gates, then commit)
@@ -76,11 +77,13 @@ This is where the repo's **heavy** gates actually run and block the commit:
    any multi-module check. Each returns a `GATE_RESULT`.
 2. **Block until green.** A failing heavy gate is not "done": re-dispatch a fix (bounded by
    `caps.gate`), then re-run the gate. When that fix needs more than one shot — an iterative
-   read-adjust-reverify loop (coverage tuning, flaky-test soak, a lint cluster) — run the
-   *whole loop* in its own **nested subagent group** on the same `caps.gate` budget, returning
-   only the fix + a green-gate confirmation; the verbose gate output stays in the child, not the
-   orchestrator. (Agent spend can stay well under budget while the orchestrator's own context
-   exhausts on inline gate churn — the metrics decouple.) A flake (passes on rerun) is logged,
+   read-adjust-reverify loop (coverage tuning, flaky-test soak, a lint cluster) — dispatch the
+   *whole loop* as its own child bounded by `caps.gate`, owning the fix → re-run → read-report
+   cycle and returning only the [`NESTED`](./executor-brief.md)-style result: the fix summary +
+   the **final gate status** — green, or the residual failure the orchestrator marks
+   `committed-with-failures`. The verbose gate output stays in the child, not the orchestrator,
+   so agent spend can sit well under budget while the orchestrator's own context exhausts on
+   inline gate churn. A flake (passes on rerun) is logged,
    not treated as a failure; a real failure that survives the budget → terminal status
    `committed-with-failures` (recorded, surfaced, never pushed).
    **Two coverage-gate traps.** Diff-coverage diffs the merge-base, so the change must be
