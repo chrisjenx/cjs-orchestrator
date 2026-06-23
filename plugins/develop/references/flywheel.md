@@ -32,9 +32,10 @@ Still human-gated: the classifier proposes, the human promotes.
 
 `/develop:flywheel` pulls escapes mechanically over two GitHub paths (a connected **MCP server**,
 else the **`gh` CLI** — via GraphQL `reviewThreads.isResolved` and per-commit `check-runs`, since
-the simple REST `/comments` and `gh pr checks` endpoints omit those fields), keeps only the
-agreed/real ones by field (a **resolved** review thread; a check-run that **concluded failure** on
-a PR commit), and appends each — stamped `run` = the source PR id so re-scanning dedups on
+the simple REST `/comments` and `gh pr checks` endpoints omit those fields), keeps only the ones
+the author *acted on* by field (a **resolved** review thread a later commit addressed; a check
+that **failed then went green on a later commit** — not a same-commit flake rerun), and appends
+each — stamped `run` = the source PR id so re-scanning dedups on
 `(run, fingerprint)` — as a `FLYWHEEL_RECORD` with `source: pr-review|ci` and the `escaped_phase`
 that should have caught it. Attribute each to that phase, then route to its cheapest lever:
 

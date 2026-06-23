@@ -42,14 +42,19 @@ that actually carry those — not the simple ones that don't:
     (`gh pr view {n} --json commits`), `gh api repos/{owner}/{repo}/commits/{sha}/check-runs`
 - **neither** → say so and skip to step 2 (aggregate existing records only).
 
-Keep only the **agreed/real** survivors (field-based, not judgement):
-- review comment: its thread's `isResolved` is true — drop unresolved/dismissed/`wontfix`, nits, praise.
-- CI check: a check-run that **concluded `failure`** on any of the PR's commits — a merged PR that
-  went red on a check mid-way then green is a real catch the local tail missed; drop checks green throughout.
+Keep only the **agreed/real** survivors — the author *acted on* it, not just closed it
+(field-based, not judgement):
+- review comment: its thread `isResolved` is true **and a later commit addressed it** — a thread
+  resolved as won't-fix/not-a-bug has no fix commit; drop those, plus unresolved threads, nits, praise.
+- CI check: a check-run that concluded `failure` on a commit and then went **green on a _later_
+  commit** (the author fixed it) — drop a same-commit rerun-green (a flake, no code change) and
+  checks green throughout.
 
 Normalise each survivor to a signal: stamp `run` with the **PR id** (e.g. `pr-123`) and `date`
 with its merge date (so distinct PRs count as distinct runs); for a review give a `category` from
-the FINDING enum (the agent's *only* judgement call), for CI give the `checkKind`. Pipe the array
+the FINDING enum (the agent's *only* judgement call), for CI give the `checkKind`. (severity and
+breaking are derived for you; pass an explicit `fingerprint` only to split two same-kind escapes
+in one PR.) Pipe the array
 through the bundled mapper — it fills `escaped_phase` + the cheapest lever deterministically and
 appends only records not already in the SSOT, so re-scanning the same PRs is idempotent:
 ```sh

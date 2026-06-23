@@ -18,8 +18,9 @@ Usage:
   flywheel-ingest.py --selftest
 
 Signal shapes the skill builds from the filtered survivors (run = the PR id, date = its merge
-date, so distinct PRs count as distinct runs and re-ingest dedups):
-  CI:     {"kind":"ci","checkKind":"build|test|coverage|lint|types|other","run":"pr-123","date":"YYYY-MM-DD","breaking":bool}
+date, so distinct PRs count as distinct runs and re-ingest dedups). severity/breaking are derived
+here, not agent-set; pass an explicit `fingerprint` to distinguish two same-kind escapes in one PR:
+  CI:     {"kind":"ci","checkKind":"build|test|coverage|lint|types|other","run":"pr-123","date":"YYYY-MM-DD"}
   review: {"kind":"review","category":"<FINDING category>","file":..,"line":..,"run":"pr-123","date":"YYYY-MM-DD"}
 """
 import argparse, json, sys
@@ -59,25 +60,32 @@ KEY_ORDER = ["run", "date", "fingerprint", "category", "severity", "source",
              "preventable", "breaking", "escaped_phase", "remediation", "target"]
 
 
+# CI checks whose failure breaks the build/suite (breaking-class -> high severity); lint/coverage
+# are quality signals, not breaks. Derived mechanically (not agent-set) so severity is
+# deterministic across re-ingests — which keeps the default fingerprint (the dedup key) stable.
+BREAKING_CHECKS = {"build", "test", "types"}
+
+
 def to_record(sig):
     kind = sig.get("kind")
-    breaking = sig.get("breaking") is True  # only a real JSON true is breaking (not "false"/1/...)
-    sev = "high" if breaking else "medium"
     if kind == "ci":
         ck = sig.get("checkKind", "other")
         cat, phase, lever, target = CI_MAP.get(ck, CI_MAP["other"])
+        breaking = ck in BREAKING_CHECKS
         source = "ci"
-        fp = sig.get("fingerprint", f"{sev}:ci:{ck}:{cat}")
+        fp = sig.get("fingerprint", f"ci:{ck}:{cat}")
     elif kind == "review":
         cat = sig.get("category") or "uncategorised"
         phase, lever, target = REVIEW_MAP.get(cat, REVIEW_DEFAULT)
+        breaking = False  # a review escape's weight is its category, not a build break
         source = "pr-review"
-        fp = sig.get("fingerprint", f"{sev}:{sig.get('file','?')}:{sig.get('line','?')}:{cat}")
+        fp = sig.get("fingerprint", f"{sig.get('file','?')}:{sig.get('line','?')}:{cat}")
     else:
         raise ValueError(f"unknown signal kind: {kind!r}")
+    # fingerprint is severity-free on purpose: the dedup key must not move if severity does.
     rec = {
         "run": sig.get("run", "?"), "date": sig.get("date", "?"), "fingerprint": fp,
-        "category": cat, "severity": sev, "source": source,
+        "category": cat, "severity": "high" if breaking else "medium", "source": source,
         "preventable": True, "breaking": breaking,
         "escaped_phase": phase, "remediation": lever, "target": target,
     }
@@ -118,20 +126,23 @@ def filter_new(records, seen):
 
 def selftest():
     cases = [
-        ({"kind": "ci", "checkKind": "build", "run": "pr-1", "date": "2026-06-21", "breaking": True},
-         {"source": "ci", "category": "build-break", "escaped_phase": "PF", "remediation": "gate", "severity": "high"}),
+        # breaking is derived from checkKind: build/test/types break the suite (high), others medium.
+        ({"kind": "ci", "checkKind": "build", "run": "pr-1", "date": "2026-06-21"},
+         {"source": "ci", "category": "build-break", "escaped_phase": "PF", "remediation": "gate", "severity": "high", "breaking": True}),
+        ({"kind": "ci", "checkKind": "test", "run": "pr-1", "date": "2026-06-21"},
+         {"category": "failing-test", "severity": "high", "breaking": True}),
+        ({"kind": "ci", "checkKind": "lint", "run": "pr-1", "date": "2026-06-21"},
+         {"category": "lint", "escaped_phase": "PT", "severity": "medium", "breaking": False}),
         ({"kind": "ci", "checkKind": "coverage", "run": "pr-1", "date": "2026-06-21"},
-         {"source": "ci", "category": "untested-flow", "escaped_phase": "PV", "remediation": "plan-anchor", "severity": "medium"}),
+         {"source": "ci", "category": "untested-flow", "escaped_phase": "PV", "remediation": "plan-anchor", "severity": "medium", "breaking": False}),
         ({"kind": "ci", "checkKind": "wat", "run": "pr-1", "date": "2026-06-21"},  # unknown -> other
-         {"source": "ci", "category": "ci-failure", "escaped_phase": "PF"}),
+         {"source": "ci", "category": "ci-failure", "escaped_phase": "PF", "breaking": False}),
         ({"kind": "review", "category": "regression", "file": "a.py", "line": 3, "run": "pr-1", "date": "2026-06-21"},
-         {"source": "pr-review", "escaped_phase": "PA", "remediation": "agent"}),
+         {"source": "pr-review", "escaped_phase": "PA", "remediation": "agent", "breaking": False}),
         ({"kind": "review", "category": "style", "file": "a.py", "line": 3, "run": "pr-1", "date": "2026-06-21"},
          {"source": "pr-review", "escaped_phase": "PT", "remediation": "rule"}),
         ({"kind": "review", "category": "weird-new-thing", "file": "a.py", "line": 3, "run": "pr-1", "date": "2026-06-21"},
          {"source": "pr-review", "escaped_phase": "PA", "remediation": "rule"}),  # default
-        ({"kind": "ci", "checkKind": "build", "run": "pr-1", "date": "2026-06-21", "breaking": "false"},
-         {"breaking": False, "severity": "medium"}),  # string "false" is NOT breaking
     ]
     for sig, want in cases:
         got = to_record(sig)
@@ -145,6 +156,11 @@ def selftest():
             raise AssertionError(f"expected ValueError for {bad!r}")
         except ValueError:
             pass
+
+    # Fingerprint is stable regardless of any stray input field (breaking is derived, not read),
+    # so the same escape re-ingested always dedups — the idempotency guarantee.
+    assert to_record({"kind": "ci", "checkKind": "build", "run": "pr-1", "date": "d"})["fingerprint"] \
+        == to_record({"kind": "ci", "checkKind": "build", "run": "pr-1", "date": "d", "breaking": "x"})["fingerprint"]
 
     # Dedup: same (run, fingerprint) drops, both within a batch and against `seen`.
     a = to_record({"kind": "ci", "checkKind": "build", "run": "pr-1", "date": "d"})
