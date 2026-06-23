@@ -21,14 +21,20 @@ How a release of the `develop` plugin is cut, and the version policy.
 
 ## Cutting a release
 
-1. **Green check.** Run the same checks CI runs:
+1. **Green check.** Run the authoritative plugin validator (needs the `claude` CLI), then the
+   same checks CI runs:
    ```
+   claude plugin validate .claude-plugin/marketplace.json   # source of truth: marketplace schema
+   claude plugin validate plugins/develop                   # manifest + every agent/skill
    python3 scripts/validate-manifests.py
    python3 scripts/check-install.py
    python3 scripts/check-docs-subpath.py
    python3 scripts/check-docs-leaks.py
    for f in docs/*.js; do node --check "$f"; done
    ```
+   `validate-manifests.py` mirrors the validator's source-shape, `agents`-field, and
+   frontmatter-parse checks in CI; `claude plugin validate` is the source of truth when cutting
+   locally (it caught the gh #30 install break that plain JSON validation missed).
 2. **Bump the version** in `plugins/develop/.claude-plugin/plugin.json`.
 3. **Update `CHANGELOG.md`:** move `[Unreleased]` items into a new dated version section,
    add a fresh empty `[Unreleased]`, and update the compare/tag links at the bottom.
