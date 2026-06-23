@@ -1,6 +1,6 @@
 ---
 name: completeness-auditor
-description: Diff-reading completeness auditor for /develop:run's PA phase. Reads the assembled branch diff against the plan's Requirements Inventory and finds requirements that are not actually wired end to end — declared but unused, a layer that should connect but doesn't, a requirement with no corresponding code. Stack-agnostic: reasons about diffs and the requirements table, not about any build tool. Read-only; reports FINDINGS, never edits.
+description: "Diff-reading completeness auditor for /develop:run's PA phase. Reads the assembled branch diff against the plan's Requirements Inventory and finds requirements that are not actually wired end to end — declared but unused, a layer that should connect but doesn't, a requirement with no corresponding code. Stack-agnostic: reasons about diffs and the requirements table, not about any build tool. Read-only; reports FINDINGS, never edits."
 tools: ["Read", "Grep", "Glob", "Bash"]
 ---
 

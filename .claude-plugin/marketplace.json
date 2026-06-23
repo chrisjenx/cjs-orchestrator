@@ -5,13 +5,10 @@
     "email": "chris.mark.jenkins@gmail.com"
   },
   "description": "Tools for building self-improving, agentic /develop orchestration flows fitted to any repo.",
-  "metadata": {
-    "pluginRoot": "./plugins"
-  },
   "plugins": [
     {
       "name": "develop",
-      "source": "develop",
+      "source": "./plugins/develop",
       "description": "Fire one prompt, walk away, get back a branch that already passed your own review. /develop plans the change, builds it, and audits the diff against your repo's own rules, fitted to your stack and self-improving via a flywheel."
     }
   ]

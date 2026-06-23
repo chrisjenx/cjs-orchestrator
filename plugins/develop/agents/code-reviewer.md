@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Code reviewer for /develop:run's PA/PT phases. Reviews the branch diff against the repo's OWN defined conventions and rules (CLAUDE.md, rule docs) plus requirement compliance — does the change do what the spec asked, the way this repo does things. Complements the stack-agnostic general-quality reviewer (fresh-eyes correctness). Reuse-first: applies rules that already exist, doesn't invent standards. Read-only; reports FINDINGS.
+description: "Code reviewer for /develop:run's PA/PT phases. Reviews the branch diff against the repo's OWN defined conventions and rules (CLAUDE.md, rule docs) plus requirement compliance — does the change do what the spec asked, the way this repo does things. Complements the stack-agnostic general-quality reviewer (fresh-eyes correctness). Reuse-first: applies rules that already exist, doesn't invent standards. Read-only; reports FINDINGS."
 tools: ["Read", "Grep", "Glob", "Bash"]
 ---
 

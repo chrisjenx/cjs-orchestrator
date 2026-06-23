@@ -7,6 +7,30 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-06-23
+
+Makes the plugin installable. v0.4.0 could not be installed at all; three separate schema
+problems each blocked `claude plugin install develop@cjs-orchestrator`, and CI did not catch any
+of them.
+
+### Fixed
+- **Install was broken (#30), three causes, all now gated in CI:**
+  - `marketplace.json` gave the plugin `source` as a bare name (`"develop"`) and relied on
+    `metadata.pluginRoot` to prefix it. Claude Code does not honor `pluginRoot` for a string
+    source, so install failed with "this plugin uses a source type your Claude Code version does
+    not support." The source is now a full relative path (`"./plugins/develop"`) and the unused
+    `metadata` block is removed.
+  - `plugin.json` declared `"agents": "./agents/"`. The schema rejects a directory string for
+    `agents` (it expects a file-path array). The field is dropped so the `agents/` directory is
+    auto-discovered; all 9 agents still load.
+  - Six of the nine agent files had an unquoted `: ` (colon-space) inside their `description`
+    frontmatter, which fails YAML parsing. Each affected agent loaded with empty metadata, so
+    routing by agent name broke even once install succeeded. All agent descriptions are now
+    quoted.
+- `validate-manifests.py` now also checks the marketplace source shape, the `agents` field type,
+  and that every shipped agent/skill frontmatter parses as YAML with a name and description, with
+  a selftest wired into CI, so this class of install break cannot ship again.
+
 ## [0.4.0] - 2026-06-23
 
 The flywheel learns from downstream signal (PR review + CI), and the quality tail protects the
@@ -114,7 +138,8 @@ bootstrapper into static, portable skills that read per-repo discovered definiti
 - Marketplace and `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
   genericized explainer site.
 
-[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.4.1
 [0.4.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.4.0
 [0.3.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.3.0
 [0.2.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.2.0

@@ -20,8 +20,13 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Validate JSON manifests + templates
-        run: python3 scripts/validate-manifests.py
+      - name: Install Python deps
+        run: pip install pyyaml
+
+      - name: Validate JSON manifests + plugin source/agents shapes + frontmatter
+        run: |
+          python3 scripts/validate-manifests.py --selftest
+          python3 scripts/validate-manifests.py
 
       - name: Validate plugin install structure + cross-links
         run: python3 scripts/check-install.py

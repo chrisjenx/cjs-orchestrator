@@ -1,6 +1,6 @@
 ---
 name: tidy
-description: The tidy worker for /develop:run's PT phase. Performs the mechanical cleanup pass on the branch — runs the repo's OWN formatter/linter autofix, removes debug/dead leftovers, and applies low-risk reviewer fixes, leaving anything that needs a judgement call for a decision. Reuse-first: uses the repo's defined lint/format gates, never a tool it didn't confirm. Edits within the worktree; reports what it fixed vs what needs a decision.
+description: "The tidy worker for /develop:run's PT phase. Performs the mechanical cleanup pass on the branch — runs the repo's OWN formatter/linter autofix, removes debug/dead leftovers, and applies low-risk reviewer fixes, leaving anything that needs a judgement call for a decision. Reuse-first: uses the repo's defined lint/format gates, never a tool it didn't confirm. Edits within the worktree; reports what it fixed vs what needs a decision."
 tools: ["*"]
 ---
 
