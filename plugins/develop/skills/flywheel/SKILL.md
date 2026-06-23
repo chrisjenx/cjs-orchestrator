@@ -29,26 +29,32 @@ and apply it. Run it once a few runs have accumulated, not after every feature.
 ### 1. Ingest escapes (PR review + CI) — the highest-signal records
 A finding the tail missed but a **human reviewer** (agreed) or **CI** caught is a *confirmed
 escape* ([flywheel.md](../../references/flywheel.md)) — pull these into the SSOT before
-aggregating. Mechanical, two GitHub paths; use the first available, don't improvise:
-- **A GitHub MCP server is connected** → use its tools (structured, no parsing): the repo's PRs
-  merged since the last flywheel run, each one's **resolved** review threads and its **check runs**.
-- **else `gh` is on PATH and the remote is GitHub** → fixed queries: `gh pr list --state merged
-  --json number,mergedAt,title`, `gh api repos/{owner}/{repo}/pulls/{n}/comments`,
-  `gh pr checks {n} --json name,state,bucket`.
+aggregating. Mechanical, two GitHub paths; use the first available, don't improvise. The filters
+below need a thread's *resolved* flag and a check's *per-commit* history, so query the endpoints
+that actually carry those — not the simple ones that don't:
+- **A GitHub MCP server is connected** → use its tools (structured, no parsing): recently merged
+  PRs, each one's review **threads with their resolved flag**, and its **check runs per commit**.
+- **else `gh` is on PATH and the remote is GitHub**:
+  - merged PRs: `gh pr list --state merged --json number,mergedAt,title`
+  - resolved threads (REST `/comments` omits resolution): `gh api graphql` for
+    `pullRequest.reviewThreads { isResolved path line comments }`
+  - failed checks (`gh pr checks` shows only the current rollup, not history): per PR commit
+    (`gh pr view {n} --json commits`), `gh api repos/{owner}/{repo}/commits/{sha}/check-runs`
 - **neither** → say so and skip to step 2 (aggregate existing records only).
 
 Keep only the **agreed/real** survivors (field-based, not judgement):
-- review comment: thread **resolved** *and* a commit landed after it — drop dismissed/`wontfix`,
-  nits, praise.
-- CI check: **failed then passed** on a later commit — drop flakes (passed on rerun, no change)
-  and still-red.
+- review comment: its thread's `isResolved` is true — drop unresolved/dismissed/`wontfix`, nits, praise.
+- CI check: a check-run that **concluded `failure`** on any of the PR's commits — a merged PR that
+  went red on a check mid-way then green is a real catch the local tail missed; drop checks green throughout.
 
-Normalise each survivor to a signal (CI: `checkKind`; review: a `category` from the FINDING
-enum — the agent's *only* call here) and pipe the array through the bundled mapper, which fills
-`escaped_phase` + the cheapest lever deterministically and appends append-only:
+Normalise each survivor to a signal: stamp `run` with the **PR id** (e.g. `pr-123`) and `date`
+with its merge date (so distinct PRs count as distinct runs); for a review give a `category` from
+the FINDING enum (the agent's *only* judgement call), for CI give the `checkKind`. Pipe the array
+through the bundled mapper — it fills `escaped_phase` + the cheapest lever deterministically and
+appends only records not already in the SSOT, so re-scanning the same PRs is idempotent:
 ```sh
 echo "$signals" | python3 "${CLAUDE_PLUGIN_ROOT}/scripts/flywheel-ingest.py" \
-  >> .claude/develop-flywheel.jsonl
+  --ssot .claude/develop-flywheel.jsonl
 ```
 (No `python3`? Apply the attribution table in [flywheel.md](../../references/flywheel.md) by hand.)
 

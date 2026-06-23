@@ -124,7 +124,9 @@ the machine SSOT) — a `CONTRACT_GAP` stamped with the run + the finding's fing
 `source` defaults to `run` (a tail residual). `source: pr-review | ci` marks a **confirmed
 escape** — a finding the whole tail missed but an agreed PR review or CI caught — so it's
 preventable by definition and **promotion-ready at ×1**; `escaped_phase` records which phase
-should have caught it ([flywheel.md](./flywheel.md)). Irreducible findings carry
+should have caught it ([flywheel.md](./flywheel.md)). For an escape, `run` is the source PR id
+(`date` its merge date), so distinct PRs count as distinct runs and `flywheel-ingest.py` dedups
+re-ingestion on `(run, fingerprint)`. Irreducible findings carry
 `preventable: false` and may omit `remediation`/`target`. The bundled
 `scripts/flywheel-aggregate.py` reads this file at `/develop:flywheel` time — never in the run
 loop — to count recurrences across runs; `scripts/flywheel-ingest.py` writes the escape lines.

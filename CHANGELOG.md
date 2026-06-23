@@ -10,11 +10,13 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 ### Added
 - **Flywheel escape ingestion.** `/develop:flywheel` now pulls confirmed escapes (PR-review
   comments you agreed to, and CI failures) into the SSOT over two mechanical GitHub paths (a
-  connected MCP server, else the `gh` CLI), attributes each to the phase that should have caught
-  it (`escaped_phase`), and treats it as promotion-ready at x1 (a proven miss, versus >=2
-  recurrences for an internal residual). A new bundled `scripts/flywheel-ingest.py` fills the
-  phase/lever mapping deterministically (selftested in CI), and `flywheel-aggregate.py` flags
-  escapes distinctly.
+  connected MCP server, else the `gh` CLI, using GraphQL resolved-thread + per-commit check-run
+  data), attributes each to the phase that should have caught it (`escaped_phase`), and treats it
+  as promotion-ready at x1 (a proven miss, versus >=2 recurrences for an internal residual).
+  Ingestion is idempotent: each escape is stamped with its source PR id and `flywheel-ingest.py`
+  dedups against the SSOT on `(run, fingerprint)`, so re-scanning the same PRs is safe. A new
+  bundled `scripts/flywheel-ingest.py` fills the phase/lever mapping deterministically (selftested
+  in CI), and `flywheel-aggregate.py` flags escapes distinctly.
 
 ### Changed
 - `references/quality-tail.md` (PF step 2, PT): run any long fix/review loop (coverage tuning,

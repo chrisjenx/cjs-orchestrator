@@ -1,21 +1,26 @@
 #!/usr/bin/env python3
-"""Map confirmed escapes (agreed PR-review comments + real CI failures) to FLYWHEEL_RECORD lines.
+"""Map confirmed escapes (agreed PR-review comments + real CI failures) to FLYWHEEL_RECORD lines,
+deduped against the SSOT.
 
 The mechanical half of /develop:flywheel's ingest step (skills/flywheel). The skill fetches and
 field-filters escapes from GitHub (a connected MCP server, else the `gh` CLI), normalises each to
-a tiny signal, and pipes the array here; this emits one append-ready FLYWHEEL_RECORD per signal
-(see references/schemas.md) with `escaped_phase` + the cheapest lever filled deterministically
-from the maps below — so the agent never guesses the phase or lever, it only categorises a review
-comment into the FINDING enum (CI maps by check kind, no judgement). stdlib-only, read-only; runs
-at flywheel time, never in the run hot loop.
+a tiny signal STAMPED WITH ITS SOURCE PR, and pipes the array here. This maps each to an
+append-ready FLYWHEEL_RECORD (see references/schemas.md) with `escaped_phase` + the cheapest lever
+filled deterministically from the maps below — so the agent never guesses the phase or lever, it
+only categorises a review comment into the FINDING enum (CI maps by check kind, no judgement).
+Given --ssot it appends only records not already present, keyed on (run, fingerprint), so
+re-running over the same PRs is idempotent (no duplicate escapes). The whole batch is mapped
+before anything is written, so a malformed signal can't leave a partial append. stdlib-only.
 
 Usage:
-  flywheel-ingest.py < signals.json   # JSON array (or one object) on stdin -> FLYWHEEL_RECORD lines
+  flywheel-ingest.py --ssot .claude/develop-flywheel.jsonl < signals.json  # dedup + append in place
+  flywheel-ingest.py < signals.json                                        # map -> stdout (no dedup)
   flywheel-ingest.py --selftest
 
-Signal shapes the skill builds from the filtered survivors:
-  CI:     {"kind":"ci","checkKind":"build|test|coverage|lint|types|other","run":..,"date":..,"breaking":bool}
-  review: {"kind":"review","category":"<FINDING category>","file":..,"line":..,"run":..,"date":..,"breaking":bool}
+Signal shapes the skill builds from the filtered survivors (run = the PR id, date = its merge
+date, so distinct PRs count as distinct runs and re-ingest dedups):
+  CI:     {"kind":"ci","checkKind":"build|test|coverage|lint|types|other","run":"pr-123","date":"YYYY-MM-DD","breaking":bool}
+  review: {"kind":"review","category":"<FINDING category>","file":..,"line":..,"run":"pr-123","date":"YYYY-MM-DD"}
 """
 import argparse, json, sys
 
@@ -47,7 +52,7 @@ REVIEW_MAP = {
     "naming":          ("PT",      "rule",        "convention in CLAUDE.md"),
     "quality":         ("PT",      "rule",        "convention in CLAUDE.md"),
 }
-REVIEW_DEFAULT = ("PA", "rule", "review rule in CLAUDE.md (uncategorised — confirm)")
+REVIEW_DEFAULT = ("PA", "rule", "review rule in CLAUDE.md (uncategorised, confirm)")
 
 # Append-only lines read best in a stable key order.
 KEY_ORDER = ["run", "date", "fingerprint", "category", "severity", "source",
@@ -56,7 +61,7 @@ KEY_ORDER = ["run", "date", "fingerprint", "category", "severity", "source",
 
 def to_record(sig):
     kind = sig.get("kind")
-    breaking = bool(sig.get("breaking"))
+    breaking = sig.get("breaking") is True  # only a real JSON true is breaking (not "false"/1/...)
     sev = "high" if breaking else "medium"
     if kind == "ci":
         ck = sig.get("checkKind", "other")
@@ -79,25 +84,54 @@ def to_record(sig):
     return {k: rec[k] for k in KEY_ORDER}
 
 
-def emit(signals, out):
-    for sig in signals:
-        out.write(json.dumps(to_record(sig), ensure_ascii=False) + "\n")
+def existing_keys(path):
+    """(run, fingerprint) pairs already in the SSOT, so we never re-append them."""
+    keys = set()
+    try:
+        with open(path, encoding="utf-8") as fh:
+            for line in fh:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    r = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(r, dict):
+                    keys.add((r.get("run"), r.get("fingerprint")))
+    except FileNotFoundError:
+        pass
+    return keys
+
+
+def filter_new(records, seen):
+    """Records whose (run, fingerprint) is neither in `seen` nor earlier in this batch."""
+    fresh, batch = [], set(seen)
+    for r in records:
+        k = (r.get("run"), r.get("fingerprint"))
+        if k in batch:
+            continue
+        batch.add(k)
+        fresh.append(r)
+    return fresh
 
 
 def selftest():
     cases = [
-        ({"kind": "ci", "checkKind": "build", "run": "f", "date": "2026-06-21", "breaking": True},
+        ({"kind": "ci", "checkKind": "build", "run": "pr-1", "date": "2026-06-21", "breaking": True},
          {"source": "ci", "category": "build-break", "escaped_phase": "PF", "remediation": "gate", "severity": "high"}),
-        ({"kind": "ci", "checkKind": "coverage", "run": "f", "date": "2026-06-21"},
+        ({"kind": "ci", "checkKind": "coverage", "run": "pr-1", "date": "2026-06-21"},
          {"source": "ci", "category": "untested-flow", "escaped_phase": "PV", "remediation": "plan-anchor", "severity": "medium"}),
-        ({"kind": "ci", "checkKind": "wat", "run": "f", "date": "2026-06-21"},  # unknown -> other
+        ({"kind": "ci", "checkKind": "wat", "run": "pr-1", "date": "2026-06-21"},  # unknown -> other
          {"source": "ci", "category": "ci-failure", "escaped_phase": "PF"}),
-        ({"kind": "review", "category": "regression", "file": "a.py", "line": 3, "run": "f", "date": "2026-06-21"},
+        ({"kind": "review", "category": "regression", "file": "a.py", "line": 3, "run": "pr-1", "date": "2026-06-21"},
          {"source": "pr-review", "escaped_phase": "PA", "remediation": "agent"}),
-        ({"kind": "review", "category": "style", "file": "a.py", "line": 3, "run": "f", "date": "2026-06-21"},
+        ({"kind": "review", "category": "style", "file": "a.py", "line": 3, "run": "pr-1", "date": "2026-06-21"},
          {"source": "pr-review", "escaped_phase": "PT", "remediation": "rule"}),
-        ({"kind": "review", "category": "weird-new-thing", "file": "a.py", "line": 3, "run": "f", "date": "2026-06-21"},
+        ({"kind": "review", "category": "weird-new-thing", "file": "a.py", "line": 3, "run": "pr-1", "date": "2026-06-21"},
          {"source": "pr-review", "escaped_phase": "PA", "remediation": "rule"}),  # default
+        ({"kind": "ci", "checkKind": "build", "run": "pr-1", "date": "2026-06-21", "breaking": "false"},
+         {"breaking": False, "severity": "medium"}),  # string "false" is NOT breaking
     ]
     for sig, want in cases:
         got = to_record(sig)
@@ -111,18 +145,44 @@ def selftest():
             raise AssertionError(f"expected ValueError for {bad!r}")
         except ValueError:
             pass
+
+    # Dedup: same (run, fingerprint) drops, both within a batch and against `seen`.
+    a = to_record({"kind": "ci", "checkKind": "build", "run": "pr-1", "date": "d"})
+    a2 = to_record({"kind": "ci", "checkKind": "build", "run": "pr-1", "date": "d"})  # dup of a
+    b = to_record({"kind": "ci", "checkKind": "build", "run": "pr-2", "date": "d"})   # diff PR
+    assert [r["run"] for r in filter_new([a, a2, b], set())] == ["pr-1", "pr-2"], "within-batch dedup"
+    seen = {(a["run"], a["fingerprint"])}
+    assert [r["run"] for r in filter_new([a, b], seen)] == ["pr-2"], "dedup against existing SSOT"
+    # Empty input maps to nothing.
+    assert filter_new([], set()) == []
     print("flywheel-ingest selftest: ok")
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Map confirmed escapes to FLYWHEEL_RECORD lines.")
-    ap.add_argument("--selftest", action="store_true", help="run the mapping unit tests and exit")
+    ap = argparse.ArgumentParser(description="Map confirmed escapes to deduped FLYWHEEL_RECORD lines.")
+    ap.add_argument("--ssot", help="dedup against and append to this JSONL SSOT, in place")
+    ap.add_argument("--selftest", action="store_true", help="run the unit tests and exit")
     args = ap.parse_args()
     if args.selftest:
         selftest()
         return 0
-    data = json.load(sys.stdin)
-    emit([data] if isinstance(data, dict) else data, sys.stdout)
+    raw = sys.stdin.read().strip()
+    signals = json.loads(raw) if raw else []  # empty stdin (no escapes this cycle) -> clean no-op
+    if isinstance(signals, dict):
+        signals = [signals]
+    if not isinstance(signals, list):
+        raise ValueError("expected a JSON array of signals on stdin")
+    records = [to_record(s) for s in signals]  # map+validate the WHOLE batch before any write
+    if args.ssot:
+        fresh = filter_new(records, existing_keys(args.ssot))
+        with open(args.ssot, "a", encoding="utf-8") as fh:
+            for r in fresh:
+                fh.write(json.dumps(r, ensure_ascii=False) + "\n")
+        print(f"ingest: {len(fresh)} new, {len(records) - len(fresh)} already present "
+              f"({len(records)} signals)", file=sys.stderr)
+    else:
+        for r in records:
+            sys.stdout.write(json.dumps(r, ensure_ascii=False) + "\n")
     return 0
 
 
