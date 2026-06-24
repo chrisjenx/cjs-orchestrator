@@ -1,7 +1,7 @@
 # Plan anatomy — the plan file IS the system of record
 
 `/develop:run` keeps **all** durable state in one markdown file per feature:
-`<featureDir>/<feature>.plan.md` (default `build/develop/<feature>.plan.md`). Context is
+`<featureDir>/<feature>.plan.md` (default `.develop/<feature>.plan.md`). Context is
 volatile; the plan is not. Everything needed to resume after a crash is in this file — the
 orchestrator holds only "which phase am I on" in working memory.
 

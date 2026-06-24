@@ -72,7 +72,7 @@ BUILD_OUTPUT_SEGMENTS = ("build", "target", "out", "dist", "bin")
 
 def feature_dir_unsafe(fd):
     """Return a reason string if featureDir sits under a build-output dir a 'clean' wipes, else None."""
-    parts = [s for s in str(fd).split("/") if s]
+    parts = [s for s in str(fd).split("/") if s and s != "."]
     if parts and parts[0] in BUILD_OUTPUT_SEGMENTS:
         return f"featureDir {fd!r} sits under build-output dir {parts[0]!r}/ which a 'clean' task wipes mid-run"
     return None
@@ -221,6 +221,8 @@ def selftest() -> int:
     expect(feature_dir_unsafe("target/x"), "target/ should be flagged")
     expect(not feature_dir_unsafe(".develop"), ".develop should pass")
     expect(not feature_dir_unsafe(".claude/develop"), ".claude/develop should pass")
+    expect(feature_dir_unsafe("./build/x"), "./build/x should be flagged")
+    expect(not feature_dir_unsafe(""), "empty featureDir should not be flagged")
 
     if fails:
         print("validate-manifests selftest FAILED:")
