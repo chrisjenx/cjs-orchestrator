@@ -7,6 +7,33 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-23
+
+Fixes the gaps a real init + dry run on a multi-target monorepo surfaced, and hardens the gate
+contract so they cannot silently recur.
+
+### Added
+- **Multiple gates per kind + addressable tokens.** A compiled stack can define both a cheap
+  per-module compile and a heavy umbrella build as two `build`-kind gates; a node addresses one
+  with `{kind:id}` (e.g. `{build:compile}`). Backwards-compatible: bare `{kind}` still works when
+  a kind has a single gate. `scopedCommand` is now explicitly optional with a multi-target
+  umbrella fallback. (#31, #34)
+
+### Fixed
+- **init `featureDir` default** is now `.develop` (hidden, git-ignored by init) instead of
+  `build/develop`, which a build `clean` wipes mid-run; a validate-manifests guard blocks any
+  build-output featureDir. (#2)
+- **Phase 4 hook install** degrades gracefully when the host denies the `settings.json` merge:
+  it emits the exact snippet to paste and reports a required manual step instead of leaving the
+  guard silently inert. (#32)
+- **`/develop:run` worktree step** reuses an already-isolated worktree instead of nesting, resolves
+  the new worktree against the main repo root, and reads config from the main checkout. (#33)
+- **CI gate discovery** is now an enforced per-job/per-step exhaustiveness contract that counts
+  guard-style `exit 1` checks as gating and echoes the list back at the confirm seam, with a
+  dry-run completeness re-check. Prevents a guard being missed. (#3)
+- **planner** emits the canonical gate-token grammar; a validate-manifests guard lints gate-token
+  examples in the references. (#34)
+
 ## [0.4.1] - 2026-06-23
 
 Makes the plugin installable. v0.4.0 could not be installed at all; three separate schema
@@ -138,7 +165,8 @@ bootstrapper into static, portable skills that read per-repo discovered definiti
 - Marketplace and `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
   genericized explainer site.
 
-[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.5.0
 [0.4.1]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.4.1
 [0.4.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.4.0
 [0.3.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.3.0
