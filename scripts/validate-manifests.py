@@ -161,6 +161,75 @@ def check_frontmatter(problems):
                 problems.append(f"{rel}: frontmatter missing/empty {k!r}")
 
 
+def _status_line(text):
+    """The single stripped `STATUS:` contract line in a file. Raises if not exactly one."""
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip().startswith("STATUS:")]
+    if len(lines) != 1:
+        raise ValueError(f"expected exactly one 'STATUS:' line, found {len(lines)}")
+    return lines[0]
+
+
+def _status_reasons(status_line):
+    """The BLOCKED reason set declared in a STATUS line, e.g. {context, reasoning, too-large, plan}."""
+    m = re.search(r"BLOCKED\[:([^\]]+)\]", status_line)
+    if not m:
+        raise ValueError(f"STATUS line missing BLOCKED[:...] reason tags: {status_line!r}")
+    return {p.strip() for p in m.group(1).split("|") if p.strip()}
+
+
+def _section(text, heading_substr):
+    """Body of the first '## ...heading_substr...' section, up to the next '## ' (or EOF)."""
+    lines = text.splitlines()
+    start = next((i for i, ln in enumerate(lines) if ln.startswith("## ") and heading_substr in ln), None)
+    if start is None:
+        return ""
+    end = next((i for i in range(start + 1, len(lines)) if lines[i].startswith("## ")), len(lines))
+    return "\n".join(lines[start:end])
+
+
+def status_contract_problems(executor_md, brief_md, schemas_md, run_md):
+    """Pure coherence check for the executor STATUS contract (testable on in-memory strings).
+
+    The escalation grammar lives in three places that must not drift: the executor's return
+    contract (copied in executor.md + executor-brief.md), the ESCALATION reason vocabulary in
+    schemas.md, and the routing in run/SKILL.md. A reason added in one place but not the others
+    must fail CI, not pass silently.
+    """
+    try:
+        ex, br = _status_line(executor_md), _status_line(brief_md)
+    except Exception as e:  # noqa: BLE001
+        return [f"executor STATUS contract: {e}"]
+    if ex != br:
+        return ["executor STATUS line differs between agents/executor.md and "
+                "references/executor-brief.md (must be identical)"]
+    try:
+        reasons = _status_reasons(ex)
+    except Exception as e:  # noqa: BLE001
+        return [f"executor STATUS contract: {e}"]
+    esc = _section(schemas_md, "ESCALATION")
+    if not esc:
+        return ["schemas.md: missing the '## ESCALATION' reason entry"]
+    defined = set(re.findall(r"^- `([a-z-]+)`", esc, re.M))
+    out = []
+    if defined != reasons:
+        out.append(f"schemas.md ESCALATION reasons {sorted(defined)} != STATUS-line reasons {sorted(reasons)}")
+    for r in sorted(reasons):
+        if f"`{r}`" not in run_md:
+            out.append(f"run/SKILL.md: escalation reason `{r}` is not routed in the between-phase gate")
+    return out
+
+
+def check_status_contract(problems):
+    def read(rel):
+        return open(ROOT + rel, encoding="utf-8").read()
+    problems.extend(status_contract_problems(
+        read("/plugins/develop/agents/executor.md"),
+        read("/plugins/develop/references/executor-brief.md"),
+        read("/plugins/develop/references/schemas.md"),
+        read("/plugins/develop/skills/run/SKILL.md"),
+    ))
+
+
 def main() -> int:
     problems = []
 
@@ -200,6 +269,9 @@ def main() -> int:
 
     # 6) Gate-token examples in the docs match the canonical grammar.
     check_gate_token_grammar(problems)
+
+    # 7) Executor STATUS contract is coherent across both copies + schemas.md + run/SKILL.md.
+    check_status_contract(problems)
 
     if problems:
         print("manifest validation FAILED:")
@@ -273,6 +345,22 @@ def selftest() -> int:
     for bad in ("{build:}", "{frobnicate}", "{cov>=}", "{test}", "{grep}"):
         expect(not valid_gate_token(bad), f"{bad} should be rejected")
     expect(_looks_like_gate_token("{build:compile}") and not _looks_like_gate_token("{pkg}"), "placeholder {pkg} must not look like a gate token")
+
+    # executor STATUS contract coherence
+    GOOD_STATUS = "STATUS: DONE | DONE-CONCERNS | BLOCKED[:context|reasoning|too-large|plan] · nodes <done>/<total>"
+    good_ex = f"text\n{GOOD_STATUS}\nmore\n"
+    good_schemas = ("## ESCALATION reason\n\n- `context` — a\n- `reasoning` — b\n"
+                    "- `too-large` — c\n- `plan` — d\n\n## Next\n")
+    good_run = "branches: `context` `reasoning` `too-large` `plan` are routed here"
+    expect(not status_contract_problems(good_ex, good_ex, good_schemas, good_run),
+           "coherent STATUS contract should pass")
+    drift_ex = f"text\n{GOOD_STATUS.replace('DONE-CONCERNS | ', '')}\nmore\n"
+    expect(status_contract_problems(drift_ex, good_ex, good_schemas, good_run),
+           "STATUS lines differing between the two copies should fail")
+    expect(status_contract_problems(good_ex, good_ex, good_schemas, "only `context` `reasoning` `too-large` routed"),
+           "a reason unrouted in run/SKILL.md should fail")
+    expect(status_contract_problems(good_ex, good_ex, good_schemas.replace("- `plan` — d\n", ""), good_run),
+           "schemas reason set != STATUS reason set should fail")
 
     if fails:
         print("validate-manifests selftest FAILED:")

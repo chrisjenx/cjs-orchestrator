@@ -51,13 +51,14 @@ Cheap gates run in your turn; annotate heavy gates DEFERRED-PF.
   cheap gates, flip DONE/BLOCKED, append a closing row, write findings (FINDING schema,
   deduped).
 - Scope fence: only the files your nodes name; anything else → write a finding, don't do it.
-- Loop: honour [loop: max N]; after N attempts set BLOCKED + an ESCALATE finding.
+- Loop: honour [loop: max N]; after N attempts set BLOCKED:<reason> + an ESCALATE finding.
+- Escalate honestly: BLOCKED:<reason> / DONE-CONCERNS over a silent guess (reasons: schemas.md).
 - No narration: the orchestrator owns the status stream ([run-status.md](./run-status.md)) —
   you write the plan and return the three lines below, nothing more.
 
 ## Return — three lines only
 ASSUMPTIONS: <one line>
-STATUS: DONE | BLOCKED · nodes <done>/<total>
+STATUS: DONE | DONE-CONCERNS | BLOCKED[:context|reasoning|too-large|plan] · nodes <done>/<total>
 NESTED: <children spawned> · DEFERRED-PF: <tokens left for finalize>
 ```
 

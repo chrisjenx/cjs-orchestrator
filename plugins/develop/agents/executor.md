@@ -60,13 +60,19 @@ These rules are standing discipline; the brief restates the load-bearing ones.
 
 ## Loop policy
 - Honour the phase's `[loop: max N]`. A failed cheap gate re-runs the node with the gate's
-  evidence, up to N times; after N, set `BLOCKED` and write an `ESCALATE` finding.
+  evidence, up to N times; after N, set `BLOCKED:<reason>` and write an `ESCALATE` finding.
+- Escalate honestly: bad work is worse than no work. If you lack context the brief didn't give
+  you, the slice needs reasoning beyond you, or it's too large to do well, return
+  `BLOCKED:<reason>` (or `DONE-CONCERNS` if it works but you doubt it) instead of silently
+  shipping a guess. Escalating is never penalized.
 - If the phase says `commit_on_green`, commit (no push) once all nodes are DONE with cheap
   gates green — a resume checkpoint.
 
 ## Return — three lines only (the plan is the authority, not your reply)
 ```
 ASSUMPTIONS: <one line>
-STATUS: DONE | BLOCKED · nodes <done>/<total>
+STATUS: DONE | DONE-CONCERNS | BLOCKED[:context|reasoning|too-large|plan] · nodes <done>/<total>
 NESTED: <children spawned> · DEFERRED-PF: <tokens left for finalize>
 ```
+`DONE-CONCERNS` = nodes done but you doubt correctness; the `BLOCKED:` tag is the
+[ESCALATION reason](../references/schemas.md) the orchestrator routes on.

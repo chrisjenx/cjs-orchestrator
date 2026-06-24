@@ -117,11 +117,20 @@ Loop until no phase is ready:
 5. **Re-read the plan** to confirm the phase reached `DONE`/`BLOCKED` — trust the file, not
    the executor's reply message. _say:_ `✓ <Pn> · done <x>/<y> · {gate}✓ …` (or
    `✗ <Pn> · blocked · <reason>`).
-6. **Between-phase gate:** if the phase ended `BLOCKED` with unresolved HIGH findings or an
-   `ESCALATE`, surface one `AskUserQuestion` (options include the tentative default) and
-   fold the answer into the plan's `## Decisions`. Bounded by `caps.gate`; beyond that, fall
-   through to the tentative default (logged). The phase may re-open. _say:_
-   `⚠ <Pn> · <finding> → asking`.
+6. **Between-phase gate.** On `BLOCKED:<reason>`, `DONE-CONCERNS`, or an unresolved HIGH /
+   `ESCALATE` finding, respond by the reason ([schemas.md](../../references/schemas.md)) before
+   asking — never re-dispatch the same phase at the same tier with the same brief (change
+   context, tier, or scope, or escalate):
+   - `context` → fold the missing context (a `## Decisions` entry or a clarifying answer) into
+     the brief, re-dispatch same tier.
+   - `reasoning` → re-dispatch at the next-higher model tier; if already at top tier, fall
+     through to `too-large` (subdivide) or the human ask — never re-loop the same tier.
+   - `too-large` → subdivide the phase's nodes (bounded re-plan of that slice), re-walk.
+   - `plan`, or a HIGH finding needing a human call → surface one `AskUserQuestion` (options
+     include the tentative default), fold the answer into `## Decisions`.
+   `DONE-CONCERNS` advances but flags the phase for extra scrutiny in PV/PA. Bounded by
+   `caps.gate`; beyond that, fall through to the tentative default (logged). The phase may
+   re-open. _say:_ `⚠ <Pn> · <reason> → <response>`.
 7. Advance.
 
 **Resume on crash:** re-invoking re-reads the plan, skips `DONE`, re-enters the first
