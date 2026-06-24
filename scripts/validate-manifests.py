@@ -112,8 +112,11 @@ def _looks_like_gate_token(tok):
 
 
 def check_gate_token_grammar(problems):
-    # Validate every gate-token-shaped {...} in the docs that carry token examples.
-    # scopedCommand placeholders ({files},{pkg},{selector}) are skipped: their head is not a kind.
+    # Lint node gate-token examples against the canonical grammar. Scope is intentional: only the
+    # two docs that DEFINE node gate tokens are scanned. Status-render docs (run-status.md,
+    # skills/run/SKILL.md) use a bare `{kind}` result glyph (e.g. `{test}✓`) that the node grammar
+    # forbids — that's a different surface, so do NOT add them here. scopedCommand placeholders
+    # ({files},{pkg},{selector}) are skipped automatically: their head is not a gate kind.
     for rel in ("plugins/develop/references/gate-tokens.md",
                 "plugins/develop/references/plan-anatomy.md"):
         path = ROOT + "/" + rel
