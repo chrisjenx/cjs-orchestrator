@@ -14,7 +14,7 @@ Beyond "every JSON parses", this guards the three classes that made v0.4.0 unins
 `claude plugin validate` is the authoritative check; this mirrors its verdicts deterministically
 in CI without that dependency. Exit 0 = OK, 1 = problem. Run with --selftest to verify the guards.
 """
-import json, os, sys, glob
+import json, os, sys, glob, re
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
@@ -90,6 +90,43 @@ def check_template_feature_dir(problems):
         problems.append("templates/develop.config.json: " + reason + " — use a stack-neutral hidden path like '.develop'")
 
 
+TOKEN_KIND_HEADS = ("build", "test", "lint", "format", "types", "coverage", "cov", "grep")
+
+
+def valid_gate_token(tok):
+    """tok includes braces. Canonical grammar (gate-tokens.md)."""
+    if re.fullmatch(r"\{(build|lint|types|format)(:[A-Za-z0-9_.\-]+)?\}", tok):
+        return True   # bare kind, or {kind:id} to disambiguate multiple same-kind gates
+    if re.fullmatch(r"\{test:[^}]+\}", tok):
+        return True   # test always carries a selector
+    if re.fullmatch(r"\{cov(>=|<=|=)(\d+|N)\}", tok):
+        return True   # \d+ concrete, or literal 'N' in grammar-description text
+    if re.fullmatch(r"\{grep:[^}]+\}", tok):
+        return True
+    return False
+
+
+def _looks_like_gate_token(tok):
+    head = re.split(r"[:<>=}]", tok[1:], maxsplit=1)[0]
+    return head in TOKEN_KIND_HEADS
+
+
+def check_gate_token_grammar(problems):
+    # Validate every gate-token-shaped {...} in the docs that carry token examples.
+    # scopedCommand placeholders ({files},{pkg},{selector}) are skipped: their head is not a kind.
+    for rel in ("plugins/develop/references/gate-tokens.md",
+                "plugins/develop/references/plan-anatomy.md"):
+        path = ROOT + "/" + rel
+        try:
+            text = open(path, encoding="utf-8").read()
+        except Exception as e:  # noqa: BLE001
+            problems.append(f"{rel}: {e}")
+            continue
+        for tok in re.findall(r"\{[^}\s]+\}", text):
+            if _looks_like_gate_token(tok) and not valid_gate_token(tok):
+                problems.append(f"{rel}: malformed gate token {tok!r} (see gate-tokens.md grammar)")
+
+
 def parse_frontmatter(path):
     """Return the parsed YAML frontmatter mapping, or raise on any parse/shape error."""
     import yaml
@@ -158,6 +195,9 @@ def main() -> int:
     # 5) Template featureDir must not be wiped by a build 'clean'.
     check_template_feature_dir(problems)
 
+    # 6) Gate-token examples in the docs match the canonical grammar.
+    check_gate_token_grammar(problems)
+
     if problems:
         print("manifest validation FAILED:")
         for p in problems:
@@ -223,6 +263,13 @@ def selftest() -> int:
     expect(not feature_dir_unsafe(".claude/develop"), ".claude/develop should pass")
     expect(feature_dir_unsafe("./build/x"), "./build/x should be flagged")
     expect(not feature_dir_unsafe(""), "empty featureDir should not be flagged")
+
+    # gate-token grammar
+    for good in ("{build}", "{build:compile}", "{lint}", "{types}", "{format}", "{test:server}", "{cov>=80}", "{grep:no-todo}"):
+        expect(valid_gate_token(good), f"{good} should be valid")
+    for bad in ("{build:}", "{frobnicate}", "{cov>=}", "{test}", "{grep}"):
+        expect(not valid_gate_token(bad), f"{bad} should be rejected")
+    expect(_looks_like_gate_token("{build:compile}") and not _looks_like_gate_token("{pkg}"), "placeholder {pkg} must not look like a gate token")
 
     if fails:
         print("validate-manifests selftest FAILED:")

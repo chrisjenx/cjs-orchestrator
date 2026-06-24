@@ -22,6 +22,8 @@ repo. Keep it small and human-editable; the user owns it.
   },
   "gates": [
     { "id": "types",    "kind": "types",    "tier": "cheap", "command": "pnpm -w typecheck" },
+    { "id": "compile",  "kind": "build",    "tier": "cheap", "command": "pnpm -w build",
+      "scopedCommand": "pnpm --filter {pkg} build" },
     { "id": "lint",     "kind": "lint",     "tier": "cheap", "command": "pnpm -w lint",
       "scopedCommand": "pnpm eslint {files}" },
     { "id": "build",    "kind": "build",    "tier": "heavy", "command": "pnpm -w build",
@@ -47,10 +49,10 @@ repo. Keep it small and human-editable; the user owns it.
 | `featureDir` | init | Where per-feature plan files live (`<featureDir>/<feature>.plan.md`). Default `.develop` (init adds it to `.gitignore` if absent). Must be git-ignored (so plan artifacts never land in the feature commit) and must **not** sit under a build-output dir (`build/`, `target/`, `out/`, `dist/`, `bin/`) a `clean` task wipes mid-run. |
 | `stack` | init Phase 1 | The confirmed stack summary + file evidence. Informational + drives scoped-command templates. |
 | `gates` | init Phase 2 | The discovered gate commands. See [gate-tokens.md](./gate-tokens.md). |
-| `gates[].kind` | init | `build` \| `test` \| `lint` \| `format` \| `types` \| `coverage` \| `grep`. |
+| `gates[].kind` | init | `build` \| `test` \| `lint` \| `format` \| `types` \| `coverage` \| `grep`. **Multiple gates may share a kind** (e.g. a cheap `compile` + a heavy `build`); address a specific one with `{kind:id}` ([gate-tokens.md](./gate-tokens.md)). |
 | `gates[].tier` | init | `cheap` (inline every phase) or `heavy` (deferred to `PF`). |
 | `gates[].command` | init | The exact whole-repo command (from CI). |
-| `gates[].scopedCommand` | init | Optional template for the cheap inline run; placeholders `{files}`, `{pkg}`, `{selector}`. |
+| `gates[].scopedCommand` | init | **Optional** template for the cheap inline run; placeholders `{files}`, `{pkg}`, `{selector}`. **Omit it when no uniform per-module command exists** (multi-target stacks like KMP have no single `:{pkg}:compile` task) — fall back to the whole-repo `command`, or use a universally-valid umbrella per module (e.g. `:{pkg}:assemble`). |
 | `gates[].fresh` | init | `true` for test gates that must force a non-cached run. |
 | `gates[].threshold` | init | For `coverage` gates: minimum diff coverage %. |
 | `models` | init / [model-tiers.md](./model-tiers.md) | The cheap/mid/top model ids `/develop:run` dispatches with. |
@@ -63,9 +65,9 @@ repo. Keep it small and human-editable; the user owns it.
 
 - **Only commands the user confirmed go in `gates`.** No invented commands.
 - The config is the contract between `/develop:init` (writer) and `/develop:run` (reader).
-  A *command-gate* token (`build`/`test`/`lint`/`format`/`types`/`cov`) on a plan node with no
-  matching `gates[].id`/`kind` is a planner error; `{grep:<id>}` anchors self-resolve
-  ([gate-tokens.md](./gate-tokens.md)).
+  A *command-gate* token on a plan node with no matching `gates[].id`/`kind` — **or a bare
+  `{kind}` when several gates share that kind** (disambiguate with `{kind:id}`) — is a planner
+  error; `{grep:<id>}` anchors self-resolve ([gate-tokens.md](./gate-tokens.md)).
 - Defaults shown for `models`, `caps`, `intensity` are the lean starting point; the user
   edits them. `/develop:run` reads them every run, so edits take effect immediately.
 - On a re-run, `/develop:init` reconciles this file rather than overwriting it (see

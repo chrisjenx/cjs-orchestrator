@@ -23,9 +23,12 @@ the repo and how `/develop:run` references them.
    into `.claude/develop.config.json` (see [config-schema.md](./config-schema.md)).
 
 **Build gate = whole-project, not one module.** CI often shards compile per module/target for
-speed, but one module's compile is too narrow a `build` gate. Use the umbrella the build tool
-always provides (Gradle `build`/`assemble`, `cargo build`, `tsc -b`, `make`); scope only the
-*cheap* run to changed modules. The gate must catch compile breakage anywhere the change touches.
+speed, but one module's compile is too narrow a heavy `build` gate. Use the umbrella the build
+tool always provides (Gradle `build`/`assemble`, `cargo build`, `tsc -b`, `make`) for the heavy
+gate. A compiled stack usually wants **two** `build`-kind gates: a **cheap** per-module compile
+(inline every phase) **and** the **heavy** umbrella build (PF). Define them as two gates with
+distinct ids (e.g. `id:"compile"` cheap + `id:"build"` heavy, both `kind:"build"`); the `tier`
+field governs inline-vs-PF. Address a specific one with `{build:compile}` (below).
 
 If a gate can't be derived from a real command, it is not a gate — drop it or ask. Never
 invent a command.
@@ -68,7 +71,11 @@ in `{…}`:
 - P2.b Wire <thing> [agent: executor] [status: PENDING] {lint} {cov>=80}
 ```
 
-- A bare kind (`{build}`, `{lint}`, `{types}`, `{format}`) → run that gate's command.
+- A bare kind (`{build}`, `{lint}`, `{types}`, `{format}`) → run that gate's command. Valid only
+  when **exactly one** gate of that kind exists; if several do, it is ambiguous (a planner error).
+- `{<kind>:<id>}` (e.g. `{build:compile}`) → address one specific gate by its `develop.config.json`
+  `id`, for the non-selector kinds (`build`/`lint`/`types`/`format`). Use this to pick the cheap
+  compile vs the heavy build when both exist.
 - `{test:<selector>}` → run only the named test(s); the selector is whatever the runner
   accepts (file path, test name, tag). Forces a **fresh** run (no cached results).
 - `{cov>=N}` → diff coverage must be ≥ N% (a `coverage` gate must be configured).
@@ -87,7 +94,8 @@ in `{…}`:
   record it `DEFERRED-PF` and move on — don't burn the loop budget retrying a broken env.
 - **Cheap in the executor's turn; heavy deferred.** The executor never runs heavy gates;
   it tags them `DEFERRED-PF`. Only `PF` finalize runs heavy gates, blocking until green.
-- **Unrecognised command-token = planner error.** If a node carries a command-gate token
-  (`build`/`test`/`lint`/`format`/`types`/`cov`) with no matching gate in
-  `develop.config.json`, that's a bug in the plan — write a finding, don't guess. `{grep:<id>}`
-  anchors are exempt: they self-resolve from the id (no config gate needed).
+- **Unrecognised or ambiguous command-token = planner error.** If a node carries a command-gate
+  token (`build`/`test`/`lint`/`format`/`types`/`cov`) with no matching gate in
+  `develop.config.json`, or a **bare** kind token when several gates share that kind (use
+  `{kind:id}` to disambiguate), that's a bug in the plan — write a finding, don't guess.
+  `{grep:<id>}` anchors are exempt: they self-resolve from the id (no config gate needed).
