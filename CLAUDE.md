@@ -23,7 +23,7 @@ Everything the plugin ships loads on **every run, for every user, forever** — 
 - **Stack/domain fingerprints** — no specific framework, language, build tool, or domain; use neutral terms ("the UI layer", "the build tool", "lint", "coverage").
 - **Token/cost figures** — keep framed as representative/anonymized; never re-attribute to private runs.
 
-**Before committing:** CI runs `scripts/check-docs-leaks.py` on every PR (mirror locally: `git config core.hooksPath .githooks`). Run it by hand, and grep `docs/` for any real brand / framework / language / build-tool / hostname. Each docs file carries a `PUBLIC REPO` banner.
+**Before committing:** CI runs two leak scanners on every PR — `scripts/check-docs-leaks.py` (brand / framework / language / build-tool fingerprints in `docs/`) and `scripts/check-private-leaks.py` (case-study product / org / package identifiers, hashed denylist, everywhere *outside* `docs/` — the gap that let a stack fingerprint reach `plugins/`). Mirror locally (`git config core.hooksPath .githooks`), run both by hand, and grep `docs/` for any real brand / hostname. Each docs file carries a `PUBLIC REPO` banner.
 
 > **History:** unscrubbed docs were purged by a history rewrite before the repo gained forks (see issues). If you reintroduce then scrub private data, do the same — a working-tree scrub leaves it in the log.
 

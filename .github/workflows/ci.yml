@@ -43,6 +43,11 @@ jobs:
           python3 scripts/check-docs-leaks.py --selftest
           python3 scripts/check-docs-leaks.py
 
+      - name: Scan the repo for private case-study identifiers (outside docs/)
+        run: |
+          python3 scripts/check-private-leaks.py --selftest
+          python3 scripts/check-private-leaks.py
+
       - name: Self-test the scaffold validator
         run: python3 scripts/check-scaffold.py --selftest
 
