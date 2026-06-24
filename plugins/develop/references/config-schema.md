@@ -52,7 +52,7 @@ repo. Keep it small and human-editable; the user owns it.
 | `gates[].kind` | init | `build` \| `test` \| `lint` \| `format` \| `types` \| `coverage` \| `grep`. **Multiple gates may share a kind** (e.g. a cheap `compile` + a heavy `build`); address a specific one with `{kind:id}` ([gate-tokens.md](./gate-tokens.md)). |
 | `gates[].tier` | init | `cheap` (inline every phase) or `heavy` (deferred to `PF`). |
 | `gates[].command` | init | The exact whole-repo command (from CI). |
-| `gates[].scopedCommand` | init | **Optional** template for the cheap inline run; placeholders `{files}`, `{pkg}`, `{selector}`. **Omit it when no uniform per-module command exists** (multi-target stacks like KMP have no single `:{pkg}:compile` task) — fall back to the whole-repo `command`, or use a universally-valid umbrella per module (e.g. `:{pkg}:assemble`). |
+| `gates[].scopedCommand` | init | **Optional** template for the cheap inline run; placeholders `{files}`, `{pkg}`, `{selector}`. **Omit it when no uniform per-module command exists** (some multi-target build tools expose per-target task names with no single per-module compile task) — fall back to the whole-repo `command`, or to a per-module umbrella task that is valid everywhere. |
 | `gates[].fresh` | init | `true` for test gates that must force a non-cached run. |
 | `gates[].threshold` | init | For `coverage` gates: minimum diff coverage %. |
 | `models` | init / [model-tiers.md](./model-tiers.md) | The cheap/mid/top model ids `/develop:run` dispatches with. |
