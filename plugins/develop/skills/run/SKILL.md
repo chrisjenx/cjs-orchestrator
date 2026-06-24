@@ -59,9 +59,11 @@ against the **main repo root** (never cwd, which would nest):
 ```
 root=$(git rev-parse --path-format=absolute --git-common-dir)/..   # main checkout, not this worktree
 git -C "$root" worktree add "$root/.claude/worktrees/<feature>" -b develop/<feature>
+worktreeRoot=$(git -C "$root/.claude/worktrees/<feature>" rev-parse --show-toplevel)   # clean canonical path
 ```
-Capture the worktree's **absolute** path as `worktreeRoot`. **Hard-stop** if the resolved cwd is
-on `main`/`master` (and not in a worktree). If `origin/main` has advanced past the branch base,
+Either way, `worktreeRoot` is the worktree's **canonical absolute** path (on reuse, the current
+worktree; on create, the line above). **Hard-stop** if the resolved cwd is on `main`/`master` (and
+not in a worktree). If `origin/main` has advanced past the branch base,
 rebase onto it first (a stale base poisons every diff). To resume an interrupted run, reuse the
 existing worktree instead of creating one.
 _say:_ `▸ worktree · develop/<feature>`
