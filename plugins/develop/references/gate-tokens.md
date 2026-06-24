@@ -10,12 +10,11 @@ the repo and how `/develop:run` references them.
 ## Discovery — derive gates from CI, confirm with the user
 
 1. **Read CI first, exhaustively.** The CI workflow(s) found in Phase 1 are canonical. For every
-   job, enumerate **every gating step** (per [stack-detection.md](./stack-detection.md)) —
-   build/test/lint/format/type/coverage **and** guard-style `exit 1` checks (file-change guards,
-   wire/format-compat, required-label gates). Mirror the **exact** invocation (flags, env, working
-   dir, matrix). At the confirm seam (step 4) **echo the full enumerated list back** — one line per
-   gating step with its `file:line` — and ask the user to confirm none was missed; a guard left
-   un-enumerated is the failure this prevents.
+   job, enumerate **every gating step** — build/test/lint/format/type/coverage **and** guard-style
+   `exit 1` checks (see [stack-detection.md](./stack-detection.md)). Mirror the **exact** invocation
+   (flags, env, working dir, matrix). At the confirm seam (step 4) **echo the full enumerated list
+   back** — one line per gating step with its `file:line` — and ask the user to confirm none was
+   missed; a guard left un-enumerated is the failure this prevents.
 2. **Fall back to declared scripts/tasks** only where CI is silent (`scripts.test`,
    Gradle/Maven tasks, Make targets, `pyproject` tool configs).
 3. **Classify each gate** by kind and tier (below).
