@@ -67,6 +67,29 @@ def check_plugin_fields(pl, problems):
             "omit it for auto-discovery, or give a file-path array")
 
 
+BUILD_OUTPUT_SEGMENTS = ("build", "target", "out", "dist", "bin")
+
+
+def feature_dir_unsafe(fd):
+    """Return a reason string if featureDir sits under a build-output dir a 'clean' wipes, else None."""
+    parts = [s for s in str(fd).split("/") if s]
+    if parts and parts[0] in BUILD_OUTPUT_SEGMENTS:
+        return f"featureDir {fd!r} sits under build-output dir {parts[0]!r}/ which a 'clean' task wipes mid-run"
+    return None
+
+
+def check_template_feature_dir(problems):
+    tmpl = ROOT + "/plugins/develop/templates/develop.config.json"
+    try:
+        fd = json.load(open(tmpl, encoding="utf-8")).get("featureDir", "")
+    except Exception as e:  # noqa: BLE001
+        problems.append(f"templates/develop.config.json: {e}")
+        return
+    reason = feature_dir_unsafe(fd)
+    if reason:
+        problems.append("templates/develop.config.json: " + reason + " — use a stack-neutral hidden path like '.develop'")
+
+
 def parse_frontmatter(path):
     """Return the parsed YAML frontmatter mapping, or raise on any parse/shape error."""
     import yaml
@@ -132,6 +155,9 @@ def main() -> int:
     # 4) Every shipped agent/skill frontmatter parses as YAML with a name + description.
     check_frontmatter(problems)
 
+    # 5) Template featureDir must not be wiped by a build 'clean'.
+    check_template_feature_dir(problems)
+
     if problems:
         print("manifest validation FAILED:")
         for p in problems:
@@ -189,6 +215,12 @@ def selftest() -> int:
                    "quoted description should parse with its value intact")
         except Exception as e:  # noqa: BLE001
             fails.append(f"quoted description should parse, raised {e}")
+
+    # featureDir safety
+    expect(feature_dir_unsafe("build/develop"), "build/develop should be flagged")
+    expect(feature_dir_unsafe("target/x"), "target/ should be flagged")
+    expect(not feature_dir_unsafe(".develop"), ".develop should pass")
+    expect(not feature_dir_unsafe(".claude/develop"), ".claude/develop should pass")
 
     if fails:
         print("validate-manifests selftest FAILED:")

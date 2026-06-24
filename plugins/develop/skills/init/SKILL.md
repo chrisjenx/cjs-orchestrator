@@ -93,6 +93,9 @@ Write (showing the diff first):
   ([references/flywheel.md](../../references/flywheel.md)) — plus an **empty**
   `.claude/develop-flywheel.jsonl`, the append-only SSOT `PF` appends records to (create it
   empty so the first run can append).
+- ensure `<featureDir>` (default `.develop/`) is in `.gitignore` — append the line if missing
+  (merge, never rewrite the file), so per-feature plan artifacts stay out of commits and out of
+  any build-output dir a `clean` would wipe.
 
 The plan file, plan-anatomy, executor brief, and quality tail are **not** written here —
 they live in the plugin and are used by `/develop:run` at runtime.

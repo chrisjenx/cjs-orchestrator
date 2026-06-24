@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "featureDir": "build/develop",
+  "featureDir": ".develop",
   "stack": {
     "ecosystems": ["<detected>"],
     "buildTool": "<detected>",

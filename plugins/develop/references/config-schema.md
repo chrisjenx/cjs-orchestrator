@@ -9,7 +9,7 @@ repo. Keep it small and human-editable; the user owns it.
 ```json
 {
   "schema": 1,
-  "featureDir": "build/develop",
+  "featureDir": ".develop",
   "stack": {
     "ecosystems": ["node-ts"],
     "buildTool": "pnpm",
@@ -44,7 +44,7 @@ repo. Keep it small and human-editable; the user owns it.
 | Field | Set by | Meaning |
 |---|---|---|
 | `schema` | init | Config schema version (currently `1`). Bump on breaking changes. |
-| `featureDir` | init | Where per-feature plan files live (`<featureDir>/<feature>.plan.md`). Default `build/develop`; must be git-ignored or a build dir. |
+| `featureDir` | init | Where per-feature plan files live (`<featureDir>/<feature>.plan.md`). Default `.develop` (init adds it to `.gitignore` if absent). Must be git-ignored (so plan artifacts never land in the feature commit) and must **not** sit under a build-output dir (`build/`, `target/`, `out/`, `dist/`, `bin/`) a `clean` task wipes mid-run. |
 | `stack` | init Phase 1 | The confirmed stack summary + file evidence. Informational + drives scoped-command templates. |
 | `gates` | init Phase 2 | The discovered gate commands. See [gate-tokens.md](./gate-tokens.md). |
 | `gates[].kind` | init | `build` \| `test` \| `lint` \| `format` \| `types` \| `coverage` \| `grep`. |
