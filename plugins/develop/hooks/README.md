@@ -34,6 +34,23 @@ reason about git and worktrees, never about a language or build tool.
   they already set a bash timeout, leave theirs. Show the diff before writing
   ([../references/idempotency.md](../references/idempotency.md)).
 
+## When the host blocks the `settings.json` edit
+
+Some hosts (Claude Code auto/background mode) run a self-modification guard that **denies**
+editing `.claude/settings.json` when it contains a `permissions`/`hooks` block. The hook
+*script* still installs into `.claude/hooks/`, but the merge is rejected, so the guard would be
+left **inert**. Never accept that silently. On a denied write, init must:
+
+1. Confirm the script is in place: `.claude/hooks/worktree-guard.sh` (and `chmod +x`).
+2. **Emit the exact merge for the user to paste** into `.claude/settings.json` — the `env` block
+   and the `PreToolUse(Bash)` entry from this directory's `hooks.json`, verbatim, with a one-line
+   note to append (not replace) any existing `PreToolUse(Bash)` list.
+3. Report it in the Phase 5 summary as a **required manual step** (`hook: installed; settings
+   merge needs manual paste — denied by host`), so the user knows the guard is not yet active.
+
+A copied-but-unwired guard is worse than none; treat the denial as a reported manual step, never
+a clean pass.
+
 ## Testing the guard
 
 ```sh

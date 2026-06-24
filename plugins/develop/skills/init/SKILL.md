@@ -104,7 +104,9 @@ they live in the plugin and are used by `/develop:run` at runtime.
 
 Only stack-agnostic safety: worktree/uncommitted-work protection and generic command
 timeouts. **Never** install a hook tied to a stack you didn't confirm. Follow
-[hooks/README.md](../../hooks/README.md).
+[hooks/README.md](../../hooks/README.md). If the host **denies** the `settings.json` merge
+(self-modification guard), don't fail silently: emit the exact snippet for the user to paste and
+report it as a required manual step, per that README's fallback section.
 
 ## Phase 5 — Dry run, then close the loop
 
