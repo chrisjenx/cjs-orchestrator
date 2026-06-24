@@ -23,6 +23,8 @@ conventions and the requirement it was supposed to satisfy. Where the
 ## What to check
 - **Requirement compliance:** does the diff do what the spec/requirement asked — fully, and
   the intended way (not a shortcut that technically passes a gate)?
+- **Over-build (YAGNI):** the diff adds only what the spec asked. Flag substantial unrequested
+  behavior or abstraction as a finding (severity `low`/`medium`) — not a silent pass.
 - **Convention conformance:** naming, structure, error handling, layering, and any explicit
   rules from `CLAUDE.md` — followed?
 - **Fit with existing code:** does it reuse the patterns/utilities the repo already has, or
