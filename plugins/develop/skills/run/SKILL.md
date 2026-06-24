@@ -12,8 +12,9 @@ never write feature code yourself.
 ## Read first (every run)
 
 - `.claude/develop.config.json` — the repo's gates, stack, model tiers, caps
-  ([config-schema.md](../../references/config-schema.md)). **If it's missing, stop and tell
-  the user to run `/develop:init` first.**
+  ([config-schema.md](../../references/config-schema.md)). Read it from the **main checkout**
+  (the `--git-common-dir` parent), since it may be uncommitted and so absent on a fresh worktree
+  branch. **If it's genuinely missing there, stop and tell the user to run `/develop:init` first.**
 - `.claude/develop-routing.json` — artifact-shape → specialist routing
   ([routing.md](../../references/routing.md)).
 - The portable mechanism: [plan-anatomy.md](../../references/plan-anatomy.md),
@@ -49,14 +50,20 @@ it; an inline description → use it as-is. Derive a kebab `feature` name. Write
 _say:_ `▸ intake · spec → feature <feature>` (feature name in backticks)
 
 ### 2. Worktree (isolation)
-Work in an isolated git worktree so a run can't corrupt the user's workspace:
+Work in an isolated git worktree so a run can't corrupt the user's workspace.
+
+**First, detect an already-isolated session.** If cwd is already inside a worktree under
+`.claude/worktrees/` (host `EnterWorktree` / a background job pins cwd there), **reuse it** as
+`worktreeRoot` — do not create a nested worktree. Otherwise create one, resolving the path
+against the **main repo root** (never cwd, which would nest):
 ```
-git worktree add .claude/worktrees/<feature> -b develop/<feature>
+root=$(git rev-parse --path-format=absolute --git-common-dir)/..   # main checkout, not this worktree
+git -C "$root" worktree add "$root/.claude/worktrees/<feature>" -b develop/<feature>
 ```
-Capture its **absolute** path as `worktreeRoot`. **Hard-stop** if the resolved cwd is on
-`main`/`master` or outside the worktree. If `origin/main` has advanced past the branch base,
-rebase onto it first (a stale base poisons every diff). To resume an interrupted run, reuse
-the existing worktree instead of creating one.
+Capture the worktree's **absolute** path as `worktreeRoot`. **Hard-stop** if the resolved cwd is
+on `main`/`master` (and not in a worktree). If `origin/main` has advanced past the branch base,
+rebase onto it first (a stale base poisons every diff). To resume an interrupted run, reuse the
+existing worktree instead of creating one.
 _say:_ `▸ worktree · develop/<feature>`
 
 ### 3. Assess
