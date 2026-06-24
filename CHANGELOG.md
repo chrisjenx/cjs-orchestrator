@@ -7,6 +7,37 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-06-24
+
+Sharpens three parts of the run loop: how the executor escalates when stuck, when tests get
+written, and what review catches. All changes are static plugin prose, so existing init'd
+projects pick them up on plugin update (see Notes).
+
+### Added
+- **Executor escalation grammar + orchestrator response tree.** The executor now returns
+  `DONE | DONE-CONCERNS | BLOCKED[:context|reasoning|too-large|plan]` instead of a bare
+  `DONE | BLOCKED`. The between-phase gate routes its response by the reason (supply the missing
+  context, escalate to a higher model tier, subdivide the slice, or ask the human) and never
+  re-dispatches the same phase at the same tier unchanged, so a stuck phase changes something
+  before retrying instead of re-looping. A new `check_status_contract` in
+  `validate-manifests.py` asserts the STATUS line is identical across `executor.md` and
+  `executor-brief.md` and that the reason set is consistent across `schemas.md` and
+  `run/SKILL.md`, so the grammar cannot drift in CI.
+- **Test-first discipline for test-verified requirements.** A node carrying a
+  `{test:<selector>}` gate is worked test-first: the executor writes the failing test before the
+  implementation, then makes it pass. The planner places a test-verified requirement's gate on
+  the implementing node. Scoped to test-gated nodes, so scaffold and config phases are
+  unaffected.
+- **Over-build (YAGNI) review lens.** `code-reviewer` now flags substantial unrequested behavior
+  or abstraction as a finding, the complement to the requirement-compliance check (which only
+  catches under-building).
+
+### Notes
+- **No re-init required.** These changes are static skills, references, and agents. Nothing
+  `/develop:init` writes into a target repo changed, and the response tree reuses config init
+  already writes (model tiers, gate caps). Existing projects get the new behavior on the next
+  `/develop:run` after the plugin updates, with no migration.
+
 ## [0.5.0] - 2026-06-23
 
 Fixes the gaps a real init + dry run on a multi-target monorepo surfaced, and hardens the gate
@@ -165,7 +196,8 @@ bootstrapper into static, portable skills that read per-repo discovered definiti
 - Marketplace and `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
   genericized explainer site.
 
-[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.6.0
 [0.5.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.5.0
 [0.4.1]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.4.1
 [0.4.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.4.0
