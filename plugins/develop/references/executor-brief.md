@@ -51,6 +51,7 @@ Cheap gates run in your turn; annotate heavy gates DEFERRED-PF.
   cheap gates, flip DONE/BLOCKED, append a closing row, write findings (FINDING schema,
   deduped).
 - Scope fence: only the files your nodes name; anything else → write a finding, don't do it.
+- Test-first: a node with a {test:..} gate whose test is missing — write the failing test first, then make it pass.
 - Loop: honour [loop: max N]; after N attempts set BLOCKED:<reason> + an ESCALATE finding.
 - Escalate honestly: BLOCKED:<reason> / DONE-CONCERNS over a silent guess (reasons: schemas.md).
 - No narration: the orchestrator owns the status stream ([run-status.md](./run-status.md)) —

@@ -58,7 +58,9 @@ orchestrator holds only "which phase am I on" in working memory.
   - `[loop: max <N>, commit_on_green]` — loop policy (see below).
 - A phase contains **subtask bullets** `- P<n>.<x> <action>` carrying their own
   `[agent: ...]`, `[status: ...]`, optional `[depends: ...]`, and gate tokens `{…}` (see
-  [gate-tokens.md](./gate-tokens.md)).
+  [gate-tokens.md](./gate-tokens.md)). A `{test:<selector>}` token on an implementing node
+  signals **test-first** execution — the executor writes the failing test before the code
+  ([executor-brief.md](./executor-brief.md)).
 - The **planner** emits the domain phases (P1..Pn). The **orchestrator** appends the fixed
   quality tail (PV, PA, PT, PF) *before* the walk begins, so controls can't fall off the
   end — see [quality-tail.md](./quality-tail.md).

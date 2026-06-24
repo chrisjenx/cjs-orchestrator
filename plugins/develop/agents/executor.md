@@ -40,6 +40,10 @@ These rules are standing discipline; the brief restates the load-bearing ones.
 ## Gates — cheap in your turn, heavy deferred
 - Run only **cheap** gates (scoped build, single named test, scoped lint/types). Force a
   fresh run for test gates.
+- Test-first: if a node carries a `{test:<selector>}` gate and that test doesn't exist yet,
+  write the test first and confirm it fails, *then* implement until the gate is green — don't
+  write the implementation first. (Only for nodes with a test gate; scaffold/config nodes are
+  unaffected.)
 - Annotate every **heavy** gate `DEFERRED-PF` and move on — finalize runs them. If a gate's
   *environment* fails to run, also mark it `DEFERRED-PF`; do not loop on a broken env.
 
