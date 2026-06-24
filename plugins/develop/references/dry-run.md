@@ -22,6 +22,10 @@ Run both halves in a disposable worktree so nothing touches the user's tree.
 - Confirm it walks to `PF` and the heavy gates **actually ran** — capture the real command
   lines and their exit status as evidence (not "the agent said it built").
 - Expect terminal status `ready`.
+- **Completeness re-check.** Re-scan the CI files for command-shaped and `exit 1`/guard-style
+  gating steps; flag any that map to **no** confirmed gate and carry **no** explicit non-gating
+  note. A gating-looking step that is neither a configured gate nor an annotated exception is a
+  silent under-discovery — surface it as a dry-run finding, don't let it pass.
 
 ### B. Negative run — a failure blocks (the load-bearing test)
 - Introduce a **deliberate, obvious** gate failure — pick the cheapest gate to trip:

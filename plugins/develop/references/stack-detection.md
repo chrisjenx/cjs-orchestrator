@@ -55,8 +55,14 @@ Match on the **marker files** (presence is the evidence). A repo may match sever
   `detekt.yml`, `.rubocop.yml`, `clippy.toml`, `tsconfig.json`, `mypy.ini`…) AND for the
   command that runs them (a script/task/CI step). A config file with no runner is a weaker
   signal — note it as "configured but no runner found".
-- **CI (do this thoroughly):** read every workflow file and extract the actual command
-  lines — the canonical gate commands, with exact flags, env, matrix.
+- **CI (enumerate exhaustively, per job, per step):** for **every** CI file, **every** job, list
+  **every step that can fail a merge** with its exact command and `file:line`. A step is gating
+  if it can `exit 1` and block: build/test/lint/format/type/coverage steps **and** guard-style
+  steps (a conditional check that rejects a PR, e.g. "fail if file X changed", a wire/format-compat
+  check, a required-label gate). Flag breaking-class guards explicitly — the flywheel promotes
+  them at x1. A job is not done until every step is either captured as a gate or **explicitly
+  marked non-gating with a reason**. Do **not** count setup/checkout/cache/upload steps as gates
+  (no over-discovery — a hallucinated gate erodes trust as much as a missed one).
   - GitHub Actions: `.github/workflows/*.yml|*.yaml`
   - GitLab: `.gitlab-ci.yml`
   - CircleCI: `.circleci/config.yml`
