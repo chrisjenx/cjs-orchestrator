@@ -122,7 +122,7 @@ Loop until no phase is ready:
    the answer into the plan's `## Decisions`. When an `ESCALATE` finding carries an
    `escalate:<reason>` ([schemas.md](../../references/schemas.md)), show that reason so the human
    chooses knowingly. Bounded by `caps.gate`; beyond that, fall through to the tentative default
-   (logged). The phase may re-open. _say:_ `⚠ <Pn> · <reason> → asking`.
+   (logged). The phase may re-open. _say:_ `⚠ <Pn> · <reason or finding> → asking`.
 7. Advance.
 
 **Resume on crash:** re-invoking re-reads the plan, skips `DONE`, re-enters the first
