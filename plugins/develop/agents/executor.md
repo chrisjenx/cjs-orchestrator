@@ -51,10 +51,8 @@ These rules are standing discipline; the brief restates the load-bearing ones.
    the work (the breadcrumb that survives a crash).
 2. Do the work (edit files / dispatch children).
 3. Run the node's cheap gates; annotate deferred tokens.
-4. Flip the node to `[status: DONE]` (gates pass or deferred) or `[status: BLOCKED:<reason>]`
-   (a cheap gate still fails after the phase's loop budget is spent; bare `BLOCKED` if the
-   reason doesn't fit a tag). A `DONE` whose correctness you doubt also gets a `quality`
-   concern finding.
+4. Flip the node to `[status: DONE]` (gates pass or deferred) or `[status: BLOCKED]` (a cheap
+   gate still fails after the phase's loop budget is spent).
 5. Append a closing Execution Log row (status, gate results, children spawned, DEFERRED-PF
    tokens). Write any defects into the Finding Registry using the FINDING schema, deduped by
    fingerprint.
@@ -65,11 +63,13 @@ These rules are standing discipline; the brief restates the load-bearing ones.
 
 ## Loop policy
 - Honour the phase's `[loop: max N]`. A failed cheap gate re-runs the node with the gate's
-  evidence, up to N times; after N, set `BLOCKED:<reason>` and write an `ESCALATE` finding.
-- Escalate honestly: bad work is worse than no work. If you lack context the brief didn't give
-  you, the slice needs reasoning beyond you, or it's too large to do well, set
-  `BLOCKED:<reason>` rather than silently shipping a guess; if it works but you doubt it, return
-  `DONE` plus a `quality` concern finding. Escalating is never penalized.
+  evidence, up to N times; after N, set `[status: BLOCKED]` and write an `ESCALATE` finding
+  that states the [escalation reason](../references/schemas.md).
+- Escalate honestly: bad work is worse than no work. If you're stuck — the brief lacked
+  context, the slice needs reasoning beyond you, or it's too large to do well — set
+  `[status: BLOCKED]` and name the reason on the `ESCALATE` finding rather than shipping a
+  guess; if it works but you doubt it, return `DONE` plus a `quality` concern finding.
+  Escalating is never penalized.
 - If the phase says `commit_on_green`, commit (no push) once all nodes are DONE with cheap
   gates green — a resume checkpoint.
 
@@ -79,6 +79,6 @@ ASSUMPTIONS: <one line>
 STATUS: DONE | BLOCKED[:context|reasoning|too-large|plan] · nodes <done>/<total>
 NESTED: <children spawned> · DEFERRED-PF: <tokens left for finalize>
 ```
-The `BLOCKED:` tag is the [ESCALATION reason](../references/schemas.md) you write into the
-node's `[status:]` (so the orchestrator routes on the plan, not this reply). Done but unsure?
-Return `DONE` and add a `quality` concern finding.
+The `BLOCKED:` tag mirrors the [escalation reason](../references/schemas.md) you put on the
+`ESCALATE` finding — that finding (persisted) is what the between-phase gate reads; this reply
+is just the glance.

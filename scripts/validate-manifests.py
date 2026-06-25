@@ -172,18 +172,6 @@ def _status_line(text):
     return lines[0]
 
 
-def _between_phase_block(run_md):
-    """The between-phase gate block of run/SKILL.md: from the 'Between-phase gate' line to the
-    next top-level numbered step (or EOF). Scopes the routing check so a `- `reason`` bullet
-    elsewhere in the file cannot satisfy it."""
-    lines = run_md.splitlines()
-    start = next((i for i, ln in enumerate(lines) if "Between-phase gate" in ln), None)
-    if start is None:
-        return ""
-    end = next((i for i in range(start + 1, len(lines)) if re.match(r"\d+\. ", lines[i])), len(lines))
-    return "\n".join(lines[start:end])
-
-
 def _status_reasons(status_line):
     """The BLOCKED reason set declared in a STATUS line, e.g. {context, reasoning, too-large, plan}."""
     m = re.search(r"BLOCKED\[:([^\]]+)\]", status_line)
@@ -202,13 +190,13 @@ def _section(text, heading_substr):
     return "\n".join(lines[start:end])
 
 
-def status_contract_problems(executor_md, brief_md, schemas_md, run_md):
+def status_contract_problems(executor_md, brief_md, schemas_md):
     """Pure coherence check for the executor STATUS contract (testable on in-memory strings).
 
-    The escalation grammar lives in three places that must not drift: the executor's return
-    contract (copied in executor.md + executor-brief.md), the ESCALATION reason vocabulary in
-    schemas.md, and the routing in run/SKILL.md. A reason added in one place but not the others
-    must fail CI, not pass silently.
+    The escalation grammar lives in two places that must not drift: the executor's return
+    contract (copied identically in executor.md + executor-brief.md), and the ESCALATION reason
+    vocabulary in schemas.md. The reason set on the STATUS line must equal the reasons schemas.md
+    defines; a reason added to one but not the other must fail CI.
     """
     try:
         ex, br = _status_line(executor_md), _status_line(brief_md)
@@ -226,17 +214,9 @@ def status_contract_problems(executor_md, brief_md, schemas_md, run_md):
         return ["schemas.md: missing the '## ESCALATION reason' entry"]
     # \s* so an indented bullet can't be silently dropped; [\w-]+ so a digit/uppercase reason isn't missed
     defined = set(re.findall(r"^\s*- `([\w-]+)`", esc, re.M))
-    out = []
     if defined != reasons:
-        out.append(f"schemas.md ESCALATION reasons {sorted(defined)} != STATUS-line reasons {sorted(reasons)}")
-    block = _between_phase_block(run_md)
-    for r in sorted(reasons):
-        # the routing bullet `- `<reason>`` must appear in the between-phase gate block, not just
-        # anywhere in the file. (A static check can't verify the bullet's response text is the
-        # correct one for the reason — that stays a review concern.)
-        if not re.search(rf"^\s*- `{re.escape(r)}`", block, re.M):
-            out.append(f"run/SKILL.md: escalation reason `{r}` is not routed in the between-phase gate")
-    return out
+        return [f"schemas.md ESCALATION reasons {sorted(defined)} != STATUS-line reasons {sorted(reasons)}"]
+    return []
 
 
 def check_status_contract(problems):
@@ -245,8 +225,7 @@ def check_status_contract(problems):
     try:  # a renamed/missing input must report a problem, not crash the validator with a traceback
         reads = (read("/plugins/develop/agents/executor.md"),
                  read("/plugins/develop/references/executor-brief.md"),
-                 read("/plugins/develop/references/schemas.md"),
-                 read("/plugins/develop/skills/run/SKILL.md"))
+                 read("/plugins/develop/references/schemas.md"))
     except OSError as e:
         problems.append(f"status contract: cannot read an input file — {e}")
         return
@@ -369,46 +348,36 @@ def selftest() -> int:
         expect(not valid_gate_token(bad), f"{bad} should be rejected")
     expect(_looks_like_gate_token("{build:compile}") and not _looks_like_gate_token("{pkg}"), "placeholder {pkg} must not look like a gate token")
 
-    # executor STATUS contract coherence
+    # executor STATUS contract coherence (dual-copy identity + reason set vs schemas)
     GOOD_STATUS = "STATUS: DONE | BLOCKED[:context|reasoning|too-large|plan] · nodes <done>/<total>"
     good_ex = f"text\n{GOOD_STATUS}\nmore\n"
     good_schemas = ("## ESCALATION reason\n\n- `context` — a\n- `reasoning` — b\n"
                     "- `too-large` — c\n- `plan` — d\n\n## Next\n")
-    REASONS = ("context", "reasoning", "too-large", "plan")
-    good_run = ("6. **Between-phase gate.**\n"
-                + "".join(f"   - `{r}` -> respond\n" for r in REASONS) + "7. Advance.\n")
-    expect(not status_contract_problems(good_ex, good_ex, good_schemas, good_run),
+    expect(not status_contract_problems(good_ex, good_ex, good_schemas),
            "coherent STATUS contract should pass")
     # the two contract copies must be identical
     drift_ex = f"text\n{GOOD_STATUS.replace('|plan]', ']')}\nmore\n"
-    expect(status_contract_problems(drift_ex, good_ex, good_schemas, good_run),
+    expect(status_contract_problems(drift_ex, good_ex, good_schemas),
            "STATUS lines differing between the two copies should fail")
-    # a reason bulleted OUTSIDE the between-phase gate block must not count as routed
-    outside_run = ("6. **Between-phase gate.**\n"
-                   + "".join(f"   - `{r}` -> respond\n" for r in REASONS[:-1])
-                   + "7. Advance.\n   - `plan` -> outside the gate block\n")
-    expect(status_contract_problems(good_ex, good_ex, good_schemas, outside_run),
-           "a reason routed only outside the between-phase gate block should fail")
     # schemas reason set must equal STATUS reason set
-    expect(status_contract_problems(good_ex, good_ex, good_schemas.replace("- `plan` — d\n", ""), good_run),
+    expect(status_contract_problems(good_ex, good_ex, good_schemas.replace("- `plan` — d\n", "")),
            "schemas reason set != STATUS reason set should fail")
     # an indented schemas bullet must still be extracted (whitespace-tolerant)
     indented_schemas = good_schemas.replace("- `too-large` — c", "\t- `too-large` — c")
-    expect(not status_contract_problems(good_ex, good_ex, indented_schemas, good_run),
+    expect(not status_contract_problems(good_ex, good_ex, indented_schemas),
            "an indented schemas reason must still be extracted (no false drift)")
     # an earlier 'ESCALATION ...' heading must not shadow the canonical 'ESCALATION reason' section
     shadow_schemas = "## ESCALATION overview\n\n- `bogus` — x\n\n" + good_schemas
-    expect(not status_contract_problems(good_ex, good_ex, shadow_schemas, good_run),
+    expect(not status_contract_problems(good_ex, good_ex, shadow_schemas),
            "an earlier ESCALATION heading must not shadow the reason section")
     # an unrelated 'STATUS:' example line (no BLOCKED[) must not break contract-line detection
     example_ex = good_ex + "STATUS: DONE · nodes 3/3 (example)\n"
-    expect(not status_contract_problems(example_ex, example_ex, good_schemas, good_run),
+    expect(not status_contract_problems(example_ex, example_ex, good_schemas),
            "an extra STATUS example line without BLOCKED[ must not trip the check")
     # a reason containing a digit must be extracted ([\w-]+), not silently dropped
     digit_ex = "x\nSTATUS: DONE | BLOCKED[:context|tier2] · nodes <done>/<total>\ny\n"
     digit_schemas = "## ESCALATION reason\n\n- `context` — a\n- `tier2` — b\n\n## Next\n"
-    digit_run = "6. **Between-phase gate.**\n   - `context` -> r\n   - `tier2` -> r\n7. Advance.\n"
-    expect(not status_contract_problems(digit_ex, digit_ex, digit_schemas, digit_run),
+    expect(not status_contract_problems(digit_ex, digit_ex, digit_schemas),
            "a reason with a digit must be extracted, not dropped")
 
     if fails:

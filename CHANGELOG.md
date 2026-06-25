@@ -10,19 +10,17 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 ## [0.6.0] - 2026-06-24
 
 Sharpens three parts of the run loop: how the executor escalates when stuck, when tests get
-written, and what review catches. All changes are static plugin prose, so existing init'd
-projects pick them up on plugin update (see Notes).
+written, and what review catches. The plugin changes are static prose (existing init'd projects
+pick them up on plugin update, see Notes); the only non-prose change is a CI validator.
 
 ### Added
-- **Executor escalation grammar + orchestrator response tree.** The executor now returns
-  `DONE | DONE-CONCERNS | BLOCKED[:context|reasoning|too-large|plan]` instead of a bare
-  `DONE | BLOCKED`. The between-phase gate routes its response by the reason (supply the missing
-  context, escalate to a higher model tier, subdivide the slice, or ask the human) and never
-  re-dispatches the same phase at the same tier unchanged, so a stuck phase changes something
-  before retrying instead of re-looping. A new `check_status_contract` in
-  `validate-manifests.py` asserts the STATUS line is identical across `executor.md` and
-  `executor-brief.md` and that the reason set is consistent across `schemas.md` and
-  `run/SKILL.md`, so the grammar cannot drift in CI.
+- **Executor escalates with a classified reason.** When a phase blocks, the executor names
+  *why* — `context`, `reasoning`, `too-large`, or `plan` — on its `ESCALATE` finding, and the
+  between-phase gate surfaces that reason to you with the matching choices (supply the missing
+  context, retry at a higher model tier, subdivide the phase, or abandon it) instead of a bare
+  "blocked". A new `check_status_contract` in `validate-manifests.py` keeps the executor's
+  return contract identical across `executor.md` and `executor-brief.md` and its reason set in
+  sync with `schemas.md`, so the grammar cannot drift in CI.
 - **Test-first discipline for test-verified requirements.** A node carrying a
   `{test:<selector>}` gate is worked test-first: the executor writes the failing test before the
   implementation, then makes it pass. The planner places a test-verified requirement's gate on
@@ -33,10 +31,10 @@ projects pick them up on plugin update (see Notes).
   catches under-building).
 
 ### Notes
-- **No re-init required.** These changes are static skills, references, and agents. Nothing
-  `/develop:init` writes into a target repo changed, and the response tree reuses config init
-  already writes (model tiers, gate caps). Existing projects get the new behavior on the next
-  `/develop:run` after the plugin updates, with no migration.
+- **No re-init required.** The shipped skills, references, and agents changed, but nothing
+  `/develop:init` writes into a target repo did. Existing projects get the new behavior on the
+  next `/develop:run` after the plugin updates, with no migration. (The `validate-manifests.py`
+  change is a CI check for this repo only; it does not touch target repos.)
 
 ## [0.5.0] - 2026-06-23
 

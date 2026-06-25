@@ -69,20 +69,20 @@ Reviewers/auditors return `FINDINGS`; the orchestrator **derives** the VERDICT f
 (none blocking → `pass`, fixable → `iterate`, needs-a-human → `escalate`). Refuters return
 `REFUTER_VERDICT`, below.
 
-## ESCALATION reason — the tag the executor writes into `[status: BLOCKED:<reason>]`
+## ESCALATION reason — how the executor classifies a `BLOCKED`
 
-One of `context` · `reasoning` · `too-large` · `plan` — *what kind* of stuck, persisted on the
-node's status so the between-phase gate routes on the plan file, not the reply
-([run/SKILL.md](../skills/run/SKILL.md) step 6):
+When a phase blocks, the executor states one of `context` · `reasoning` · `too-large` · `plan`
+on its `ESCALATE` FINDING (the persisted carrier), so the between-phase gate can show the human
+*why* and offer the matching choice ([run/SKILL.md](../skills/run/SKILL.md) step 6) instead of a
+bare "blocked":
 
 - `context` — the brief lacked information the slice needed.
 - `reasoning` — the slice needs more capable reasoning than this tier.
 - `too-large` — too big to do well as one phase.
 - `plan` — the plan/spec itself is wrong here.
 
-Bare `BLOCKED` (reason unclassifiable) routes to the human. Work that is done but whose
-correctness the executor doubts is not a status — it returns `DONE` plus a `quality` FINDING
-(a concern) that PV/PA scrutinize and relay surfaces if unresolved.
+Work that is done but whose correctness the executor doubts returns `DONE` plus a `quality`
+FINDING describing the doubt, which relay reports among the run's open findings.
 
 ## GATE_RESULT — a gate command's outcome
 
