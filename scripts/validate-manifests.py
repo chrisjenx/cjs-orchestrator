@@ -209,12 +209,13 @@ def status_contract_problems(executor_md, brief_md, schemas_md, run_md):
     esc = _section(schemas_md, "ESCALATION")
     if not esc:
         return ["schemas.md: missing the '## ESCALATION' reason entry"]
-    defined = set(re.findall(r"^- `([a-z-]+)`", esc, re.M))
+    defined = set(re.findall(r"^\s*- `([a-z-]+)`", esc, re.M))  # \s* so an indented bullet can't be silently dropped
     out = []
     if defined != reasons:
         out.append(f"schemas.md ESCALATION reasons {sorted(defined)} != STATUS-line reasons {sorted(reasons)}")
     for r in sorted(reasons):
-        if f"`{r}`" not in run_md:
+        # require the actual routing bullet `- `<reason>``, not just a backticked prose mention
+        if not re.search(rf"^\s*- `{re.escape(r)}`", run_md, re.M):
             out.append(f"run/SKILL.md: escalation reason `{r}` is not routed in the between-phase gate")
     return out
 
@@ -351,16 +352,20 @@ def selftest() -> int:
     good_ex = f"text\n{GOOD_STATUS}\nmore\n"
     good_schemas = ("## ESCALATION reason\n\n- `context` — a\n- `reasoning` — b\n"
                     "- `too-large` — c\n- `plan` — d\n\n## Next\n")
-    good_run = "branches: `context` `reasoning` `too-large` `plan` are routed here"
+    good_run = "## gate\n" + "".join(f"   - `{r}` -> respond\n" for r in ("context", "reasoning", "too-large", "plan"))
     expect(not status_contract_problems(good_ex, good_ex, good_schemas, good_run),
            "coherent STATUS contract should pass")
     drift_ex = f"text\n{GOOD_STATUS.replace('DONE-CONCERNS | ', '')}\nmore\n"
     expect(status_contract_problems(drift_ex, good_ex, good_schemas, good_run),
            "STATUS lines differing between the two copies should fail")
-    expect(status_contract_problems(good_ex, good_ex, good_schemas, "only `context` `reasoning` `too-large` routed"),
-           "a reason unrouted in run/SKILL.md should fail")
+    prose_run = good_run.replace("   - `plan` -> respond\n", "the `plan` is mentioned but not routed\n")
+    expect(status_contract_problems(good_ex, good_ex, good_schemas, prose_run),
+           "a reason present only as prose (not a routing bullet) should fail")
     expect(status_contract_problems(good_ex, good_ex, good_schemas.replace("- `plan` — d\n", ""), good_run),
            "schemas reason set != STATUS reason set should fail")
+    indented_schemas = good_schemas.replace("- `too-large` — c", "\t- `too-large` — c")
+    expect(not status_contract_problems(good_ex, good_ex, indented_schemas, good_run),
+           "an indented schemas reason must still be extracted (no false drift)")
 
     if fails:
         print("validate-manifests selftest FAILED:")
