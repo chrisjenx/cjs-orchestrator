@@ -212,7 +212,9 @@ def status_contract_problems(executor_md, brief_md, schemas_md):
     esc = _section(schemas_md, "ESCALATION reason")  # specific so an earlier 'ESCALATION ...' heading can't shadow it
     if not esc:
         return ["schemas.md: missing the '## ESCALATION reason' entry"]
-    # \s* so an indented bullet can't be silently dropped; [\w-]+ so a digit/uppercase reason isn't missed
+    # The ESCALATION reason section must hold ONLY reason bullets (`- `<reason>``) — any other
+    # backtick bullet there is miscounted as a reason (a loud false-fail, not a silent pass).
+    # \s* tolerates indentation; [\w-]+ so a digit/uppercase reason isn't missed.
     defined = set(re.findall(r"^\s*- `([\w-]+)`", esc, re.M))
     if defined != reasons:
         return [f"schemas.md ESCALATION reasons {sorted(defined)} != STATUS-line reasons {sorted(reasons)}"]

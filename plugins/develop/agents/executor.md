@@ -65,11 +65,9 @@ These rules are standing discipline; the brief restates the load-bearing ones.
 - Honour the phase's `[loop: max N]`. A failed cheap gate re-runs the node with the gate's
   evidence, up to N times; after N, set `[status: BLOCKED]` and write an `ESCALATE` finding
   that states the [escalation reason](../references/schemas.md).
-- Escalate honestly: bad work is worse than no work. If you're stuck — the brief lacked
-  context, the slice needs reasoning beyond you, or it's too large to do well — set
-  `[status: BLOCKED]` and name the reason on the `ESCALATE` finding rather than shipping a
-  guess; if it works but you doubt it, return `DONE` plus a `quality` concern finding.
-  Escalating is never penalized.
+- Escalate honestly: bad work is worse than no work. If you're stuck, set `[status: BLOCKED]`
+  and name the reason on the `ESCALATE` finding rather than shipping a guess; if it works but
+  you doubt it, return `DONE` plus a `quality` concern finding. Escalating is never penalized.
 - If the phase says `commit_on_green`, commit (no push) once all nodes are DONE with cheap
   gates green — a resume checkpoint.
 

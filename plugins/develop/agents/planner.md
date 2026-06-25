@@ -29,13 +29,12 @@ Read the contract anchors (the stack-neutral starting set in
 [flywheel.md](../references/flywheel.md); this repo's promoted set in
 `.claude/develop-flywheel.md`) and make each one a Requirements Inventory row or a node gate
 token — the planner can't omit a contract anchor. Place each gate token
-([gate-tokens.md](../references/gate-tokens.md)) on the node whose work it proves.
+([gate-tokens.md](../references/gate-tokens.md)) on the node whose work it proves (a
+`{test:<selector>}` gate on the implementing node lets the executor work it test-first).
 Emit tokens **exactly** as [gate-tokens.md](../references/gate-tokens.md) defines: bare `build`/
 `lint`/`types`/`format`, `test:<selector>` for tests, `cov>=N` for coverage, and `kind:id` (e.g.
 `build:compile`) **only** to disambiguate when several gates share a kind. Do not invent a
 `kind:id` form for a kind that has a single gate, and do not use a bare kind when it is ambiguous.
-A requirement whose `verifiedBy` is a `{test:<selector>}` gate must carry that gate on the node
-that *implements* the behavior, so the executor can work it test-first.
 
 ## Flag gaps — defer, never invent
 If a slice needs a capability no existing agent/skill/rule covers, **don't invent an agent in

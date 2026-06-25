@@ -14,13 +14,12 @@ written, and what review catches. The plugin changes are static prose (existing 
 pick them up on plugin update, see Notes); the only non-prose change is a CI validator.
 
 ### Added
-- **Executor escalates with a classified reason.** When a phase blocks, the executor names
-  *why* — `context`, `reasoning`, `too-large`, or `plan` — on its `ESCALATE` finding, and the
-  between-phase gate surfaces that reason to you with the matching choices (supply the missing
-  context, retry at a higher model tier, subdivide the phase, or abandon it) instead of a bare
-  "blocked". A new `check_status_contract` in `validate-manifests.py` keeps the executor's
-  return contract identical across `executor.md` and `executor-brief.md` and its reason set in
-  sync with `schemas.md`, so the grammar cannot drift in CI.
+- **Executor escalates with a classified reason.** When a phase blocks, the executor records the
+  reason (`context`, `reasoning`, `too-large`, or `plan`) on its `ESCALATE` finding, so the
+  between-phase gate can show you *why* and you decide knowingly instead of seeing a bare
+  "blocked". A new `check_status_contract` in `validate-manifests.py` keeps the executor's STATUS
+  line in sync across `executor.md` and `executor-brief.md` and its reason set aligned with
+  `schemas.md`, so the grammar cannot drift in CI.
 - **Test-first discipline for test-verified requirements.** A node carrying a
   `{test:<selector>}` gate is worked test-first: the executor writes the failing test before the
   implementation, then makes it pass. The planner places a test-verified requirement's gate on
