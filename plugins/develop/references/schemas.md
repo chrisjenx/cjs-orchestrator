@@ -69,18 +69,20 @@ Reviewers/auditors return `FINDINGS`; the orchestrator **derives** the VERDICT f
 (none blocking → `pass`, fixable → `iterate`, needs-a-human → `escalate`). Refuters return
 `REFUTER_VERDICT`, below.
 
-## ESCALATION reason — the tag on a `BLOCKED:<reason>` executor return
+## ESCALATION reason — the tag the executor writes into `[status: BLOCKED:<reason>]`
 
-One of `context` · `reasoning` · `too-large` · `plan` — *what kind* of stuck, so the orchestrator
-can route its response ([run/SKILL.md](../skills/run/SKILL.md) step 6) instead of just asking:
+One of `context` · `reasoning` · `too-large` · `plan` — *what kind* of stuck, persisted on the
+node's status so the between-phase gate routes on the plan file, not the reply
+([run/SKILL.md](../skills/run/SKILL.md) step 6):
 
 - `context` — the brief lacked information the slice needed.
 - `reasoning` — the slice needs more capable reasoning than this tier.
 - `too-large` — too big to do well as one phase.
 - `plan` — the plan/spec itself is wrong here.
 
-`DONE-CONCERNS` is a separate executor state: nodes done but correctness doubted — advances with
-extra scrutiny in PV/PA, not a blocker.
+Bare `BLOCKED` (reason unclassifiable) routes to the human. Work that is done but whose
+correctness the executor doubts is not a status — it returns `DONE` plus a `quality` FINDING
+(a concern) that PV/PA scrutinize and relay surfaces if unresolved.
 
 ## GATE_RESULT — a gate command's outcome
 

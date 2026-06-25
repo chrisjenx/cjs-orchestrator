@@ -162,11 +162,26 @@ def check_frontmatter(problems):
 
 
 def _status_line(text):
-    """The single stripped `STATUS:` contract line in a file. Raises if not exactly one."""
-    lines = [ln.strip() for ln in text.splitlines() if ln.strip().startswith("STATUS:")]
+    """The executor's STATUS contract line — the one carrying the `BLOCKED[:...]` tags, so an
+    unrelated `STATUS: ...` example line elsewhere in the doc can't trip the check. Raises
+    unless exactly one such line exists."""
+    lines = [ln.strip() for ln in text.splitlines()
+             if ln.strip().startswith("STATUS:") and "BLOCKED[" in ln]
     if len(lines) != 1:
-        raise ValueError(f"expected exactly one 'STATUS:' line, found {len(lines)}")
+        raise ValueError(f"expected exactly one STATUS contract line (with BLOCKED[:...]), found {len(lines)}")
     return lines[0]
+
+
+def _between_phase_block(run_md):
+    """The between-phase gate block of run/SKILL.md: from the 'Between-phase gate' line to the
+    next top-level numbered step (or EOF). Scopes the routing check so a `- `reason`` bullet
+    elsewhere in the file cannot satisfy it."""
+    lines = run_md.splitlines()
+    start = next((i for i, ln in enumerate(lines) if "Between-phase gate" in ln), None)
+    if start is None:
+        return ""
+    end = next((i for i in range(start + 1, len(lines)) if re.match(r"\d+\. ", lines[i])), len(lines))
+    return "\n".join(lines[start:end])
 
 
 def _status_reasons(status_line):
@@ -206,16 +221,20 @@ def status_contract_problems(executor_md, brief_md, schemas_md, run_md):
         reasons = _status_reasons(ex)
     except Exception as e:  # noqa: BLE001
         return [f"executor STATUS contract: {e}"]
-    esc = _section(schemas_md, "ESCALATION")
+    esc = _section(schemas_md, "ESCALATION reason")  # specific so an earlier 'ESCALATION ...' heading can't shadow it
     if not esc:
-        return ["schemas.md: missing the '## ESCALATION' reason entry"]
-    defined = set(re.findall(r"^\s*- `([a-z-]+)`", esc, re.M))  # \s* so an indented bullet can't be silently dropped
+        return ["schemas.md: missing the '## ESCALATION reason' entry"]
+    # \s* so an indented bullet can't be silently dropped; [\w-]+ so a digit/uppercase reason isn't missed
+    defined = set(re.findall(r"^\s*- `([\w-]+)`", esc, re.M))
     out = []
     if defined != reasons:
         out.append(f"schemas.md ESCALATION reasons {sorted(defined)} != STATUS-line reasons {sorted(reasons)}")
+    block = _between_phase_block(run_md)
     for r in sorted(reasons):
-        # require the actual routing bullet `- `<reason>``, not just a backticked prose mention
-        if not re.search(rf"^\s*- `{re.escape(r)}`", run_md, re.M):
+        # the routing bullet `- `<reason>`` must appear in the between-phase gate block, not just
+        # anywhere in the file. (A static check can't verify the bullet's response text is the
+        # correct one for the reason — that stays a review concern.)
+        if not re.search(rf"^\s*- `{re.escape(r)}`", block, re.M):
             out.append(f"run/SKILL.md: escalation reason `{r}` is not routed in the between-phase gate")
     return out
 
@@ -223,12 +242,15 @@ def status_contract_problems(executor_md, brief_md, schemas_md, run_md):
 def check_status_contract(problems):
     def read(rel):
         return open(ROOT + rel, encoding="utf-8").read()
-    problems.extend(status_contract_problems(
-        read("/plugins/develop/agents/executor.md"),
-        read("/plugins/develop/references/executor-brief.md"),
-        read("/plugins/develop/references/schemas.md"),
-        read("/plugins/develop/skills/run/SKILL.md"),
-    ))
+    try:  # a renamed/missing input must report a problem, not crash the validator with a traceback
+        reads = (read("/plugins/develop/agents/executor.md"),
+                 read("/plugins/develop/references/executor-brief.md"),
+                 read("/plugins/develop/references/schemas.md"),
+                 read("/plugins/develop/skills/run/SKILL.md"))
+    except OSError as e:
+        problems.append(f"status contract: cannot read an input file — {e}")
+        return
+    problems.extend(status_contract_problems(*reads))
 
 
 def main() -> int:
@@ -348,24 +370,46 @@ def selftest() -> int:
     expect(_looks_like_gate_token("{build:compile}") and not _looks_like_gate_token("{pkg}"), "placeholder {pkg} must not look like a gate token")
 
     # executor STATUS contract coherence
-    GOOD_STATUS = "STATUS: DONE | DONE-CONCERNS | BLOCKED[:context|reasoning|too-large|plan] · nodes <done>/<total>"
+    GOOD_STATUS = "STATUS: DONE | BLOCKED[:context|reasoning|too-large|plan] · nodes <done>/<total>"
     good_ex = f"text\n{GOOD_STATUS}\nmore\n"
     good_schemas = ("## ESCALATION reason\n\n- `context` — a\n- `reasoning` — b\n"
                     "- `too-large` — c\n- `plan` — d\n\n## Next\n")
-    good_run = "## gate\n" + "".join(f"   - `{r}` -> respond\n" for r in ("context", "reasoning", "too-large", "plan"))
+    REASONS = ("context", "reasoning", "too-large", "plan")
+    good_run = ("6. **Between-phase gate.**\n"
+                + "".join(f"   - `{r}` -> respond\n" for r in REASONS) + "7. Advance.\n")
     expect(not status_contract_problems(good_ex, good_ex, good_schemas, good_run),
            "coherent STATUS contract should pass")
-    drift_ex = f"text\n{GOOD_STATUS.replace('DONE-CONCERNS | ', '')}\nmore\n"
+    # the two contract copies must be identical
+    drift_ex = f"text\n{GOOD_STATUS.replace('|plan]', ']')}\nmore\n"
     expect(status_contract_problems(drift_ex, good_ex, good_schemas, good_run),
            "STATUS lines differing between the two copies should fail")
-    prose_run = good_run.replace("   - `plan` -> respond\n", "the `plan` is mentioned but not routed\n")
-    expect(status_contract_problems(good_ex, good_ex, good_schemas, prose_run),
-           "a reason present only as prose (not a routing bullet) should fail")
+    # a reason bulleted OUTSIDE the between-phase gate block must not count as routed
+    outside_run = ("6. **Between-phase gate.**\n"
+                   + "".join(f"   - `{r}` -> respond\n" for r in REASONS[:-1])
+                   + "7. Advance.\n   - `plan` -> outside the gate block\n")
+    expect(status_contract_problems(good_ex, good_ex, good_schemas, outside_run),
+           "a reason routed only outside the between-phase gate block should fail")
+    # schemas reason set must equal STATUS reason set
     expect(status_contract_problems(good_ex, good_ex, good_schemas.replace("- `plan` — d\n", ""), good_run),
            "schemas reason set != STATUS reason set should fail")
+    # an indented schemas bullet must still be extracted (whitespace-tolerant)
     indented_schemas = good_schemas.replace("- `too-large` — c", "\t- `too-large` — c")
     expect(not status_contract_problems(good_ex, good_ex, indented_schemas, good_run),
            "an indented schemas reason must still be extracted (no false drift)")
+    # an earlier 'ESCALATION ...' heading must not shadow the canonical 'ESCALATION reason' section
+    shadow_schemas = "## ESCALATION overview\n\n- `bogus` — x\n\n" + good_schemas
+    expect(not status_contract_problems(good_ex, good_ex, shadow_schemas, good_run),
+           "an earlier ESCALATION heading must not shadow the reason section")
+    # an unrelated 'STATUS:' example line (no BLOCKED[) must not break contract-line detection
+    example_ex = good_ex + "STATUS: DONE · nodes 3/3 (example)\n"
+    expect(not status_contract_problems(example_ex, example_ex, good_schemas, good_run),
+           "an extra STATUS example line without BLOCKED[ must not trip the check")
+    # a reason containing a digit must be extracted ([\w-]+), not silently dropped
+    digit_ex = "x\nSTATUS: DONE | BLOCKED[:context|tier2] · nodes <done>/<total>\ny\n"
+    digit_schemas = "## ESCALATION reason\n\n- `context` — a\n- `tier2` — b\n\n## Next\n"
+    digit_run = "6. **Between-phase gate.**\n   - `context` -> r\n   - `tier2` -> r\n7. Advance.\n"
+    expect(not status_contract_problems(digit_ex, digit_ex, digit_schemas, digit_run),
+           "a reason with a digit must be extracted, not dropped")
 
     if fails:
         print("validate-manifests selftest FAILED:")

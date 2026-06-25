@@ -48,18 +48,18 @@ Cheap gates run in your turn; annotate heavy gates DEFERRED-PF.
 - Resume: if a node is IN_PROGRESS, reconcile existing artifacts (git diff + status); don't
   regenerate.
 - Writeback BEFORE heavy work: flip node IN_PROGRESS + append a log row, do the work, run
-  cheap gates, flip DONE/BLOCKED, append a closing row, write findings (FINDING schema,
+  cheap gates, flip DONE/BLOCKED:<reason>, append a closing row, write findings (FINDING schema,
   deduped).
 - Scope fence: only the files your nodes name; anything else → write a finding, don't do it.
-- Test-first: a node with a {test:..} gate whose test is missing — write the failing test first, then make it pass.
+- Test-first: a node with a {test:<selector>} gate whose test is missing — write the failing test first, then make it pass.
 - Loop: honour [loop: max N]; after N attempts set BLOCKED:<reason> + an ESCALATE finding.
-- Escalate honestly: BLOCKED:<reason> / DONE-CONCERNS over a silent guess (reasons: schemas.md).
+- Escalate honestly: BLOCKED:<reason> over a silent guess; done-but-unsure → DONE + a quality concern finding (schemas.md).
 - No narration: the orchestrator owns the status stream ([run-status.md](./run-status.md)) —
   you write the plan and return the three lines below, nothing more.
 
 ## Return — three lines only
 ASSUMPTIONS: <one line>
-STATUS: DONE | DONE-CONCERNS | BLOCKED[:context|reasoning|too-large|plan] · nodes <done>/<total>
+STATUS: DONE | BLOCKED[:context|reasoning|too-large|plan] · nodes <done>/<total>
 NESTED: <children spawned> · DEFERRED-PF: <tokens left for finalize>
 ```
 

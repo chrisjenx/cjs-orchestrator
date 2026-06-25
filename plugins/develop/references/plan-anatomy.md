@@ -52,7 +52,9 @@ orchestrator holds only "which phase am I on" in working memory.
 ## Phase nodes
 
 - A **phase** is a `### P<n> — <description>` heading carrying machine-readable tags:
-  - `[status: PENDING | IN_PROGRESS | DONE | BLOCKED]` — the single source of phase truth.
+  - `[status: PENDING | IN_PROGRESS | DONE | BLOCKED]` — the single source of phase truth. A
+    `BLOCKED` carries the executor's [ESCALATION reason](./schemas.md) as `BLOCKED:<reason>`, so
+    the between-phase gate routes on the file, not the reply.
   - `[depends: P1, P2]` — phase is *ready* only when not DONE/BLOCKED and every listed
     dependency is `DONE`. A terminal `BLOCKED` dependency blocks its dependents.
   - `[loop: max <N>, commit_on_green]` — loop policy (see below).
@@ -68,10 +70,10 @@ orchestrator holds only "which phase am I on" in working memory.
 ### Status lifecycle
 
 ```
-PENDING ──▶ IN_PROGRESS ──▶ DONE        (all node gates pass / deferred to PF)
+PENDING ──▶ IN_PROGRESS ──▶ DONE             (all node gates pass / deferred to PF)
                    │
-                   └──────▶ BLOCKED      (cheap gate fails after loop exhausted,
-                                          or a dependency is terminally BLOCKED)
+                   └──────▶ BLOCKED[:reason]  (cheap gate fails after loop exhausted,
+                                               or a dependency is terminally BLOCKED)
 ```
 
 ### Loop policy
