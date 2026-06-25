@@ -113,7 +113,8 @@ Loop until no phase is ready:
 3. Render the [executor brief](../../references/executor-brief.md) — this phase's nodes
    verbatim, `worktreeRoot`, the config/routing slices, prior-phase handoff Notes, the
    Finding Registry. Inline excerpts, not the whole plan.
-4. Dispatch **one** executor (`Agent`, `subagent_type: executor`, model = mid tier).
+4. Dispatch **one** executor (`Agent`, `subagent_type: executor`, model = mid tier — or the
+   higher tier a `## Decisions` entry raised it to for this phase).
 5. **Re-read the plan** to confirm the phase reached `DONE`/`BLOCKED` — trust the file, not the
    executor's reply message. _say:_ `✓ <Pn> · done <x>/<y> · {gate}✓ …` (or
    `✗ <Pn> · blocked · <reason>`).
@@ -122,9 +123,11 @@ Loop until no phase is ready:
    from the `ESCALATE` finding ([schemas.md](../../references/schemas.md): `context` /
    `reasoning` / `too-large` / `plan`) and offer the matching choices — supply the missing
    context, retry at a higher model tier, subdivide the phase, or abandon it — with a tentative
-   default. Fold the answer into `## Decisions` (so a resume honours the choice, e.g. a raised
-   tier). Bounded by `caps.gate`; beyond that, take the tentative default (logged). The phase
-   may re-open. _say:_ `⚠ <Pn> · <reason> → asking`.
+   default. Fold the answer into `## Decisions`. To act on it, reset the phase to `PENDING` and
+   re-walk — the re-rendered brief carries the decision (added context, the raised tier from
+   `## Decisions`, or a planner re-plan for `subdivide`); `abandon` leaves the phase terminally
+   `BLOCKED`. Bounded by `caps.gate`; beyond that, take the tentative default (logged). _say:_
+   `⚠ <Pn> · <reason> → asking`.
 7. Advance.
 
 **Resume on crash:** re-invoking re-reads the plan, skips `DONE`, re-enters the first

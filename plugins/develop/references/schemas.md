@@ -71,10 +71,11 @@ Reviewers/auditors return `FINDINGS`; the orchestrator **derives** the VERDICT f
 
 ## ESCALATION reason — how the executor classifies a `BLOCKED`
 
-When a phase blocks, the executor states one of `context` · `reasoning` · `too-large` · `plan`
-on its `ESCALATE` FINDING (the persisted carrier), so the between-phase gate can show the human
-*why* and offer the matching choice ([run/SKILL.md](../skills/run/SKILL.md) step 6) instead of a
-bare "blocked":
+When a phase blocks, the executor records an `ESCALATE` FINDING whose `category` carries the
+reason as `escalate:<reason>` (e.g. `escalate:reasoning`) — the persisted carrier the
+between-phase gate reads to show the human *why* and offer the matching choice
+([run/SKILL.md](../skills/run/SKILL.md) step 6) instead of a bare "blocked". The `<reason>` is
+one of:
 
 - `context` — the brief lacked information the slice needed.
 - `reasoning` — the slice needs more capable reasoning than this tier.

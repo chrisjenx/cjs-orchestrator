@@ -272,7 +272,7 @@ def main() -> int:
     # 6) Gate-token examples in the docs match the canonical grammar.
     check_gate_token_grammar(problems)
 
-    # 7) Executor STATUS contract is coherent across both copies + schemas.md + run/SKILL.md.
+    # 7) Executor STATUS contract is coherent across both copies + schemas.md.
     check_status_contract(problems)
 
     if problems:

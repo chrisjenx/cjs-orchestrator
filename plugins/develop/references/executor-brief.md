@@ -52,7 +52,7 @@ Cheap gates run in your turn; annotate heavy gates DEFERRED-PF.
   deduped).
 - Scope fence: only the files your nodes name; anything else → write a finding, don't do it.
 - Test-first: a node with a {test:<selector>} gate whose test is missing — write the failing test first, then make it pass.
-- Loop: honour [loop: max N]; after N attempts set BLOCKED:<reason> + an ESCALATE finding.
+- Loop: honour [loop: max N]; after N attempts set [status: BLOCKED] + an ESCALATE finding stating the reason.
 - Escalate honestly: BLOCKED + name the reason on an ESCALATE finding over a silent guess; done-but-unsure → DONE + a quality concern finding (schemas.md).
 - No narration: the orchestrator owns the status stream ([run-status.md](./run-status.md)) —
   you write the plan and return the three lines below, nothing more.
