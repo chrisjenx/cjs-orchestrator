@@ -527,6 +527,8 @@ def selftest() -> int:
            "a guard missing the --git-common-dir self-gate should fail")
     expect(guard_contract_problems(GOOD_HOOKS, GOOD_GUARD.replace("develop:worktree-guard", "x")),
            "a guard missing the invariant marker should fail")
+    expect(guard_contract_problems(GOOD_HOOKS, GOOD_GUARD.replace("develop.config.json", "x")),
+           "a guard missing the develop.config.json marker key should fail")
 
     # init coherence
     GOOD_INIT = "uses probe-worktree.sh early; Phase 3 gitignores .claude/worktrees/ and <featureDir>\n"
