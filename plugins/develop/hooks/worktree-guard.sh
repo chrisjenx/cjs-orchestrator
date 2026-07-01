@@ -18,6 +18,19 @@
 
 set -f   # no pathname expansion while we tokenise (a stray * must not glob)
 
+# SELF-GATE: enforce only in develop-managed repos; fail-open (allow) otherwise. Resolve the
+# MAIN checkout (mirrors run/SKILL.md step 2) so the marker is visible from the main checkout
+# AND any worktree under it (a run executes inside a worktree whose .claude/ lacks the
+# uncommitted develop.config.json). Inert outside develop repos — the one place this fact lives.
+marker=""
+gcd=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null) || gcd=""
+if [ -n "$gcd" ]; then
+  marker="${gcd%/}/../.claude/develop.config.json"
+elif [ -n "$CLAUDE_PROJECT_DIR" ]; then
+  marker="$CLAUDE_PROJECT_DIR/.claude/develop.config.json"
+fi
+[ -n "$marker" ] && [ -f "$marker" ] || exit 0   # not develop-managed -> allow all
+
 input=$(cat)
 
 # --- extract the command string: jq → python3 → sed → raw ---
