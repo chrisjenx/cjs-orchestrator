@@ -235,7 +235,7 @@ def check_status_contract(problems):
 
 
 BASHISM_PATTERNS = [
-    (r"\[\[", "[[ ]] test — use POSIX [ ]"),
+    (r"\[\[(?![:.=])", "[[ ]] test — use POSIX [ ]"),
     (r"<<<", "<<< here-string — use a heredoc"),
     (r"\$\(\(\s*10#", "$((10#...)) base prefix — not POSIX"),
     (r"\bdeclare\s+-[aA]\b", "declare -a/-A array — not POSIX"),
@@ -429,6 +429,8 @@ def selftest() -> int:
         expect(shell_bashisms(bad), f"bashism should be caught: {bad!r}")
     expect(not shell_bashisms("# prose mentioning <<< and [[ and local must not trip the lint\n"),
            "forbidden tokens inside a comment must not be flagged")
+    expect(not shell_bashisms('cmd=$(sed -n "s/[[:space:]]*x/y/p")\n'),
+           "a POSIX [[:space:]] character class must not be flagged as a [[ ]] test")
 
     if fails:
         print("validate-manifests selftest FAILED:")
