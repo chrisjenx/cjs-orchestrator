@@ -7,6 +7,31 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-07-01
+
+Retunes model tiering now that one strong mid-tier model (Sonnet class) covers both code and
+diff-scoped review. Review stays honest via effort and lens diversity rather than a costlier model,
+and the top tier is reserved for the two roles where a different model is decisive. Static prose plus
+agent frontmatter only; existing projects pick it up on plugin update, no re-init (see Notes).
+
+### Changed
+- **Audit/review set runs at `mid` tier with high effort, not `top`.** The executor writes at
+  `mid` / medium effort; validate, audit, tidy-review, and residual-finding classification now read
+  the diff at `mid` / high effort. Writer-vs-reviewer separation is carried by effort plus the audit
+  set's lens diversity, which cuts the bulk of top-tier spend (4 to 5 parallel reviewers, multiple
+  rounds) with negligible quality risk on bounded diffs. `top` is reserved for the planner (one
+  dispatch, sets up the whole run) and the opt-in refuters (kill-on-doubt, where model
+  decorrelation is the whole point).
+- **Every bundled agent pins an `effort:` in frontmatter**, matched to its role: `high` for planner,
+  refuter, and the general-quality and code reviewers; `medium` for the executor and the
+  completeness and regression auditors; `low` for the mechanical stubs-auditor and tidy worker.
+
+### Notes
+- **No re-init required.** The change lives in shipped references and agent frontmatter, not in
+  anything `/develop:init` writes into a target repo. Existing projects get the new tiering on the
+  next `/develop:run` after the plugin updates. A safety-critical repo that wants reviewers back on
+  `top` can override `models` per-repo (see references/model-tiers.md).
+
 ## [0.7.0] - 2026-06-30
 
 Hardens how `/develop:init` provisions and upgrades a repo for the worktree run loop, and gives
@@ -232,7 +257,8 @@ bootstrapper into static, portable skills that read per-repo discovered definiti
 - Marketplace and `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
   genericized explainer site.
 
-[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.1
 [0.7.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.0
 [0.6.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.6.0
 [0.5.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.5.0

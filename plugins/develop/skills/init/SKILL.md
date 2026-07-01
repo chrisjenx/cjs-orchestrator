@@ -157,8 +157,8 @@ of the Phase 5 dry run; if the plugin is not enabled here, WARN as a hard Phase 
 2. **Narrow the context** — hand each agent its slice; the orchestrator holds only status.
 3. **Route to specialists** — *later*: artifact shape → the right writer/reviewer. Start
    with one generalist.
-4. **Tier the models** — cheap for mechanical, mid for code, top for hard judgement; pair
-   writer vs reviewer.
+4. **Tier the models** — cheap for mechanical, mid for code + diff review (writer vs reviewer
+   split by effort), top reserved for planning/refutation.
 5. **Verify by forking** — *later*: per claim, fork N skeptics to refute; N judged beats
    one iterated.
 6. **Gates that can't be skipped** — machine-checkable commands with evidence, appended

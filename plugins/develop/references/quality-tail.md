@@ -12,13 +12,14 @@ After the domain phases come four fixed phases: **Validate → Audit → Tidy �
 All four are ordinary phases the walk processes; they just have fixed logic instead of
 planner-authored nodes. Findings flow into the same Finding Registry, deduped by
 fingerprint ([schemas.md](./schemas.md)). Every validate/audit/review dispatch in the tail
-runs at the **top** tier — paired against the mid-tier executor so review can't rubber-stamp
-([model-tiers.md](./model-tiers.md)); the `tidy` worker writes cheap, its reviewers run top.
+runs at **`mid` tier, high effort** — separated from the mid, medium-effort executor so review
+can't rubber-stamp ([model-tiers.md](./model-tiers.md)); refuters run `top`, the `tidy` worker
+writes cheap.
 
 ## PV — Validate (does the diff satisfy the requirements?)
 
 - Assemble the branch diff (`git diff <merge-base>`). Dispatch a reviewer — reuse-first, a
-  bundled reviewer at **top** tier (`code-reviewer` for requirement compliance, or
+  bundled reviewer at **`mid` tier, high effort** (`code-reviewer` for requirement compliance, or
   `completeness-auditor`) — with the diff + the **Requirements Inventory**; it returns
   `FINDINGS`. The orchestrator derives the outcome: none blocking → `pass`; fixable in place →
   `iterate`; a requirement needs a human call → `escalate`.
@@ -94,7 +95,7 @@ This is where the repo's **heavy** gates actually run and block the commit:
    tests in isolation to confirm they're environmental, then scope the coverage run to the
    tests over the changed area, build the report from that, gate diff-coverage against it, and
    flag the quarantined tests in the report.
-3. **Classify the residual findings** — a top-tier pass (reuse a bundled reviewer, or the
+3. **Classify the residual findings** — a high-effort `mid` pass (reuse a bundled reviewer, or the
    orchestrator inline; not a separate bundled agent): the flywheel **contract-gaps classifier**
    ([flywheel.md](./flywheel.md)) marks each preventable vs irreducible and, for preventable
    ones, proposes a remediation lever (hook / gate / plan-anchor / rule / agent) + its target

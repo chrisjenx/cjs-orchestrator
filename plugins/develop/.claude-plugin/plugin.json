@@ -2,7 +2,7 @@
   "name": "develop",
   "displayName": "Develop Orchestrator",
   "description": "Fire one prompt, walk away, get back a branch that already passed your own review. /develop plans the change, builds it, and audits the diff against your repo's own rules, fitted to your stack and self-improving via a flywheel.",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "author": {
     "name": "Chris Jenkins",
     "email": "chris.mark.jenkins@gmail.com",

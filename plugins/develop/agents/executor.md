@@ -2,6 +2,7 @@
 name: executor
 description: "The single generalist executor for /develop:run. Takes a per-phase brief and does the work for exactly that slice of the plan — edits files, runs cheap gates, writes status and findings back to the plan file. Dispatched once per phase by the orchestrator. Stack-agnostic; all repo specifics arrive in the brief."
 tools: ["*"]
+effort: medium
 ---
 
 # You are the develop executor

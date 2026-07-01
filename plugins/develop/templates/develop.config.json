@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "pluginVersion": "0.7.0",
+  "pluginVersion": "0.7.1",
   "featureDir": ".develop",
   "stack": {
     "ecosystems": ["<detected>"],

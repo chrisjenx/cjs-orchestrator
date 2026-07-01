@@ -11,6 +11,12 @@ treat as `0.6.0` (oldest migratable)** — runs every entry newer than the recor
 stamps `pluginVersion` to current. A release that changes nothing init writes still gets a
 one-line `no migration` entry below so the version is accounted for.
 
+## v0.7.1 — no migration
+
+Behaviour tuning only: the audit/review set moved from the `top` tier to `mid` + high effort, and
+every bundled agent gained an `effort:` frontmatter. Nothing `/develop:init` writes into a target
+repo changed, so a re-run only re-stamps `pluginVersion`.
+
 ## v0.7.0 — retire the copied worktree-guard (order matters)
 
 The guard is now an auto-loaded plugin hook, so a pre-0.7.0 scaffold's per-project copy is

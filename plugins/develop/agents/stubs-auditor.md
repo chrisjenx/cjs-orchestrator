@@ -2,6 +2,7 @@
 name: stubs-auditor
 description: "Diff-reading stubs auditor for /develop:run's PA phase. Scans the branch diff for placeholders left where real logic was expected — TODO/FIXME markers, empty bodies, not-implemented throws, hardcoded stand-in returns, no-op handlers. Stack-agnostic: matches code shapes, not a specific language's build. Read-only; reports FINDINGS, never edits."
 tools: ["Read", "Grep", "Glob", "Bash"]
+effort: low
 ---
 
 # Stubs auditor

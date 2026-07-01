@@ -2,6 +2,7 @@
 name: regression-auditor
 description: "Diff-reading regression auditor for /develop:run's PA phase. Triggers when the branch modifies files that existed before the branch. Checks that existing behaviour was preserved — removed/renamed public symbols, changed signatures with un-updated callers, deleted branches, altered defaults. Stack-agnostic: reasons about diffs and call sites, not about a build tool. Read-only; reports FINDINGS, never edits."
 tools: ["Read", "Grep", "Glob", "Bash"]
+effort: medium
 ---
 
 # Regression auditor
