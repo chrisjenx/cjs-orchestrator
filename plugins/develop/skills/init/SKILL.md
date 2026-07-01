@@ -46,12 +46,30 @@ Read them as you reach each phase; don't paste their contents into the repo.
 
 ---
 
-## Phase 0 — Re-run check (idempotent)
+## Phase pre-flight — probe worktree capability (non-blocking)
 
-If `.claude/develop.config.json` already exists, this is a **re-run**. Do not clobber the
-user's customisations. Follow [references/idempotency.md](../../references/idempotency.md):
-detect the existing scaffold, compute a diff, and only add/update intentionally — showing
-the diff before writing.
+Early, run `${CLAUDE_PLUGIN_ROOT}/scripts/probe-worktree.sh <repo_root>` and record its status
+(`ok` | `no-commits` | `blocked`). This is **non-blocking**: it *recommends* the worktree run
+mode (the only supported mode) and its result feeds the Phase 5 gate; it does **not** hard-abort
+init (a transient failure must not kill the bootstrap, and the gitignore fix is independent of
+capability). The status word's meaning is defined once in the script header.
+
+---
+
+## Phase 0 — Re-run check + version migration (idempotent)
+
+If `.claude/develop.config.json` already exists, this is a **re-run**. Do not clobber the user's
+customisations. Follow [references/idempotency.md](../../references/idempotency.md): detect the
+existing scaffold, compute a diff, and only add/update intentionally — showing the diff first.
+
+Then check for a **plugin version gap**. Read the recorded `pluginVersion` from the config and
+the live version from `${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`, and compare with
+`${CLAUDE_PLUGIN_ROOT}/scripts/version-compare.sh` — **absent recorded version ⇒ treat as
+`0.6.0`** (the documented default, not an inference). On a gap (recorded `older` than live):
+(1) run the idempotent **ensures** (Phase 3's gitignore lines; the guard is a plugin hook now, so
+nothing to install); (2) run the **per-version cleanups** for every version newer than the
+recorded one ([references/migrations.md](../../references/migrations.md)); (3) **stamp**
+`pluginVersion` to the live version. Show the diff before writing, as always.
 
 ## Phase 1 — Detect the stack
 
@@ -93,25 +111,38 @@ Write (showing the diff first):
   ([references/flywheel.md](../../references/flywheel.md)) — plus an **empty**
   `.claude/develop-flywheel.jsonl`, the append-only SSOT `PF` appends records to (create it
   empty so the first run can append).
-- ensure `<featureDir>` (default `.develop/`) is in `.gitignore` — append the line if missing
-  (merge, never rewrite the file), so per-feature plan artifacts stay out of commits and out of
-  any build-output dir a `clean` would wipe.
+- ensure the plugin-owned gitignore lines via `${CLAUDE_PLUGIN_ROOT}/scripts/gitignore-append.sh
+  <repo_root> <pattern>` (idempotent, parent-dir aware — a re-run shows no spurious diff), called
+  for **both** `<featureDir>` (default `.develop/`, so plan artifacts stay out of commits and out
+  of any build-output dir a `clean` wipes) **and** `.claude/worktrees/` (the run-loop worktree
+  cache, which `/develop:run` creates under `.claude/` — otherwise it leaks as untracked). This is
+  the only place init touches `.gitignore`; Phase 0's re-run references this ensure.
 
 The plan file, plan-anatomy, executor brief, and quality tail are **not** written here —
 they live in the plugin and are used by `/develop:run` at runtime.
 
-## Phase 4 — Install safe hooks only
+## Phase 4 — Merge the command timeout only
 
-Only stack-agnostic safety: worktree/uncommitted-work protection and generic command
-timeouts. **Never** install a hook tied to a stack you didn't confirm. Follow
-[hooks/README.md](../../hooks/README.md). If the host **denies** the `settings.json` merge
-(self-modification guard), don't fail silently: emit the exact snippet for the user to paste and
-report it as a required manual step, per that README's fallback section.
+The worktree-guard is an auto-loaded, self-gating plugin hook now — init does **not** copy it or
+wire it into `settings.json`. Phase 4's only `settings.json` write is the generic command timeout
+(`BASH_DEFAULT_TIMEOUT_MS` / `BASH_MAX_TIMEOUT_MS`): idempotent merge (present ⇒ keep the user's
+value; absent ⇒ add), per [hooks/README.md](../../hooks/README.md). If the host **denies** the
+merge (self-modification guard), emit **only** the `env` snippet for the user to paste and report
+it as a required manual step — **never** re-emit a project-local guard copy.
+
+**Prove the guard actually fires.** The guard is inert unless the plugin is enabled in this
+context. Exercise it through the **live host** (not just by piping JSON into the script) as part
+of the Phase 5 dry run; if the plugin is not enabled here, WARN as a hard Phase 5 report line
+(marker present + plugin disabled = guard inactive; re-enable the plugin).
 
 ## Phase 5 — Dry run, then close the loop
 
-- **Dry run** `/develop:run` on a trivial change; confirm the gates actually execute and a
-  gate failure blocks. Report results to the user
+- **Probe gate:** if the pre-flight worktree probe was `blocked` (or `no-commits`), the dry run
+  cannot proceed — surface it as a hard report line (mirroring the v0.5.0 "required manual step"
+  discipline), not a silent pass.
+- **Dry run** `/develop:run` on a trivial change; confirm the gates actually execute, a gate
+  failure blocks, and — through the live host — the guard **blocks destructive git from inside
+  `.claude/worktrees/<feature>`**. Report results
   ([references/dry-run.md](../../references/dry-run.md)).
 - Point the user at `.claude/develop-flywheel.md`: after each real run, classify every
   audit/review finding *preventable* vs *irreducible*; promote preventable ones to
@@ -145,7 +176,9 @@ report it as a required manual step, per that README's fallback section.
 - [ ] Real gate commands discovered from CI, tagged cheap/heavy
 - [ ] `develop.config.json` + `develop-routing.json` written
 - [ ] Starter `CLAUDE.md` written
-- [ ] Safe hooks only
+- [ ] Worktree probed (non-blocking); `.claude/worktrees/` + `<featureDir>` gitignored
+- [ ] Command-timeout env merged; guard runs as the plugin hook (proved firing, incl. in-worktree)
+- [ ] `pluginVersion` stamped; a version gap migrated per migrations.md
 - [ ] Dry run passes and a gate failure actually blocks
 - [ ] Flywheel doc + empty `.jsonl` SSOT in place for the flow to grow over time
 

@@ -21,6 +21,9 @@ Run both halves in a disposable worktree so nothing touches the user's tree.
 - Run `/develop:run` on it.
 - Confirm it walks to `PF` and the heavy gates **actually ran** — capture the real command
   lines and their exit status as evidence (not "the agent said it built").
+- Confirm the **guard blocks destructive git when invoked from inside** `.claude/worktrees/<feature>`
+  through the live host (not just via a piped JSON test) — proving the self-gate enforces in the
+  worktree, not only at the main checkout.
 - Expect terminal status `ready`.
 - **Completeness re-check.** Audit the Phase-1/2 enumeration, not your memory: confirm it accounts
   for **every** step in the CI files — each is a confirmed gate or carries an explicit non-gating
