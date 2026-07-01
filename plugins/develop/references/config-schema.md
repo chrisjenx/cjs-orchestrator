@@ -9,6 +9,7 @@ repo. Keep it small and human-editable; the user owns it.
 ```json
 {
   "schema": 1,
+  "pluginVersion": "0.7.0",
   "featureDir": ".develop",
   "stack": {
     "ecosystems": ["node-ts"],
@@ -46,6 +47,7 @@ repo. Keep it small and human-editable; the user owns it.
 | Field | Set by | Meaning |
 |---|---|---|
 | `schema` | init | Config schema version (currently `1`). Bump on breaking changes. |
+| `pluginVersion` | init | The plugin version that last wrote this scaffold. **Managed by init, not user-editable** — init overwrites it with the live plugin version and uses the gap vs current to drive Phase 0 migrations ([migrations.md](./migrations.md)). Absent ⇒ treated as `0.6.0`. Additive; no `schema` bump. |
 | `featureDir` | init | Where per-feature plan files live (`<featureDir>/<feature>.plan.md`). Default `.develop` (init adds it to `.gitignore` if absent). Must be git-ignored (so plan artifacts never land in the feature commit) and must **not** sit under a build-output dir (`build/`, `target/`, `out/`, `dist/`, `bin/`) a `clean` task wipes mid-run. |
 | `stack` | init Phase 1 | The confirmed stack summary + file evidence. Informational + drives scoped-command templates. |
 | `gates` | init Phase 2 | The discovered gate commands. See [gate-tokens.md](./gate-tokens.md). |
