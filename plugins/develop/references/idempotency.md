@@ -48,6 +48,21 @@ nothing on a no-change re-run is a valid, expected outcome.
 - **Hooks / `settings.json`** — merge, don't overwrite; preserve existing hooks and any user
   timeout ([../hooks/README.md](../hooks/README.md)).
 
+## Plugin-managed vs user-managed
+
+Two classes of target content, with opposite rules:
+
+- **PLUGIN-MANAGED** — init may update or clean these; they are never preserved as user content.
+  `pluginVersion` (init **always overwrites** it with the live plugin version at write time —
+  distinct from the schema-gated "add fields on a `schema` bump" rule and from "never overwrite
+  user content"); the guard hook wiring; the gitignore lines the plugin owns (`<featureDir>`,
+  `.claude/worktrees/`). Per-version cleanups live in [migrations.md](./migrations.md).
+- **USER-MANAGED** — reconcile and preserve (the per-file rules above): `gates`, routing,
+  `models` / `caps` / `intensity`, and `CLAUDE.md` prose.
+
+The golden rule ("the user owns `.claude/`") is unchanged: plugin-managed items are init's own
+bookkeeping and wiring, not the user's authored content.
+
 ## Show the diff
 
 Before writing, present the changes as a unified diff (or a per-file before/after) and a
