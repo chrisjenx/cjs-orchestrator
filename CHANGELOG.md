@@ -7,6 +7,45 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-06-30
+
+Hardens how `/develop:init` provisions and upgrades a repo for the worktree run loop, and gives
+existing projects a version-anchored upgrade path. Unlike 0.6.0, this changes what init writes,
+so existing projects pick up the fixes by re-running `/develop:init` (see Notes).
+
+### Added
+- **Worktree capability probe + worktree-cache gitignore.** init now runs a non-blocking
+  `probe-worktree.sh` (live add/remove oracle, no git-version parsing, zero-commit aware, trap
+  cleanup in system temp) and gitignores `.claude/worktrees/` as well as `<featureDir>` via a new
+  idempotent, parent-dir-aware `gitignore-append.sh`. The Phase 5 dry run gates on the probe.
+- **Version-anchored migrations.** A new init-managed `pluginVersion` config field plus
+  `version-compare.sh` (POSIX) let Phase 0 detect a plugin gap (absent => treated as 0.6.0), run
+  per-version cleanups from a single `references/migrations.md`, and stamp the version.
+- **CI determinism + coherence guards.** `validate-manifests.py` gains a POSIX-bashism lint over
+  all shipped `plugins/develop/**/*.sh`, a guard-contract check, and an init-coherence check, each
+  selftested.
+
+### Changed
+- **Worktree-guard is now an auto-loaded plugin hook** (`${CLAUDE_PLUGIN_ROOT}`) that **self-gates**
+  to develop-managed repos via `git --git-common-dir`, so it enforces from inside a worktree too
+  and is inert elsewhere. init no longer copies the guard or wires it into `settings.json`; Phase 4
+  now only merges the command-timeout env (with an env-only manual-paste fallback on host denial).
+
+### Fixed
+- **Guard could fail open.** A guard installed at project scope with a `$CLAUDE_PROJECT_DIR` path
+  misfired in every project and, from inside a worktree, did not enforce at all. The plugin-hook +
+  self-gate fixes both.
+- **Worktree cache leaked as untracked.** init never gitignored `.claude/worktrees/`, so a run's
+  worktree showed up as untracked in the main checkout.
+
+### Notes
+- **Re-run `/develop:init` to upgrade.** v0.7.0 changes what init writes, so existing projects pick
+  up the fixes by re-running init: Phase 0 detects the `pluginVersion` gap (or its absence => 0.6.0),
+  removes an obsolete copied `.claude/hooks/worktree-guard.sh` + its `settings.json` entry when it is
+  plugin-shipped (marker-detected; a user-customised guard is flagged, not deleted), ensures the
+  `.claude/worktrees/` gitignore line, and stamps `pluginVersion`. The guard runs as an auto-loaded
+  plugin hook (takes effect on next session or `/reload-plugins`).
+
 ## [0.6.0] - 2026-06-24
 
 Sharpens three parts of the run loop: how the executor escalates when stuck, when tests get
@@ -193,7 +232,8 @@ bootstrapper into static, portable skills that read per-repo discovered definiti
 - Marketplace and `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
   genericized explainer site.
 
-[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.0
 [0.6.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.6.0
 [0.5.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.5.0
 [0.4.1]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.4.1
