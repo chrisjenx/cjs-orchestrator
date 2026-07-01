@@ -340,7 +340,7 @@ def check_init_coherence(problems):
         tmpl = read("/plugins/develop/templates/develop.config.json")
         migr = read("/plugins/develop/references/migrations.md")
         ver = json.loads(read("/plugins/develop/.claude-plugin/plugin.json")).get("version", "")
-    except OSError as e:
+    except (OSError, ValueError) as e:  # ValueError covers a malformed plugin.json (JSONDecodeError) — fail cleanly, don't crash main()
         problems.append(f"init coherence: cannot read an input file — {e}")
         return
     problems.extend(init_coherence_problems(init_md, tmpl, migr, ver))
