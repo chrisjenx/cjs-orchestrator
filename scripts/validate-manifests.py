@@ -270,6 +270,46 @@ def check_bashisms(problems):
             problems.append(f"{rel}:{lineno}: bashism — {why}")
 
 
+def guard_contract_problems(hooks_json_text, guard_sh_text):
+    """Thread-2 invariants (pure — selftestable on strings): hooks.json auto-loads the guard via
+    ${CLAUDE_PLUGIN_ROOT}, and worktree-guard.sh carries the self-gate (resolves the main checkout
+    via --git-common-dir, keys on the develop.config.json marker) + the invariant marker line."""
+    out = []
+    try:
+        hj = json.loads(hooks_json_text)
+    except Exception as e:  # noqa: BLE001
+        return [f"hooks.json: invalid JSON — {e}"]
+    cmds = [h.get("command", "")
+            for entry in hj.get("hooks", {}).get("PreToolUse", [])
+            for h in entry.get("hooks", [])]
+    guard_cmds = [c for c in cmds if "worktree-guard.sh" in c]
+    if not guard_cmds:
+        out.append("hooks.json: no PreToolUse worktree-guard.sh hook")
+    elif not all("${CLAUDE_PLUGIN_ROOT}" in c for c in guard_cmds):
+        out.append("hooks.json: worktree-guard command must resolve via ${CLAUDE_PLUGIN_ROOT} "
+                   "(a $CLAUDE_PROJECT_DIR path misfires globally and fails open)")
+    if "--git-common-dir" not in guard_sh_text:
+        out.append("worktree-guard.sh: self-gate must resolve the main checkout via --git-common-dir")
+    if "develop.config.json" not in guard_sh_text:
+        out.append("worktree-guard.sh: self-gate must key on the develop.config.json marker")
+    if "develop:worktree-guard" not in guard_sh_text:
+        out.append("worktree-guard.sh: missing the invariant marker 'develop:worktree-guard' "
+                   "(migrations.md v0.7.0 cleanup detects a copied guard by this marker)")
+    return out
+
+
+def check_guard_contract(problems):
+    def read(rel):
+        return open(ROOT + rel, encoding="utf-8").read()
+    try:
+        hj = read("/plugins/develop/hooks/hooks.json")
+        gs = read("/plugins/develop/hooks/worktree-guard.sh")
+    except OSError as e:
+        problems.append(f"guard contract: cannot read an input file — {e}")
+        return
+    problems.extend(guard_contract_problems(hj, gs))
+
+
 def main() -> int:
     problems = []
 
@@ -315,6 +355,9 @@ def main() -> int:
 
     # 8) All shipped POSIX sh scripts are free of bashisms (determinism constraint).
     check_bashisms(problems)
+
+    # 9) Thread-2 guard contract: plugin-hook command + self-gate + invariant marker.
+    check_guard_contract(problems)
 
     if problems:
         print("manifest validation FAILED:")
@@ -431,6 +474,20 @@ def selftest() -> int:
            "forbidden tokens inside a comment must not be flagged")
     expect(not shell_bashisms('cmd=$(sed -n "s/[[:space:]]*x/y/p")\n'),
            "a POSIX [[:space:]] character class must not be flagged as a [[ ]] test")
+
+    # guard contract
+    GOOD_HOOKS = ('{"hooks":{"PreToolUse":[{"matcher":"Bash","hooks":['
+                  '{"type":"command","command":"${CLAUDE_PLUGIN_ROOT}/hooks/worktree-guard.sh"}]}]}}')
+    GOOD_GUARD = ("set -f\n# develop:worktree-guard\n"
+                  'gcd=$(git rev-parse --path-format=absolute --git-common-dir)\n'
+                  'marker="${gcd%/}/../.claude/develop.config.json"\n')
+    expect(not guard_contract_problems(GOOD_HOOKS, GOOD_GUARD), "coherent guard contract should pass")
+    bad_hooks = GOOD_HOOKS.replace("${CLAUDE_PLUGIN_ROOT}", "$CLAUDE_PROJECT_DIR")
+    expect(guard_contract_problems(bad_hooks, GOOD_GUARD), "a $CLAUDE_PROJECT_DIR command should fail")
+    expect(guard_contract_problems(GOOD_HOOKS, GOOD_GUARD.replace("--git-common-dir", "")),
+           "a guard missing the --git-common-dir self-gate should fail")
+    expect(guard_contract_problems(GOOD_HOOKS, GOOD_GUARD.replace("develop:worktree-guard", "x")),
+           "a guard missing the invariant marker should fail")
 
     if fails:
         print("validate-manifests selftest FAILED:")
