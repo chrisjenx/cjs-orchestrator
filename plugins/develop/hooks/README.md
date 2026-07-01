@@ -1,61 +1,47 @@
 # Safe, stack-agnostic hooks
 
-`/develop:init` Phase 4 installs **only** hooks that are safe in *any* repo because they
-reason about git and worktrees, never about a language or build tool.
+The worktree-guard is an **auto-loaded plugin hook** (`hooks.json`, command
+`${CLAUDE_PLUGIN_ROOT}/hooks/worktree-guard.sh`). `/develop:init` no longer copies it or wires
+it into a target's `settings.json`.
 
-> **The rule (do not break it):** never install a hook tied to a stack you didn't confirm.
-> A Gradle timeout hook in a Node repo, a pytest guard in a Go repo — these misfire and
-> erode trust. If a protection would need to know the stack, it doesn't belong here; it
-> belongs in the repo's own config, added by the user.
+> **The rule (do not break it):** never ship a hook tied to a stack you didn't confirm. A
+> build-tool timeout hook in the wrong repo misfires and erodes trust. These hooks reason only
+> about git and worktrees, never a language or build tool.
 
-## What gets installed
+## The guard
 
-1. **`worktree-guard.sh`** — a `PreToolUse(Bash)` guard that:
-   - refuses destructive working-tree git (`checkout` / `switch` / `restore` / `clean` /
-     `stash`, and `reset --hard|--keep|--merge`) so a run can't wipe another phase's or a
-     sibling worktree's uncommitted work — the develop flow is read-only git by design;
-   - refuses mutating git (`commit` / `push` / `merge` / `rebase`) while on `main`/`master`
-     or a detached HEAD — feature work belongs on a worktree branch (recovery forms like
-     `--abort`/`--continue` are allowed).
-   Matching is anchored to command position and accounts for git global flags (`-C`,
-   `--git-dir`, `--work-tree`), so `git -C <dir> reset --hard` is caught while `echo "git
-   commit"` is not. Exits `2` with a reason to block, `0` to allow. Zero stack knowledge.
+`worktree-guard.sh` is a `PreToolUse(Bash)` guard that:
+- refuses destructive working-tree git (`checkout` / `switch` / `restore` / `clean` / `stash`,
+  and `reset --hard|--keep|--merge`) so a run can't wipe another phase's or a sibling worktree's
+  uncommitted work — the develop flow is read-only git by design;
+- refuses mutating git (`commit` / `push` / `merge` / `rebase`) while on `main`/`master` or a
+  detached HEAD — feature work belongs on a worktree branch (`--abort`/`--continue` are allowed).
 
-2. **A generic command timeout** — set via env in `settings.json`
-   (`BASH_DEFAULT_TIMEOUT_MS` / `BASH_MAX_TIMEOUT_MS`): a wall-clock bound on *any* command,
-   so a hung command can't stall a run forever. Generic by construction — it knows nothing
-   about your build tool.
+Matching is anchored to command position and accounts for git global flags (`-C`, `--git-dir`,
+`--work-tree`), so `git -C <dir> reset --hard` is caught while `echo "git commit"` is not. Exits
+`2` to block, `0` to allow. Zero stack knowledge.
 
-## How init installs them (idempotent, non-destructive)
+Because it auto-loads in **every** project, the guard **self-gates**: it enforces only when it
+resolves a `.claude/develop.config.json` at the main checkout (via `git --git-common-dir`, so it
+works from inside a worktree too) and fail-opens everywhere else. The self-gate rule and its
+mechanics live in `worktree-guard.sh` itself; this is only a pointer.
 
-- Copy `worktree-guard.sh` → `.claude/hooks/worktree-guard.sh` and `chmod +x` it.
-- **Merge** the `hooks` and `env` blocks from `hooks.json` into `.claude/settings.json` —
-  never overwrite. If the user already has a `PreToolUse(Bash)` hook, append to its list; if
-  they already set a bash timeout, leave theirs. Show the diff before writing
-  ([../references/idempotency.md](../references/idempotency.md)).
+## The command timeout (init Phase 4)
 
-## When the host blocks the `settings.json` edit
+Plugin `env` does not auto-apply, so init merges a generic command timeout
+(`BASH_DEFAULT_TIMEOUT_MS` / `BASH_MAX_TIMEOUT_MS`, from `hooks.json`) into the target's
+`.claude/settings.json` — idempotent (present ⇒ keep the user's value; absent ⇒ add). This is
+init's **only** `settings.json` write now. It is a wall-clock bound on any command, generic by
+construction.
 
-Some hosts (Claude Code auto/background mode) run a self-modification guard that **denies**
-editing `.claude/settings.json` when it contains a `permissions`/`hooks` block. The hook
-*script* still installs into `.claude/hooks/`, but the merge is rejected, so the guard would be
-left **inert**. Never accept that silently. On a denied write, init must:
-
-1. Confirm the script is in place: `.claude/hooks/worktree-guard.sh` (and `chmod +x`).
-2. **Emit the exact merge for the user to paste** into `.claude/settings.json` — the `env` block
-   and the `PreToolUse(Bash)` entry from this directory's `hooks.json`, verbatim, with a one-line
-   note to append (not replace) any existing `PreToolUse(Bash)` list.
-3. Report it in the Phase 5 summary as a **required manual step** (`hook: installed; settings
-   merge needs manual paste — denied by host`), so the user knows the guard is not yet active.
-
-A copied-but-unwired guard is worse than none; treat the denial as a reported manual step, never
-a clean pass.
+When the host **denies** the `settings.json` edit (self-modification guard), init must **emit
+only the `env` snippet** for the user to paste and report it as a required manual step — it must
+**never** re-emit a project-local guard copy (the guard is plugin-managed; re-emitting a copy
+reintroduces the deleted fail-open bug).
 
 ## Testing the guard
 
 ```sh
-echo '{"tool_input":{"command":"git reset --hard HEAD~1"}}' | .claude/hooks/worktree-guard.sh; echo "exit=$?"
-# → blocked, exit=2
-echo '{"tool_input":{"command":"git status"}}' | .claude/hooks/worktree-guard.sh; echo "exit=$?"
-# → allowed, exit=0
+echo '{"tool_input":{"command":"git reset --hard HEAD~1"}}' | ${CLAUDE_PLUGIN_ROOT}/hooks/worktree-guard.sh; echo "exit=$?"
+# in a develop-managed repo -> blocked, exit=2 ; in any other repo -> allowed, exit=0 (self-gated)
 ```

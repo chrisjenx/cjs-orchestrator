@@ -1,5 +1,5 @@
 {
-  "//": "Safe, stack-agnostic hook config. /develop:init copies worktree-guard.sh into the target's .claude/hooks/ and MERGES this block into .claude/settings.json (it does not overwrite existing hooks). The generic command timeout is set via env, not a per-stack hook.",
+  "//": "Auto-loaded plugin hook. worktree-guard.sh self-gates to develop-managed repos and is inert elsewhere (see README.md). Plugin env does NOT auto-apply — /develop:init merges the bash timeout below into the target's .claude/settings.json (init Phase 4); it stays here as the source for that merge and the manual-paste fallback.",
   "env": {
     "BASH_DEFAULT_TIMEOUT_MS": "120000",
     "BASH_MAX_TIMEOUT_MS": "600000"
@@ -11,7 +11,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/worktree-guard.sh",
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/worktree-guard.sh",
             "timeout": 10
           }
         ]
