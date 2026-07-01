@@ -31,7 +31,7 @@ try: print((json.load(sys.stdin).get("tool_input") or {}).get("command",""))
 except Exception: pass' 2>/dev/null)
 fi
 if [ -z "$cmd" ]; then
-  cmd=$(printf '%s' "$input" | sed -n 's/.*"command"[[:space:]]*:[[:space:]]*"\(.*\)".*/\1/p' | head -n1)
+  cmd=$(printf '%s' "$input" | sed -n 's/.*"command" *: *"\(.*\)".*/\1/p' | head -n1)
 fi
 [ -z "$cmd" ] && exit 0
 

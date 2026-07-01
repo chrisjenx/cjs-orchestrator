@@ -234,6 +234,42 @@ def check_status_contract(problems):
     problems.extend(status_contract_problems(*reads))
 
 
+BASHISM_PATTERNS = [
+    (r"\[\[", "[[ ]] test — use POSIX [ ]"),
+    (r"<<<", "<<< here-string — use a heredoc"),
+    (r"\$\(\(\s*10#", "$((10#...)) base prefix — not POSIX"),
+    (r"\bdeclare\s+-[aA]\b", "declare -a/-A array — not POSIX"),
+    (r"^\s*local\s", "local — not POSIX"),
+    (r"echo\s+-e\b", "echo -e — use printf"),
+]
+
+
+def shell_bashisms(text):
+    """Return [(lineno, why)] for POSIX-sh violations in shell source. Comment lines are skipped
+    so a forbidden token mentioned in prose (e.g. 'no <<< here-strings') is not a false positive.
+    Pure — selftestable on in-memory strings."""
+    out = []
+    for i, line in enumerate(text.splitlines(), 1):
+        if line.lstrip().startswith("#"):
+            continue
+        for rx, why in BASHISM_PATTERNS:
+            if re.search(rx, line):
+                out.append((i, why))
+    return out
+
+
+def check_bashisms(problems):
+    for path in sorted(glob.glob(os.path.join(ROOT, "plugins/develop/**/*.sh"), recursive=True)):
+        rel = os.path.relpath(path, ROOT)
+        try:
+            text = open(path, encoding="utf-8").read()
+        except Exception as e:  # noqa: BLE001
+            problems.append(f"{rel}: {e}")
+            continue
+        for lineno, why in shell_bashisms(text):
+            problems.append(f"{rel}:{lineno}: bashism — {why}")
+
+
 def main() -> int:
     problems = []
 
@@ -276,6 +312,9 @@ def main() -> int:
 
     # 7) Executor STATUS contract is coherent across both copies + schemas.md.
     check_status_contract(problems)
+
+    # 8) All shipped POSIX sh scripts are free of bashisms (determinism constraint).
+    check_bashisms(problems)
 
     if problems:
         print("manifest validation FAILED:")
@@ -381,6 +420,15 @@ def selftest() -> int:
     digit_schemas = "## ESCALATION reason\n\n- `context` — a\n- `tier2` — b\n\n## Next\n"
     expect(not status_contract_problems(digit_ex, digit_ex, digit_schemas),
            "a reason with a digit must be extracted, not dropped")
+
+    # bashism lint
+    expect(not shell_bashisms('#!/usr/bin/env sh\nx=1\n[ "$x" = 1 ] && printf ok\n'),
+           "clean POSIX sh should pass the bashism lint")
+    for bad in ('read x <<<"$y"', 'if [[ $x = y ]]; then :; fi', 'local z=1',
+                'echo -e "x\\n"', 'n=$((10#$x))', 'declare -a arr'):
+        expect(shell_bashisms(bad), f"bashism should be caught: {bad!r}")
+    expect(not shell_bashisms("# prose mentioning <<< and [[ and local must not trip the lint\n"),
+           "forbidden tokens inside a comment must not be flagged")
 
     if fails:
         print("validate-manifests selftest FAILED:")
