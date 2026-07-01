@@ -31,5 +31,6 @@ Everything the plugin ships loads on **every run, for every user, forever** — 
 
 - **`docs/`** — after any change, verify it loads with **zero JS errors** before committing.
 - **Manifests** — `marketplace.json` + `plugin.json` must be schema-valid JSON; layout per the plugin spec (components at plugin root, only `plugin.json` in `.claude-plugin/`).
+- **Releasing** — follow [RELEASING.md](RELEASING.md); `scripts/install-smoke.sh` (real `claude plugin` install of the working tree, isolated) is a required pre-tag gate for any manifest/skill/agent change.
 - **"Discover, don't transplant"** — the bootstrapper fits `/develop` to the target repo's real commands, never copies a finished system. Keep new content aligned.
 - Backlog: GitHub issues (labels `mvp`, `area:plugin`, `area:docs`, `area:infra`).

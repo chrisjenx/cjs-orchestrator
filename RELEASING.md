@@ -28,6 +28,7 @@ How a release of the `develop` plugin is cut, and the version policy.
    claude plugin validate plugins/develop                   # manifest + every agent/skill
    python3 scripts/validate-manifests.py
    python3 scripts/check-install.py
+   scripts/install-smoke.sh                                 # live: really installs THIS tree
    python3 scripts/check-docs-subpath.py
    python3 scripts/check-docs-leaks.py
    for f in docs/*.js; do node --check "$f"; done
@@ -35,6 +36,13 @@ How a release of the `develop` plugin is cut, and the version policy.
    `validate-manifests.py` mirrors the validator's source-shape, `agents`-field, and
    frontmatter-parse checks in CI; `claude plugin validate` is the source of truth when cutting
    locally (it caught the gh #30 install break that plain JSON validation missed).
+
+   **`install-smoke.sh` is required for any release that touches the manifests, skills, or
+   agents.** It drives a real `claude plugin marketplace add` + `install` of the working tree in
+   an isolated throwaway config and asserts the plugin resolves at plugin.json's version with all
+   skills, agents, and the guard hook — the gh #30 class (valid JSON, un-installable) that the
+   structural checks miss. Needs the `claude` CLI (exits 2 = skip if absent, e.g. in CI). It does
+   not cover the interactive trigger (see After release).
 2. **Bump the version** in `plugins/develop/.claude-plugin/plugin.json`.
 3. **Update `CHANGELOG.md`:** move `[Unreleased]` items into a new dated version section,
    add a fresh empty `[Unreleased]`, and update the compare/tag links at the bottom.
@@ -50,5 +58,8 @@ How a release of the `develop` plugin is cut, and the version policy.
 
 - Users get the update via `/plugin install develop@cjs-orchestrator` (or Claude Code's
   update prompt, driven by the bumped `version`).
-- Run the [install e2e](evals/install-e2e.md) in a scratch repo for any release that touches
-  the manifests, skills, or agents.
+- The pre-release green check already ran `scripts/install-smoke.sh` (automated install). The
+  part it can't automate is the interactive last mile: in a scratch Claude Code session, type
+  `/develop:init` and confirm it triggers and degrades gracefully in an empty repo
+  ([install e2e](evals/install-e2e.md)). Do this for any release touching manifests, skills, or
+  agents.
