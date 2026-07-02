@@ -14,3 +14,6 @@ npm-debug.log*
 # Python bytecode
 __pycache__/
 *.pyc
+
+# direnv / nix local env
+.direnv/
