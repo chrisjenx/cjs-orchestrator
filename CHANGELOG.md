@@ -30,8 +30,9 @@ config schema change.
 
 ### Notes
 - **No re-init required.** Runs read the shipped references, so both changes apply on plugin
-  update. A re-run of `/develop:init` offers (does not force) the two new anchor rows for the
-  repo's human-curated develop-flywheel.md (see references/migrations.md).
+  update. The repo's human-curated develop-flywheel.md is left untouched (its promoted-anchors
+  table is edited only by `/develop:flywheel`, never by init); a re-run just re-stamps the
+  version (see references/migrations.md).
 
 ## [0.7.1] - 2026-07-01
 

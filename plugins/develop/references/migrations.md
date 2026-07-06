@@ -11,12 +11,13 @@ treat as `0.6.0` (oldest migratable)** — runs every entry newer than the recor
 stamps `pluginVersion` to current. A release that changes nothing init writes still gets a
 one-line `no migration` entry below so the version is accounted for.
 
-## v0.7.2 — offer the two new default anchors
+## v0.7.2 — no migration
 
-The stack-neutral starting contract grew to eight ([flywheel.md](./flywheel.md)); runs pick the
-new anchors up from the shipped reference on plugin update, no action needed. On re-run, *offer*
-to append the two rows to `.claude/develop-flywheel.md`'s promoted-anchors table (show the diff;
-the file is human-curated — skip on decline). Nothing else init writes changed.
+The stack-neutral starting contract grew to eight ([flywheel.md](./flywheel.md)); `/develop:run`
+reads the anchors from the shipped reference, so existing repos pick them up on plugin update with
+no init action. The repo's human-curated `.claude/develop-flywheel.md` is left untouched — its
+promoted-anchors table is only ever edited by `/develop:flywheel` on approval, never by init
+([idempotency.md](./idempotency.md)). A re-run only re-stamps `pluginVersion`.
 
 ## v0.7.1 — no migration
 
