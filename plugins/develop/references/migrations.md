@@ -11,9 +11,16 @@ treat as `0.6.0` (oldest migratable)** — runs every entry newer than the recor
 stamps `pluginVersion` to current. A release that changes nothing init writes still gets a
 one-line `no migration` entry below so the version is accounted for.
 
+## v0.8.0 — the run skill is now `/develop:work` (breaking)
+
+`/develop:run` was renamed to `/develop:work`; the old invocation no longer works. Nothing init writes into `.claude/` is keyed on the command name, so
+a re-run just re-stamps `pluginVersion`. **Flag, don't auto-edit:** the target repo's
+`CLAUDE.md` (user-managed prose — [idempotency.md](./idempotency.md)) or any local scripts may
+still say `/develop:run`; tell the user to update those to `/develop:work` by hand.
+
 ## v0.7.2 — no migration
 
-The stack-neutral starting contract grew to eight ([flywheel.md](./flywheel.md)); `/develop:run`
+The stack-neutral starting contract grew to eight ([flywheel.md](./flywheel.md)); `/develop:work`
 reads the anchors from the shipped reference, so existing repos pick them up on plugin update with
 no init action. The repo's human-curated `.claude/develop-flywheel.md` is left untouched — its
 promoted-anchors table is only ever edited by `/develop:flywheel` on approval, never by init

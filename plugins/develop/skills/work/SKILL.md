@@ -1,6 +1,6 @@
 ---
-name: run
-description: Run the fitted /develop orchestration loop for THIS repo — turn a spec, ticket, or rough idea into a reviewed, committed branch. Trigger on "/develop:run", "develop this", "run the develop flow", "spec to branch", or handing this skill a spec/ticket/description. Requires /develop:init to have written .claude/develop.config.json. Walks a per-feature plan file, dispatches one executor per phase, and runs a fixed quality tail wired to the repo's real gates. Static loop; behaviour is fitted because it reads the repo's discovered definitions.
+name: work
+description: Run the fitted /develop orchestration loop for THIS repo — turn a spec, ticket, or rough idea into a reviewed, committed branch. Trigger on "/develop:work", "develop this", "run the develop flow", "spec to branch", or handing this skill a spec/ticket/description. Requires /develop:init to have written .claude/develop.config.json. Walks a per-feature plan file, dispatches one executor per phase, and runs a fixed quality tail wired to the repo's real gates. Static loop; behaviour is fitted because it reads the repo's discovered definitions.
 ---
 
 # Run the `/develop` loop
@@ -154,7 +154,7 @@ finalize result — never from prose:
 | `planning-failed` | no code written (plan missing `### P` nodes) |
 
 Report status, the commit SHA, open findings, and escalations. **Never push and never open a
-PR** — `/develop:run` hands off a committed branch; the user (or a separate push/PR flow)
+PR** — `/develop:work` hands off a committed branch; the user (or a separate push/PR flow)
 takes it from there.
 _say:_ the final line is the mechanical status — `✓ committed <sha> · ready` (or
 `⚠ … · ready-with-escalations`, `✗ … · committed-with-failures` / `commit-failed` /

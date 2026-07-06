@@ -18,7 +18,7 @@ Run both halves in a disposable worktree so nothing touches the user's tree.
 
 ### A. Positive run — gates execute
 - Make a **trivial, safe** change (e.g. a comment, or a tiny passing test).
-- Run `/develop:run` on it.
+- Run `/develop:work` on it.
 - Confirm it walks to `PF` and the heavy gates **actually ran** — capture the real command
   lines and their exit status as evidence (not "the agent said it built").
 - Confirm the **guard blocks destructive git when invoked from inside** `.claude/worktrees/<feature>`
@@ -35,7 +35,7 @@ Run both halves in a disposable worktree so nothing touches the user's tree.
   - a `test` gate → add a test that asserts `false`;
   - else a `lint`/`format`/`types` gate → introduce one obvious violation;
   - else a `build` gate → introduce a syntax error in a throwaway file.
-- Run `/develop:run` again.
+- Run `/develop:work` again.
 - **Confirm the flow refuses to land it:** `PF` blocks the commit and the terminal status is
   `committed-with-failures` (or the commit is withheld) — never `ready`. If a deliberately
   broken gate produces a clean `ready`, the gate is **not wired** — fix the config/tail and

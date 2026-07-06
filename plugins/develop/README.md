@@ -10,7 +10,7 @@
 /plugin marketplace add chrisjenx/cjs-orchestrator
 /plugin install develop@cjs-orchestrator
 /develop:init     # once: discover + scaffold
-/develop:run      # repeatedly: spec → committed branch
+/develop:work      # repeatedly: spec → committed branch
 /develop:flywheel # periodically: tune the flow from its postmortems
 ```
 
@@ -19,7 +19,7 @@
 The plugin ships **static, portable skills**; per-project behaviour comes from **definitions the skills discover**, not from a bespoke flow generated per repo. Its **first principle is token frugality**: every shipped token is paid on every run, so the prose is kept tight by design (`references/token-frugality.md`).
 
 - **`skills/init`** (`/develop:init`) detects the stack, discovers the repo's real gate commands, and writes the definitions into `.claude/` (`develop.config.json`, `develop-routing.json`, a starter `CLAUDE.md`, safe hooks, a flywheel doc). It never transplants a finished system.
-- **`skills/run`** (`/develop:run`) is the portable orchestrator loop. It reads those definitions and walks a per-feature plan file it creates at runtime: static in the plugin, fitted to your repo at run time.
+- **`skills/work`** (`/develop:work`) is the portable orchestrator loop. It reads those definitions and walks a per-feature plan file it creates at runtime: static in the plugin, fitted to your repo at run time.
 - **`skills/flywheel`** (`/develop:flywheel`) is the manual tuner. It reads accumulated postmortems, flags recurring or breaking findings, and proposes the cheapest remediation lever and target for each (human-gated).
 - **`references/`** hold the portable, stack-neutral mechanism the loop relies on (plan anatomy, executor brief, gate tokens, flywheel).
 - **`agents/`** are stack-agnostic subagents referenced by name from `develop-routing.json` (not copied per repo): `planner`, `executor`, the diff-reading auditors (`completeness` / `stubs` / `regression`), `general-quality-reviewer`, `code-reviewer`, `tidy`, `refuter`. They read diffs and rules, not build systems, so they travel across stacks. The flow **reuses these first** and defers building anything missing to a workflow (`references/reuse-and-defer.md`).

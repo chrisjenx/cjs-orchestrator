@@ -9,7 +9,7 @@
 - **Lint / format:** `<lint command>` · `<format-check command>`
 - **Type-check:** `<type-check command>`
 
-These are the gates `/develop:run` enforces; the machine-readable source is
+These are the gates `/develop:work` enforces; the machine-readable source is
 `.claude/develop.config.json`.
 
 ## Layout
@@ -23,6 +23,6 @@ These are the gates `/develop:run` enforces; the machine-readable source is
 
 ## Orchestration
 
-This repo uses the `develop` plugin. Run `/develop:run <spec | ticket | idea>` to take a
+This repo uses the `develop` plugin. Run `/develop:work <spec | ticket | idea>` to take a
 change from spec to a reviewed, committed branch. Config: `.claude/develop.config.json`.
 Re-run `/develop:init` to refresh discovered settings.

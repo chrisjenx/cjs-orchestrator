@@ -90,7 +90,7 @@ repeating — they are exactly the specialists/forks that earned their place.
 
 ## planwork-sync — keep the contract and the plan in sync, both directions
 
-- **Plan ← contract (every run, automatic):** when `/develop:run` builds the plan, it reads
+- **Plan ← contract (every run, automatic):** when `/develop:work` builds the plan, it reads
   the contract anchors and folds them into the Requirements Inventory and node gate tokens.
   The planner can't omit a contract anchor; that's the "satisfy by construction" half.
 - **Contract ← runs (periodic, human-gated):** `PF` runs the **contract-gaps classifier**

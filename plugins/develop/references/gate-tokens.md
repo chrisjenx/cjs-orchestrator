@@ -2,7 +2,7 @@
 
 `/develop:init` Phase 2. A **gate** is a check that clears *only because a command ran and
 produced evidence* — never because an agent "felt done." Below: how to discover gates from
-the repo and how `/develop:run` references them.
+the repo and how `/develop:work` references them.
 
 > The single most important step: extract the **actual commands** that define "correct" in
 > this repo — the ones CI runs — and make each one a token a plan node can carry.
@@ -55,7 +55,7 @@ Each gate stores **both** a `command` (whole-repo) and, where the tool supports 
   every phase. They give fast local signal.
 - **heavy** — whole-repo and slow: full build, full test suite, multi-module `check`,
   whole-repo coverage. These are **deferred** to the final gate (`PF`) — the executor
-  annotates them `DEFERRED-PF` and moves on; `/develop:run`'s finalize phase runs them
+  annotates them `DEFERRED-PF` and moves on; `/develop:work`'s finalize phase runs them
   locally and blocks the commit until they pass. See [quality-tail.md](./quality-tail.md).
 
 Default tiering when unsure: `lint`, `types`, `format`, and *scoped* `build`/`test` are

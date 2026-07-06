@@ -1,6 +1,6 @@
 # Executor brief — the per-phase context the orchestrator renders
 
-`/develop:run` dispatches the [`executor`](../agents/executor.md) agent **once per phase**
+`/develop:work` dispatches the [`executor`](../agents/executor.md) agent **once per phase**
 with a brief built from the plan + config. The brief is the *only* context the executor
 gets — keep it tight (aim < ~1000 tokens). Inline **excerpts**, never the whole plan.
 

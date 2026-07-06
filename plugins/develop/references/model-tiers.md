@@ -46,7 +46,7 @@ and the writer/reviewer separation*, not specific version strings.
 
 ## Overriding
 
-- **Per repo:** edit `models` in `develop.config.json`. `/develop:run` reads it every run, so
+- **Per repo:** edit `models` in `develop.config.json`. `/develop:work` reads it every run, so
   changes take effect immediately.
 - **Per run:** the orchestrator's Assess step may bump a tier for a high-risk change (e.g.
   plan at `top`, or raise the executor to `top` for a gnarly slice). Keep this rare and

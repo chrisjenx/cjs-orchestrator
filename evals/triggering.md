@@ -1,6 +1,6 @@
 # Triggering matrix
 
-`/develop:init` and `/develop:run` must fire on the right intents and stay quiet on unrelated
+`/develop:init` and `/develop:work` must fire on the right intents and stay quiet on unrelated
 ones. Run each phrase with a fresh agent that has the plugin installed; record whether the
 expected skill activated.
 
@@ -20,16 +20,16 @@ expected skill activated.
 - "develop a new feature for X" (this is run-flow / plain work, not bootstrap)
 - "git init" (unrelated tooling)
 
-## `/develop:run` — SHOULD trigger
+## `/develop:work` — SHOULD trigger
 
-- "/develop:run add pagination to the list endpoint"
+- "/develop:work add pagination to the list endpoint"
 - "develop this ticket: <url>"
 - "run the develop flow on this spec"
 - "take this spec to a committed branch"
 
-## `/develop:run` — should NOT trigger
+## `/develop:work` — should NOT trigger
 
-- "how does /develop:run work?" (a question)
+- "how does /develop:work work?" (a question)
 - "set up the develop flow" (that's init)
 - "push my branch and open a PR" (run never pushes; this is a different flow)
 

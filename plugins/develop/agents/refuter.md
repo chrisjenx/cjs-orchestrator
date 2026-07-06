@@ -1,6 +1,6 @@
 ---
 name: refuter
-description: "Adversarial verifier for /develop:run's opt-in verify-by-forking. Given a single claim (a finding is real, a requirement is satisfied, a gate genuinely passed) and an optional lens, it tries its hardest to REFUTE the claim from evidence and defaults to refuted when uncertain. Forked N-up; the orchestrator takes the majority. Stack-agnostic; read-only; returns one REFUTER_VERDICT."
+description: "Adversarial verifier for /develop:work's opt-in verify-by-forking. Given a single claim (a finding is real, a requirement is satisfied, a gate genuinely passed) and an optional lens, it tries its hardest to REFUTE the claim from evidence and defaults to refuted when uncertain. Forked N-up; the orchestrator takes the majority. Stack-agnostic; read-only; returns one REFUTER_VERDICT."
 tools: ["Read", "Grep", "Glob", "Bash"]
 effort: high
 ---

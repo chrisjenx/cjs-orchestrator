@@ -50,7 +50,7 @@
     <li><strong>Add the marketplace</strong><br><code>/plugin marketplace add chrisjenx/cjs-orchestrator</code></li>
     <li><strong>Install the plugin</strong><br><code>/plugin install develop@cjs-orchestrator</code></li>
     <li><strong>Scaffold your flow</strong><br><code>/develop:init</code> detects your stack, confirms your real gate commands with you, and writes the per-repo definitions plus safe hooks into <code>.claude/</code>.</li>
-    <li><strong>Use it</strong><br><code>/develop:run &lt;spec | ticket | idea&gt;</code> per change, and <code>/develop:flywheel</code> periodically to tune the flow from its postmortems.</li>
+    <li><strong>Use it</strong><br><code>/develop:work &lt;spec | ticket | idea&gt;</code> per change, and <code>/develop:flywheel</code> periodically to tune the flow from its postmortems.</li>
   </ol>
   <p class="section-lead">Nothing is transplanted: <code>/develop:init</code> reads <em>this</em> repo's commands and conventions and grows from a minimal core. Re-run it any time to refresh discovery: it reconciles, it doesn't clobber.</p>
 </section>
@@ -67,7 +67,7 @@
       <div class="eg">run when you set up, or to refresh discovery</div>
     </div>
     <div class="trio-card orch">
-      <h3><span class="trio-tag">per feature</span> /develop:run</h3>
+      <h3><span class="trio-tag">per feature</span> /develop:work</h3>
       <p>The orchestrator loop. Plans, works in an isolated worktree, dispatches one executor per phase, then runs a fixed quality tail (validate → audit → tidy → finalize) wired to <em>your</em> gates. Blocks the commit until they pass; hands off a branch (never pushes).</p>
       <div class="eg">run per change: spec, ticket, or rough idea</div>
     </div>
@@ -121,7 +121,7 @@
     <div class="split-card">
       <h3 class="sub-h">Bundled in the plugin (not copied)</h3>
       <ul class="checklist tight">
-        <li><strong>skills</strong>: <code>/develop:init</code>, <code>/develop:run</code>, <code>/develop:flywheel</code></li>
+        <li><strong>skills</strong>: <code>/develop:init</code>, <code>/develop:work</code>, <code>/develop:flywheel</code></li>
         <li><strong>agents</strong>: planner, executor, the diff-reading auditors, code-reviewer, tidy, refuter</li>
         <li><strong>references</strong>: the portable mechanism (plan anatomy, gate tokens, the quality tail, the flywheel)</li>
       </ul>
@@ -136,7 +136,7 @@
   <h2>The loop that tightens itself</h2>
   <p class="section-lead">Reuse first, defer creation to workflows: the flow prefers the skills/agents/rules you already have, and when something's missing it proposes building it, rather than quietly hand-rolling one-off helpers.</p>
   <ol class="ship-steps">
-    <li><strong>Run a feature.</strong> <code>/develop:run</code> plans, builds, and runs the quality tail. The finalize phase logs a postmortem: what escaped, classified preventable vs irreducible.</li>
+    <li><strong>Run a feature.</strong> <code>/develop:work</code> plans, builds, and runs the quality tail. The finalize phase logs a postmortem: what escaped, classified preventable vs irreducible.</li>
     <li><strong>Tune periodically.</strong> <code>/develop:flywheel</code> reads the postmortems, and for each recurring (or breaking-class) escape proposes the cheapest lever: a hook, gate, rule, anchor, or a new or pruned reviewer.</li>
     <li><strong>You approve; it applies.</strong> Simple deterministic levers are edited directly; building or improving an agent/skill/rule is deferred to a focused workflow. Nothing edits <code>.claude/</code> without you.</li>
     <li><strong>Next run is stronger.</strong> The new checks are enforced by construction, so that defect class stops escaping. Preventable findings trend toward zero; the irreducible floor stays.</li>

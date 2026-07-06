@@ -1,6 +1,6 @@
 ---
 name: general-quality-reviewer
-description: "Fresh-eyes general-quality reviewer for /develop:run's PA/PT phases. Reads the branch diff with no prior context and catches \"compiles but obviously wrong\" defects — inverted conditions, swapped/wrong arguments, off-by-one, copy-paste bugs, swallowed errors, unclosed resources, obvious security smells. Stack-agnostic: reasons about code logic, not a build tool. Read-only; reports FINDINGS, never edits."
+description: "Fresh-eyes general-quality reviewer for /develop:work's PA/PT phases. Reads the branch diff with no prior context and catches \"compiles but obviously wrong\" defects — inverted conditions, swapped/wrong arguments, off-by-one, copy-paste bugs, swallowed errors, unclosed resources, obvious security smells. Stack-agnostic: reasons about code logic, not a build tool. Read-only; reports FINDINGS, never edits."
 tools: ["Read", "Grep", "Glob", "Bash"]
 effort: high
 ---

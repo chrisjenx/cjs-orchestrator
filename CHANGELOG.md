@@ -7,6 +7,25 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-06
+
+Breaking: the run skill is renamed. This reverses the 2026-06-17 "public names locked" decision
+for one name (see DECISIONS.md), taken now while the user base is still small.
+
+### Changed
+- **`/develop:run` is now `/develop:work`** (BREAKING, no alias). The old invocation stops
+  working. `run` read ambiguously against "running the application"; `work` names the action
+  (turn a spec into a reviewed, committed branch) without over-claiming a push. The command trio
+  is now `/develop:init`, `/develop:work`, `/develop:flywheel`. The skill directory moved to
+  `plugins/develop/skills/work/`. The common noun "run" (a single execution of the flow) is
+  unchanged; only the command name moved.
+
+### Migration
+- Re-run `/develop:init` to re-stamp `pluginVersion`; nothing it writes is keyed on the command
+  name. Update any `/develop:run` references in your repo's CLAUDE.md or local scripts to
+  `/develop:work` by hand (init will not rewrite that user-managed prose). See
+  references/migrations.md.
+
 ## [0.7.2] - 2026-07-06
 
 Two plan-completeness improvements from the backlog (#35, #36), both stack-neutral prose. No
@@ -284,7 +303,8 @@ bootstrapper into static, portable skills that read per-repo discovered definiti
 - Marketplace and `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
   genericized explainer site.
 
-[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.8.0
 [0.7.2]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.2
 [0.7.1]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.1
 [0.7.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.0

@@ -1,6 +1,6 @@
 # Run status — the glance-readable phase stream
 
-A `/develop:run` is fire-and-forget, so anyone who *does* drop into the session must read
+A `/develop:work` is fire-and-forget, so anyone who *does* drop into the session must read
 where it's at in one glance. The orchestrator emits **one status line per transition** — a
 marker, the phase, the few facts that matter. Nothing else between phases.
 
@@ -51,7 +51,7 @@ Execution Log.
 ```
 
 The last line is always the mechanical terminal status (table in
-[run/SKILL.md](../skills/run/SKILL.md)): `ready`, `ready-with-escalations`,
+[run/SKILL.md](../skills/work/SKILL.md)): `ready`, `ready-with-escalations`,
 `committed-with-failures`, `commit-failed`, `planning-failed`.
 
 > The status line **replaces** prose narration — it doesn't add to it. Only the orchestrator

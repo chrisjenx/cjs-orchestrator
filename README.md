@@ -30,13 +30,13 @@ Then, in the repo you want to set up:
 
 ```text
 /develop:init     # once: detect your stack, confirm gates, scaffold the config
-/develop:run      # repeatedly: spec → reviewed, committed branch
+/develop:work      # repeatedly: spec → reviewed, committed branch
 /develop:flywheel # periodically: review postmortems, tune the flow for next run
 ```
 
 `/develop:init` detects your stack, confirms the real gate commands with you, and writes
 the repo-specific definitions (gates, conventions, routing, safe hooks) into `.claude/`.
-`/develop:run` is the portable orchestrator loop: it ships **static** in the plugin but
+`/develop:work` is the portable orchestrator loop: it ships **static** in the plugin but
 behaves **fitted to your repo** because it reads those discovered definitions. See
 [DECISIONS.md](DECISIONS.md) for the locked names and architecture.
 
@@ -48,7 +48,7 @@ cjs-orchestrator/
 ├── plugins/develop/                  # the plugin
 │   ├── .claude-plugin/plugin.json
 │   ├── skills/init/SKILL.md          # the /develop:init bootstrapper
-│   ├── skills/run/SKILL.md           # the /develop:run orchestrator loop
+│   ├── skills/work/SKILL.md           # the /develop:work orchestrator loop
 │   ├── skills/flywheel/SKILL.md      # the /develop:flywheel tuner
 │   ├── references/                   # portable mechanism (plan anatomy, briefs, gates)
 │   ├── agents/                       # portable, stack-agnostic auditor agents

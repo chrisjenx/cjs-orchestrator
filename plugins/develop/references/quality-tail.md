@@ -3,7 +3,7 @@
 After the domain phases come four fixed phases: **Validate → Audit → Tidy → Finalize**
 (`PV → PA → PT → PF`).
 
-> **The orchestrator appends the tail, not the planner.** `/develop:run` writes `### PV`,
+> **The orchestrator appends the tail, not the planner.** `/develop:work` writes `### PV`,
 > `### PA`, `### PT`, `### PF` into the plan *before* the walk begins. A planner that forgets
 > to verify, or an executor that stops early, can't drop the controls — they're structural
 > nodes the walk must reach. Each depends on the previous, and `PV` depends on all domain
@@ -105,7 +105,7 @@ This is where the repo's **heavy** gates actually run and block the commit:
    ([schemas.md](./schemas.md)). No prose postmortem; `/develop:flywheel` aggregates the JSONL
    later. `develop-flywheel.md` is human-curated, never written from a run.
 5. **Commit** the worktree (no push). Derive the terminal status mechanically from the gate
-   results + finding state (see the table in [run/SKILL.md](../skills/run/SKILL.md)).
+   results + finding state (see the table in [run/SKILL.md](../skills/work/SKILL.md)).
 
 No path commits "green" without the real commands having run and produced evidence — that is
 the whole point of the tail.

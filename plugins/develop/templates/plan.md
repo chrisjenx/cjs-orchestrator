@@ -13,7 +13,7 @@
 ### P1 — <description> [depends: ] [status: PENDING] [loop: max 2, commit_on_green]
 - P1.a <action> [agent: executor] [status: PENDING] {build} {test:<selector>}
 
-<!-- quality tail — appended by /develop:run before the walk; do not let the planner emit these -->
+<!-- quality tail — appended by /develop:work before the walk; do not let the planner emit these -->
 ### PV — Validate [depends: P1] [status: PENDING]
 ### PA — Audit [depends: PV] [status: PENDING]
 ### PT — Tidy [depends: PA] [status: PENDING]

@@ -1,6 +1,6 @@
 # Plan anatomy — the plan file IS the system of record
 
-`/develop:run` keeps **all** durable state in one markdown file per feature:
+`/develop:work` keeps **all** durable state in one markdown file per feature:
 `<featureDir>/<feature>.plan.md` (default `.develop/<feature>.plan.md`). Context is
 volatile; the plan is not. Everything needed to resume after a crash is in this file — the
 orchestrator holds only "which phase am I on" in working memory.
@@ -100,7 +100,7 @@ from the journals — never read back as source of truth.
 
 ## Crash-resume contract
 
-Re-invoking `/develop:run` on an existing plan:
+Re-invoking `/develop:work` on an existing plan:
 1. Read the plan.
 2. Skip every `DONE` phase.
 3. Re-enter the **first** `IN_PROGRESS` phase. Its executor must **reconcile, not

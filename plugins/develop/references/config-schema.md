@@ -1,6 +1,6 @@
 # `develop.config.json` — the discovered, per-repo definitions
 
-Written by `/develop:init` into `.claude/develop.config.json`. Read by `/develop:run` at
+Written by `/develop:init` into `.claude/develop.config.json`. Read by `/develop:work` at
 the start of every run. This is the file that makes a *static* loop behave *fitted* to the
 repo. Keep it small and human-editable; the user owns it.
 
@@ -57,7 +57,7 @@ repo. Keep it small and human-editable; the user owns it.
 | `gates[].scopedCommand` | init | **Optional** template for the cheap inline run; placeholders `{files}`, `{pkg}`, `{selector}`. **Omit it when no uniform per-module command exists** (some multi-target build tools expose per-target task names with no single per-module compile task) — fall back to the whole-repo `command`, or to a per-module umbrella task that is valid everywhere. |
 | `gates[].fresh` | init | `true` for test gates that must force a non-cached run. |
 | `gates[].threshold` | init | For `coverage` gates: minimum diff coverage %. |
-| `models` | init / [model-tiers.md](./model-tiers.md) | The cheap/mid/top model ids `/develop:run` dispatches with. |
+| `models` | init / [model-tiers.md](./model-tiers.md) | The cheap/mid/top model ids `/develop:work` dispatches with. |
 | `caps` | init / run | Loop bounds: validator rounds, audit rounds, fork rounds, between-phase gate rounds. |
 | `intensity` | [verify-by-forking.md](./verify-by-forking.md) | `refuters` and `planCandidates` counts. `1` = lean default (no forking). |
 | `routingFile` | init | Path to the routing table ([routing.md](./routing.md)). |
@@ -66,11 +66,11 @@ repo. Keep it small and human-editable; the user owns it.
 ## Rules
 
 - **Only commands the user confirmed go in `gates`.** No invented commands.
-- The config is the contract between `/develop:init` (writer) and `/develop:run` (reader).
+- The config is the contract between `/develop:init` (writer) and `/develop:work` (reader).
   A *command-gate* token on a plan node with no matching `gates[].id`/`kind` — **or a bare
   `{kind}` when several gates share that kind** (disambiguate with `{kind:id}`) — is a planner
   error; `{grep:<id>}` anchors self-resolve ([gate-tokens.md](./gate-tokens.md)).
 - Defaults shown for `models`, `caps`, `intensity` are the lean starting point; the user
-  edits them. `/develop:run` reads them every run, so edits take effect immediately.
+  edits them. `/develop:work` reads them every run, so edits take effect immediately.
 - On a re-run, `/develop:init` reconciles this file rather than overwriting it (see
   [idempotency.md](./idempotency.md)).

@@ -4,10 +4,10 @@ A **public** Claude Code plugin marketplace + the `develop` plugin + an interact
 
 - Marketplace: `.claude-plugin/marketplace.json`
 - Plugin: `plugins/develop/` (manifest in its `.claude-plugin/plugin.json`)
-- Skills → commands: `skills/init` → `/develop:init`, `skills/run` → `/develop:run`, `skills/flywheel` → `/develop:flywheel`
+- Skills → commands: `skills/init` → `/develop:init`, `skills/work` → `/develop:work`, `skills/flywheel` → `/develop:flywheel`
 - Explainer: `docs/` — no-build static site (HTML + CSS + vanilla JS)
 
-**Locked architecture ([DECISIONS.md](DECISIONS.md)):** the plugin ships *static, portable skills*; per-project behaviour comes from *definitions `/develop:init` writes* into the target's `.claude/` (`develop.config.json`, `develop-routing.json`, starter `CLAUDE.md`, hooks, flywheel). `/develop:run` is the static orchestrator that reads them. Mechanism → `plugins/develop/references/`; stack-agnostic auditors → `plugins/develop/agents/`. **Names are locked — don't rename.**
+**Locked architecture ([DECISIONS.md](DECISIONS.md)):** the plugin ships *static, portable skills*; per-project behaviour comes from *definitions `/develop:init` writes* into the target's `.claude/` (`develop.config.json`, `develop-routing.json`, starter `CLAUDE.md`, hooks, flywheel). `/develop:work` is the static orchestrator that reads them. Mechanism → `plugins/develop/references/`; stack-agnostic auditors → `plugins/develop/agents/`. **Names are locked — don't rename.**
 
 ## Token frugality — first principle for every edit
 

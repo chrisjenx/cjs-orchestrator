@@ -5,7 +5,7 @@ description: Manually evaluate the develop flow's accumulated run records and de
 
 # Tune the flow from its postmortems
 
-`/develop:run` *records* each run's residual findings to the flywheel SSOT; this skill *acts*
+`/develop:work` *records* each run's residual findings to the flywheel SSOT; this skill *acts*
 on the accumulated records. It's the human-gated half of the
 [flywheel](../../references/flywheel.md): read what keeps escaping, decide where to tighten,
 and apply it. Run it once a few runs have accumulated, not after every feature.
@@ -149,7 +149,7 @@ Ask the user which proposals to apply (`AskUserQuestion`, or an explicit approve
 
 ### 9. Record
 Update the promoted-anchors table (date / runs seen / lever applied), mark deferred items as
-pending-workflow, and annotate the postmortem entries you addressed. Next `/develop:run`
+pending-workflow, and annotate the postmortem entries you addressed. Next `/develop:work`
 reads the strengthened definitions automatically.
 
 ## Invariants

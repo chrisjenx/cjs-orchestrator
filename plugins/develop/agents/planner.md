@@ -1,6 +1,6 @@
 ---
 name: planner
-description: "The planner for /develop:run. Reads the spec + repo and emits the plan's Requirements Inventory and Execution Strategy (domain phases with nodes, gate tokens, dependencies, and the existing agent each node routes to). Runs a reuse survey first — reuse existing code, and route to already-defined agents/skills/rules; flag capability gaps to defer, never invent. Dispatched once by the orchestrator so heavy planning context stays out of the loop. Read-only; emits a structured plan."
+description: "The planner for /develop:work. Reads the spec + repo and emits the plan's Requirements Inventory and Execution Strategy (domain phases with nodes, gate tokens, dependencies, and the existing agent each node routes to). Runs a reuse survey first — reuse existing code, and route to already-defined agents/skills/rules; flag capability gaps to defer, never invent. Dispatched once by the orchestrator so heavy planning context stays out of the loop. Read-only; emits a structured plan."
 tools: ["Read", "Grep", "Glob", "Bash"]
 effort: high
 ---

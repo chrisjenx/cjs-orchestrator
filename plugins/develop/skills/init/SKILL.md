@@ -1,6 +1,6 @@
 ---
 name: init
-description: Bootstrap a fitted /develop orchestration flow for THIS repo. Trigger on "init develop", "set up orchestration", "build my own develop flow", "scaffold an agentic pipeline", or any intent to stand up a spec-to-branch loop. Detects the stack, discovers the repo's real build/test/lint gates, and writes the per-repo definitions that the static /develop:run loop reads — it does NOT transplant another project's setup.
+description: Bootstrap a fitted /develop orchestration flow for THIS repo. Trigger on "init develop", "set up orchestration", "build my own develop flow", "scaffold an agentic pipeline", or any intent to stand up a spec-to-branch loop. Detects the stack, discovers the repo's real build/test/lint gates, and writes the per-repo definitions that the static /develop:work loop reads — it does NOT transplant another project's setup.
 ---
 
 # Bootstrap a fitted `/develop` flow
@@ -25,9 +25,9 @@ The plugin ships **static, portable skills**; per-project behaviour comes from
     generalist fallback; grows via the flywheel).
   - a starter `CLAUDE.md`, safe stack-agnostic hooks, a `.claude/develop-flywheel.md`, and an
     empty `.claude/develop-flywheel.jsonl` (the append-only flywheel SSOT).
-- **`/develop:run`** — the static orchestrator loop. It reads the definitions above, so it
+- **`/develop:work`** — the static orchestrator loop. It reads the definitions above, so it
   behaves fitted to the repo without being rewritten per repo.
-- **Bundled references** — the portable mechanism in `references/`, read by `/develop:run`
+- **Bundled references** — the portable mechanism in `references/`, read by `/develop:work`
   and by this skill per phase as linked below; never copied into the repo.
 - **Bundled agents** (`agents/`, available because the plugin is installed — **not** copied
   into the repo): `planner`, `executor`, the diff-reading auditors (`completeness-auditor`,
@@ -115,11 +115,11 @@ Write (showing the diff first):
   <repo_root> <pattern>` (idempotent, parent-dir aware — a re-run shows no spurious diff), called
   for **both** `<featureDir>` (default `.develop/`, so plan artifacts stay out of commits and out
   of any build-output dir a `clean` wipes) **and** `.claude/worktrees/` (the run-loop worktree
-  cache, which `/develop:run` creates under `.claude/` — otherwise it leaks as untracked). This is
+  cache, which `/develop:work` creates under `.claude/` — otherwise it leaks as untracked). This is
   the only place init touches `.gitignore`; Phase 0's re-run references this ensure.
 
 The plan file, plan-anatomy, executor brief, and quality tail are **not** written here —
-they live in the plugin and are used by `/develop:run` at runtime.
+they live in the plugin and are used by `/develop:work` at runtime.
 
 ## Phase 4 — Merge the command timeout only
 
@@ -140,7 +140,7 @@ of the Phase 5 dry run; if the plugin is not enabled here, WARN as a hard Phase 
 - **Probe gate:** if the pre-flight worktree probe was `blocked` (or `no-commits`), the dry run
   cannot proceed — surface it as a hard report line (mirroring the v0.5.0 "required manual step"
   discipline), not a silent pass.
-- **Dry run** `/develop:run` on a trivial change; confirm the gates actually execute, a gate
+- **Dry run** `/develop:work` on a trivial change; confirm the gates actually execute, a gate
   failure blocks, and — through the live host — the guard **blocks destructive git from inside
   `.claude/worktrees/<feature>`**. Report results
   ([references/dry-run.md](../../references/dry-run.md)).

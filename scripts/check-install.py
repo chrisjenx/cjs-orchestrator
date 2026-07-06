@@ -8,7 +8,7 @@ skills are discoverable/triggerable, so a structural break is caught before a re
 - marketplace.json -> plugin 'develop' source resolves to a real plugin dir
 - plugin.json valid (name=develop, version, skills/agents dirs declared + present)
 - every SKILL.md / agent .md has YAML frontmatter with non-empty name + description
-  (description = what makes /develop:init and /develop:run trigger)
+  (description = what makes /develop:init and /develop:work trigger)
 - every relative cross-reference link in the plugin's markdown resolves to a real file
   (catches broken references the loop would hit at runtime)
 
@@ -71,7 +71,7 @@ def main() -> int:
     sdir = os.path.join(PLUGIN, "skills")
     skills = sorted(d for d in os.listdir(sdir) if os.path.isdir(os.path.join(sdir, d))) \
         if os.path.isdir(sdir) else []
-    for required in ("init", "run", "flywheel"):
+    for required in ("init", "work", "flywheel"):
         if required not in skills:
             problems.append(f"skills/{required}/ missing")
     for skill in skills:

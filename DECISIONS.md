@@ -5,6 +5,24 @@ users. Newest first.
 
 ---
 
+## 2026-07-06 — Rename the run skill `/develop:run` → `/develop:work` (reverses the 2026-06-17 lock)
+
+Deliberately overturning the "Public names locked" entry below for one name. `/develop:run`
+read ambiguously against "run the application" — a newcomer can't tell the orchestrator loop
+from executing the built software. The trio is now **`/develop:init` · `/develop:work` ·
+`/develop:flywheel`**. `work` names the action (turn a spec into a reviewed, committed branch)
+without over-claiming: rejected `build` (collides with the build gates/tooling the plugin talks
+about) and `ship` (the skill pointedly **never** pushes or opens a PR — it hands off a committed
+branch).
+
+- **Breaking, no alias.** `/develop:run` stops working; users re-learn one verb. Taken now
+  because the user base is still small enough to absorb it — the same "while there are ~zero
+  users" bet the original lock made, cashed in one direction.
+- The common noun **"run"** (a single execution of the flow — "every run", "per-run state",
+  "the run loop", "dry run") is unchanged; only the command/skill name moved.
+- Current locked name: **Run skill → `/develop:work`**, `plugins/develop/skills/work/`. The
+  2026-06-17 table below is left as the historical record of the original lock.
+
 ## 2026-06-17 — Per-run state stays markdown; flywheel gets a structured SSOT
 
 Where durable state lives, decided per layer because the two layers have opposite needs.

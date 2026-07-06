@@ -35,7 +35,7 @@ local-path variant below).
    ```
    Expect: the bootstrapper activates (Phase 0 re-run check → Phase 1 stack detection). In an
    empty repo it should detect "unknown" gracefully and ask for gate commands rather than
-   erroring (see references/stacks.md). Also confirm `/develop:run` is listed.
+   erroring (see references/stacks.md). Also confirm `/develop:work` is listed.
 4. Run the [triggering matrix](./triggering.md) phrases and confirm init vs run fire on the
    right intents.
 
@@ -51,6 +51,6 @@ trigger path on the current branch before pushing.
 ## Pass criteria
 - `scripts/check-install.py` exits 0.
 - Marketplace add + install complete with no manifest/JSON errors.
-- `/develop:init` and `/develop:run` are both available and trigger on their intents.
+- `/develop:init` and `/develop:work` are both available and trigger on their intents.
 - In an empty scratch repo, `/develop:init` degrades gracefully (asks for gates) rather than
   failing.

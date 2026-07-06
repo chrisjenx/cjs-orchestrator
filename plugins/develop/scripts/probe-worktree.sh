@@ -6,7 +6,7 @@
 # a trap cleans it up on ANY exit so an interrupt cannot leak a registered worktree or temp dir.
 #
 # Status contract (stated ONCE, here):
-#   ok          — repo can create + remove a worktree; /develop:run is good to go.
+#   ok          — repo can create + remove a worktree; /develop:work is good to go.
 #   no-commits  — repo has no commits yet; worktrees become available after the first commit.
 #   blocked     — add failed (old git, bare/shallow/exotic repo); surfaces at the Phase 5 gate.
 set -f
