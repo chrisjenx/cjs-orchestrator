@@ -35,6 +35,8 @@ repeating. Each anchor must be *mechanical* (true/false without judgement).
 | `{grep:no-todo}` over the diff | stub incompleteness | default |
 | Reuse map stated | duplicate-of-existing | default |
 | Cross-area edges wired end to end | unwired layer | default |
+| Signature widening lists every mock/stub site (even a defaulted param) | run-time matcher-arity break | default |
+| One named test per equivalence class of a branching predicate (incl. negative + exception paths) | untested negative branch | default |
 
 ## Promotion history (curated by `/develop:flywheel` on approval; newest first)
 

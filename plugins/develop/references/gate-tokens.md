@@ -80,7 +80,8 @@ in `{…}`:
   accepts (file path, test name, tag). Forces a **fresh** run (no cached results).
 - `{cov>=N}` → diff coverage must be ≥ N% (a `coverage` gate must be configured).
 - `{grep:<id>}` → a required/forbidden-pattern anchor: the `id` *names the pattern* (e.g.
-  `no-todo`, `reuse:<ref>`, a wiring anchor), checked by grepping the diff and resolved by the
+  `no-todo`, `reuse:<ref>`, a wiring anchor), checked by grepping the diff — or the scope the
+  `id` names (e.g. the test tree, for sites the diff didn't touch) — and resolved by the
   executor/flywheel layer — **not** a `develop.config.json` gate ([flywheel.md](./flywheel.md)).
 - **Placement is load-bearing.** Put the gate on the node whose work it proves — a perm/
   auth test on the node that adds the guarded route, coverage on the node that adds the

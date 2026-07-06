@@ -127,6 +127,8 @@ Loop until no phase is ready:
 
 **Resume on crash:** re-invoking re-reads the plan, skips `DONE`, re-enters the first
 `IN_PROGRESS` phase; its executor reconciles existing artifacts rather than regenerating.
+All phases `DONE` + new scope → new run: new plan file, `Continuation of:` header — never
+append to a discharged plan ([plan-anatomy.md](../../references/plan-anatomy.md)).
 
 ### 7. Quality tail
 PV → PA → PT → PF are ordinary phases in the walk, but with fixed logic — see

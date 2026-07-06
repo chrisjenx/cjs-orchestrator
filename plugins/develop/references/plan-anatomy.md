@@ -111,3 +111,10 @@ Re-invoking `/develop:run` on an existing plan:
 
 Because the breadcrumb row is appended *before* dispatch, a crash mid-phase still records that
 the phase was entered, so resume re-enters exactly one phase — no double-work, no skipped work.
+
+**Resume only an *unfinished* plan.** If every phase is already `DONE` and new scope arrives,
+that's a **new run**: write a new plan file scoped to the delta, with a one-line
+`Continuation of: <prior plan path>` header for lineage — never append new phases to a
+discharged plan (mixing finished and pending work breaks the skip-`DONE` walk and invites
+re-running finished work). Appending (a revision section, fix subtasks) is fine only while
+the prior plan is still open.

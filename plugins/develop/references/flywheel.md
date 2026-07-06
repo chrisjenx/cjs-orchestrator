@@ -80,8 +80,10 @@ judgement — and prevents a finding class:
 | No stub/placeholder where logic is expected | `{grep:no-todo}` over the diff | stub incompleteness |
 | A reuse map (what existing code to use/extend) | `{grep:reuse:<ref>}` | duplicate-of-existing |
 | Each cross-area edge is wired end to end | `{grep:<wiring-anchor>}` | unwired layer |
+| A widened signature that tests mock/stub gets every stub/expectation site listed as an explicit plan node — **even for a defaulted param** (test doubles match by arity, so a default doesn't save the old stubs) | `{grep:<mock-stub-sites>}` over the test tree | run-time matcher-arity break |
+| A predicate branching over an enum/finite set names one test per equivalence class, including excluded/negative branches and any exception-fallback path | a `{test:…}` per class on the node | untested negative branch shipped |
 
-These six are stack-neutral and ship as the starting contract. Repo-specific anchors (a
+These eight are stack-neutral and ship as the starting contract. Repo-specific anchors (a
 permission verb on every mutating route, a transaction threaded through a data write, a
 serialization tag on every event) get **added by the user** as the postmortem shows them
 repeating — they are exactly the specialists/forks that earned their place.

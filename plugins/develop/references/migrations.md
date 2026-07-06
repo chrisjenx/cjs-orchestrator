@@ -11,6 +11,13 @@ treat as `0.6.0` (oldest migratable)** — runs every entry newer than the recor
 stamps `pluginVersion` to current. A release that changes nothing init writes still gets a
 one-line `no migration` entry below so the version is accounted for.
 
+## v0.7.2 — offer the two new default anchors
+
+The stack-neutral starting contract grew to eight ([flywheel.md](./flywheel.md)); runs pick the
+new anchors up from the shipped reference on plugin update, no action needed. On re-run, *offer*
+to append the two rows to `.claude/develop-flywheel.md`'s promoted-anchors table (show the diff;
+the file is human-curated — skip on decline). Nothing else init writes changed.
+
 ## v0.7.1 — no migration
 
 Behaviour tuning only: the audit/review set moved from the `top` tier to `mid` + high effort, and

@@ -7,6 +7,32 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-07-06
+
+Two plan-completeness improvements from the backlog (#35, #36), both stack-neutral prose. No
+config schema change.
+
+### Added
+- **Two new default plan-completeness anchors** (the starting contract is now eight rows,
+  references/flywheel.md): a widened signature that tests mock/stub must list every
+  stub/expectation site as a plan node, even for a defaulted parameter (test doubles match by
+  arity, so a default does not save the old stubs); and a predicate branching over an enum or
+  finite set must name one test per equivalence class, including negative and exception-fallback
+  branches. Mirrored in the seeded develop-flywheel.md template. (#35)
+
+### Changed
+- **Never append to an already-executed plan.** Resume only re-enters an unfinished plan; when
+  every phase is DONE and new scope arrives, the run writes a new plan file with a
+  `Continuation of:` lineage header instead of bolting phases onto the discharged plan
+  (references/plan-anatomy.md, skills/run). (#36)
+- `{grep:<id>}` anchors may name a scope beyond the diff (for example the test tree), covering
+  sites the change did not touch (references/gate-tokens.md).
+
+### Notes
+- **No re-init required.** Runs read the shipped references, so both changes apply on plugin
+  update. A re-run of `/develop:init` offers (does not force) the two new anchor rows for the
+  repo's human-curated develop-flywheel.md (see references/migrations.md).
+
 ## [0.7.1] - 2026-07-01
 
 Retunes model tiering now that one strong mid-tier model (Sonnet class) covers both code and
@@ -257,7 +283,8 @@ bootstrapper into static, portable skills that read per-repo discovered definiti
 - Marketplace and `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
   genericized explainer site.
 
-[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.7.2...HEAD
+[0.7.2]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.2
 [0.7.1]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.1
 [0.7.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.0
 [0.6.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.6.0
