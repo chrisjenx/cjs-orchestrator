@@ -39,7 +39,7 @@ Then, in the repo you want to set up:
 the repo-specific definitions (gates, conventions, routing, safe hooks) into `.claude/`.
 `/develop:work` is the portable orchestrator loop: it ships **static** in the plugin but
 behaves **fitted to your repo** because it reads those discovered definitions, and hands off a
-committed branch (it never pushes). `/develop:ship` takes it from there — push, open the PR, and a
+committed branch (it never pushes). `/develop:ship` takes it from there: push, open the PR, and a
 Monitor-driven watcher babysits CI and review to merge, waking you only for judgment. See
 [DECISIONS.md](DECISIONS.md) for the locked names and architecture.
 

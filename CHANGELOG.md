@@ -7,6 +7,38 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-07-07
+
+Adds a 4th command, `/develop:ship`: the push-watch-merge handoff after `/develop:work`. It
+genericizes our private CI watcher into a stack-neutral, config-driven engine. Additive: no config
+schema change, and a repo that never runs it is unaffected.
+
+### Added
+- **`/develop:ship`** (skill `skills/ship/`, engine `scripts/ship.py`). Commits, pushes, opens the
+  PR, then a Monitor-driven watcher babysits CI and review to merge: it classifies and fixes real CI
+  failures, runs a 3-round flake protocol, answers review threads, rebases on conflict, and merges
+  only at green + approved + threads addressed. The engine (stdlib + `gh` only) owns all mechanics
+  and the poll loop, waking the agent only for judgment (a clean PR merges with zero interruptions).
+  Token architecture: stdout = a JSON wake, stderr = silent; ack-gated re-nudge; phased CI cadence
+  off a self-maintained p90 duration baseline; rate-floor guard; hard caps to a halt.
+- **`ci-failure-extractor` agent** (10th bundled agent): compresses a failed CI log to four fields
+  so raw logs never enter the main context.
+- **`references/ship-watch.md`** + **`references/ship-flake.md`**: the watch protocol and the
+  3-round flake protocol.
+- **Optional `ship` config section** in `develop.config.json` (base branch, review-bot + flake
+  patterns, caps, ticket route, merge method) written by `/develop:init`; the engine falls back to
+  defaults when it is absent. See references/config-schema.md.
+
+### Changed
+- `/develop:work`'s relay now offers `/develop:ship` as the push handoff.
+- The flywheel gains a live-escape path: a CI failure `/develop:ship` fixes is a confirmed escape,
+  appended to the SSOT at watch time (deduped on `(run, fingerprint)` with the periodic scan).
+
+### Migration
+- **No re-init required.** Runs read the shipped engine. Re-running `/develop:init` *proposes*
+  adding the `ship` config section (idempotent: it preserves a customised one); a repo that skips it
+  runs `/develop:ship` on defaults. See references/migrations.md.
+
 ## [0.8.0] - 2026-07-06
 
 Breaking: the run skill is renamed. This reverses the 2026-06-17 "public names locked" decision
@@ -303,7 +335,8 @@ bootstrapper into static, portable skills that read per-repo discovered definiti
 - Marketplace and `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
   genericized explainer site.
 
-[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.9.0
 [0.8.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.8.0
 [0.7.2]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.2
 [0.7.1]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.1
