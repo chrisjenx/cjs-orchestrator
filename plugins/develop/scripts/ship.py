@@ -162,6 +162,7 @@ DEFAULTS: dict[str, Any] = {
 
 _CONFIG: dict[str, Any] | None = None
 _CONFIG_SECTION_FOUND = False
+_CONFIG_MALFORMED: str | None = None
 
 
 def _deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
@@ -191,23 +192,56 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
+def _cfg_table(cfg: dict[str, Any], key: str) -> dict[str, Any]:
+    """Config sub-object with degradation: a present-but-non-dict value (e.g. a
+    list from a JSON typo) warns once and falls back to {} instead of making
+    every _cfg_int call against it crash with AttributeError."""
+    v = cfg.get(key)
+    if v is None:
+        return {}
+    if not isinstance(v, dict):
+        sys.stderr.write(f"ship: config section {key!r} is not an object ({v!r}); using defaults\n")
+        return {}
+    return v
+
+
+def _cfg_list(cfg: dict[str, Any], key: str) -> list[Any]:
+    """Config list with degradation: a present-but-non-list value (e.g. a bare
+    string from a missing-brackets typo) warns once and falls back to [] —
+    otherwise a string is iterated character-by-character into nonsense rows."""
+    v = cfg.get(key)
+    if v is None:
+        return []
+    if not isinstance(v, list):
+        sys.stderr.write(f"ship: config value {key}={v!r} is not a list; using []\n")
+        return []
+    return v
+
+
 def _cfg_int(table: dict[str, Any], key: str, default: int) -> int:
-    """Config int with per-key degradation: a non-numeric value warns to stderr
-    and falls back to the default instead of crashing every subcommand."""
+    """Config int with per-key degradation: a non-numeric value (including a
+    stray bool, which `int()` would silently accept) warns to stderr and falls
+    back to the default instead of crashing or silently misconfiguring."""
+    v = table.get(key, default)
+    if isinstance(v, bool) or not isinstance(v, (int, float, str)):
+        sys.stderr.write(f"ship: config value {key}={v!r} is not a number; using {default}\n")
+        return default
     try:
-        return int(table.get(key, default))
+        return int(v)
     except (TypeError, ValueError):
-        sys.stderr.write(
-            f"ship: config value {key}={table.get(key)!r} is not a number; using {default}\n")
+        sys.stderr.write(f"ship: config value {key}={v!r} is not a number; using {default}\n")
         return default
 
 
 def _cfg_compile(pattern: Any, where: str) -> re.Pattern[str] | None:
-    """Compile a config-supplied regex; an invalid pattern warns and is skipped
-    rather than crashing at load."""
+    """Compile a config-supplied regex; an invalid pattern (or non-string
+    value) warns and is skipped rather than crashing at load."""
+    if not isinstance(pattern, str):
+        sys.stderr.write(f"ship: config value {where}={pattern!r} is not a string; skipped\n")
+        return None
     try:
         return re.compile(pattern)
-    except (re.error, TypeError) as exc:
+    except re.error as exc:
         sys.stderr.write(f"ship: invalid regex in {where}: {pattern!r} ({exc}); skipped\n")
         return None
 
@@ -221,42 +255,46 @@ def _apply_config(cfg: dict[str, Any]) -> None:
     global RATE_FLOOR_CORE, RATE_FLOOR_GRAPHQL
     global REVIEW_BOTS, REVIEW_CHECK_NAMES, GATE_EXCLUDED_CHECK_NAMES, SKIP_LOGINS
     global HOT_PATHS_RX, FLAKE_MECHANISMS, FAILED_FQN_RX, CI_DURATIONS_FILE, MERGE_METHOD
-    caps = cfg.get("caps") or {}
+    caps = _cfg_table(cfg, "caps")
     CI_FAIL_CAP = _cfg_int(caps, "ciFail", 3)
     FLAKY_SOAK_CAP = _cfg_int(caps, "flakySoak", 3)
     EMPTY_RUNS_MERGEABLE_CAP = _cfg_int(caps, "emptyRuns", 3)
     RETRIGGER_REVIEW_CAP = _cfg_int(caps, "retriggerReview", 2)
-    cad = cfg.get("cadence") or {}
+    cad = _cfg_table(cfg, "cadence")
     CADENCE_WAIT_CI = _cfg_int(cad, "waitCi", 270)
     SHIP_FASTFAIL_WINDOW = _env_int("SHIP_FASTFAIL_WINDOW", _cfg_int(cad, "fastFailWindow", 120))
     SHIP_LANDING_BUFFER = _env_int("SHIP_LANDING_BUFFER", _cfg_int(cad, "landingBuffer", 90))
     SHIP_REWAKE_SECONDS = _env_int("SHIP_REWAKE_SECONDS", _cfg_int(cad, "rewake", 600))
     SHIP_UNACKED_REWAKE_SECONDS = _env_int(
         "SHIP_UNACKED_REWAKE_SECONDS", _cfg_int(cad, "unackedRewake", 120))
-    floor = cfg.get("rateFloor") or {}
+    floor = _cfg_table(cfg, "rateFloor")
     # Rate-limit headroom kept in reserve for the working agents' GH actions;
     # the watcher yields below the floor.
     RATE_FLOOR_CORE = _env_int("SHIP_RATE_FLOOR_CORE", _cfg_int(floor, "core", 500))
     RATE_FLOOR_GRAPHQL = _env_int("SHIP_RATE_FLOOR_GRAPHQL", _cfg_int(floor, "graphql", 500))
-    REVIEW_BOTS = [b for b in (cfg.get("reviewBots") or []) if isinstance(b, dict)]
+    REVIEW_BOTS = [b for b in _cfg_list(cfg, "reviewBots") if isinstance(b, dict)]
     REVIEW_CHECK_NAMES = frozenset(
         n for b in REVIEW_BOTS for n in (b.get("checkNames") or []) if n
     )
     # Checks excluded from the green gate AND fixable-failure surfacing:
     # configured exclusions + every review bot's check-runs (review signal,
     # not blocking checks). Shared by classify_check_runs + cmd_failures.
-    GATE_EXCLUDED_CHECK_NAMES = frozenset(cfg.get("checkExclusions") or []) | REVIEW_CHECK_NAMES
-    SKIP_LOGINS = frozenset(cfg.get("skipLogins") or [])
+    GATE_EXCLUDED_CHECK_NAMES = frozenset(_cfg_list(cfg, "checkExclusions")) | REVIEW_CHECK_NAMES
+    SKIP_LOGINS = frozenset(_cfg_list(cfg, "skipLogins"))
     HOT_PATHS_RX = tuple(
-        c for p in (cfg.get("hotPaths") or []) if (c := _cfg_compile(p, "hotPaths"))
+        c for p in _cfg_list(cfg, "hotPaths") if (c := _cfg_compile(p, "hotPaths"))
     )
     FLAKE_MECHANISMS = tuple(
         (row["mechanism"], c, row.get("hint", ""))
-        for row in (cfg.get("flakePatterns") or [])
+        for row in _cfg_list(cfg, "flakePatterns")
         if isinstance(row, dict) and row.get("regex") and row.get("mechanism")
         and (c := _cfg_compile(row["regex"], f"flakePatterns[{row.get('mechanism')}]"))
     )
-    rx = (cfg.get("failedTestRegex") or "").strip()
+    frx = cfg.get("failedTestRegex")
+    if frx is not None and not isinstance(frx, str):
+        sys.stderr.write(f"ship: config value failedTestRegex={frx!r} is not a string; ignoring\n")
+        frx = None
+    rx = (frx or "").strip()
     FAILED_FQN_RX = _cfg_compile(rx, "failedTestRegex") if rx else None
     CI_DURATIONS_FILE = cfg.get("durationsFile") or DEFAULTS["durationsFile"]
     m = cfg.get("mergeMethod")
@@ -266,7 +304,7 @@ def _apply_config(cfg: dict[str, Any]) -> None:
 def _config() -> dict[str, Any]:
     """Merged config (defaults ← repo `ship` section), loaded lazily + cached.
     Also refreshes the module constants via _apply_config."""
-    global _CONFIG, _CONFIG_SECTION_FOUND
+    global _CONFIG, _CONFIG_SECTION_FOUND, _CONFIG_MALFORMED
     if _CONFIG is not None:
         return _CONFIG
     merged: dict[str, Any] = json.loads(json.dumps(DEFAULTS))  # deep copy
@@ -278,18 +316,31 @@ def _config() -> dict[str, Any]:
         if path.exists():
             try:
                 data = json.loads(path.read_text())
-                s = data.get("ship") if isinstance(data, dict) else None
-                section = s if isinstance(s, dict) else None
             except (OSError, json.JSONDecodeError) as exc:
                 # A config the user DID write but ship can't read is not "missing" —
                 # say so, or the defaults + "run /develop:init" hint hides the real fault.
                 malformed = f"{path}: {exc}"
+            else:
+                if not isinstance(data, dict):
+                    malformed = f"{path}: top-level JSON is not an object"
+                elif "ship" in data:
+                    s = data["ship"]
+                    if isinstance(s, dict):
+                        section = s
+                    else:
+                        # Present but the wrong shape — also not "missing": the
+                        # user did configure it, just not as an object.
+                        malformed = f"{path}: \"ship\" is not an object ({s!r})"
+                # "ship" key genuinely absent from an otherwise-valid file is
+                # not malformed — just not configured yet.
     if section is None:
+        _CONFIG_MALFORMED = malformed
         if malformed:
             sys.stderr.write(f"ship: develop.config.json unreadable ({malformed}); using defaults\n")
         else:
             sys.stderr.write("ship: no ship config found; using defaults (run /develop:init)\n")
     else:
+        _CONFIG_MALFORMED = None
         merged = _deep_merge(merged, section)
         _CONFIG_SECTION_FOUND = True
     _CONFIG = merged
@@ -3389,9 +3440,15 @@ def cmd_doctor() -> int:
     report("config file", bool(cfg_path and cfg_path.exists()),
            str(cfg_path) if cfg_path else "not a git repo", hard=False)
     _config()
-    report("ship config section", _CONFIG_SECTION_FOUND,
-           "present" if _CONFIG_SECTION_FOUND else "missing — defaults in use (run /develop:init)",
-           hard=False)
+    if _CONFIG_MALFORMED:
+        # Distinct from "missing": the user DID write a ship config, but it's
+        # broken — pointing them at /develop:init would risk overwriting a
+        # hand-tuned section that has nothing to do with the actual fault.
+        report("ship config section", False, f"malformed — {_CONFIG_MALFORMED}", hard=False)
+    else:
+        report("ship config section", _CONFIG_SECTION_FOUND,
+               "present" if _CONFIG_SECTION_FOUND else "missing — defaults in use (run /develop:init)",
+               hard=False)
 
     base = _base_ref()
     report("base ref", bool(base), base)

@@ -131,11 +131,108 @@ def test_config_malformed_file_names_the_fault(tmp_path: Path, monkeypatch, caps
     monkeypatch.setattr(ship, "_repo_root", lambda: tmp_path)
     ship._CONFIG = None
     ship._CONFIG_SECTION_FOUND = False
+    ship._CONFIG_MALFORMED = None
     cfg = ship._config()
     assert cfg["caps"]["ciFail"] == 3                  # defaults in use
+    assert ship._CONFIG_MALFORMED is not None
     err = capsys.readouterr().err
     assert "unreadable" in err
     assert "no ship config found" not in err
+
+
+def test_config_wrong_shaped_ship_key_is_malformed_not_missing(tmp_path: Path, monkeypatch, capsys) -> None:
+    """A `ship` key that parses but isn't an object is a config the user DID
+    write, just badly shaped — distinct from the file lacking a `ship` key
+    at all, which is legitimately "not configured yet"."""
+    cfgdir = tmp_path / ".claude"
+    cfgdir.mkdir()
+    (cfgdir / "develop.config.json").write_text(json.dumps({"ship": "oops-a-string"}))
+    monkeypatch.setattr(ship, "_repo_root", lambda: tmp_path)
+    ship._CONFIG = None
+    ship._CONFIG_SECTION_FOUND = False
+    ship._CONFIG_MALFORMED = None
+    ship._config()
+    assert ship._CONFIG_SECTION_FOUND is False
+    assert ship._CONFIG_MALFORMED is not None
+    err = capsys.readouterr().err
+    assert "unreadable" in err
+    assert "no ship config found" not in err
+
+
+def test_config_ship_key_absent_is_missing_not_malformed(tmp_path: Path, monkeypatch, capsys) -> None:
+    """A valid file that simply never configured `ship` is the legitimate
+    'not configured yet' case, not malformed — must not regress into a false
+    positive from the wrong-shape check above."""
+    cfgdir = tmp_path / ".claude"
+    cfgdir.mkdir()
+    (cfgdir / "develop.config.json").write_text(json.dumps({"gates": []}))
+    monkeypatch.setattr(ship, "_repo_root", lambda: tmp_path)
+    ship._CONFIG = None
+    ship._CONFIG_SECTION_FOUND = False
+    ship._CONFIG_MALFORMED = None
+    ship._config()
+    assert ship._CONFIG_SECTION_FOUND is False
+    assert ship._CONFIG_MALFORMED is None
+    err = capsys.readouterr().err
+    assert "no ship config found" in err
+
+
+def test_config_non_dict_sections_degrade_not_crash(capsys) -> None:
+    """caps/cadence/rateFloor given as a list or scalar (a JSON typo) warn once
+    and fall back to {} instead of crashing every _cfg_int call with
+    AttributeError on the non-dict `.get()`."""
+    configure(caps=[1, 2, 3], cadence="nope")
+    assert ship.CI_FAIL_CAP == 3
+    assert ship.CADENCE_WAIT_CI == 270
+    err = capsys.readouterr().err
+    assert "config section 'caps' is not an object" in err
+    assert "config section 'cadence' is not an object" in err
+
+
+def test_config_hotpaths_bare_string_rejected_not_exploded(capsys) -> None:
+    """hotPaths as a bare string (missing brackets) must be rejected as a
+    whole, not iterated character-by-character into single-letter regexes
+    that would match nearly every path in the repo."""
+    configure(hotPaths="src/payments")
+    assert ship.HOT_PATHS_RX == ()
+    err = capsys.readouterr().err
+    assert "hotPaths='src/payments' is not a list" in err
+
+
+def test_config_bool_cap_warns_and_falls_back(capsys) -> None:
+    """A stray bool for a cap (`int(True) == 1`) must not silently become 1 —
+    it's exactly the kind of typo the other malformed-value paths warn on."""
+    configure(caps={"ciFail": True})
+    assert ship.CI_FAIL_CAP == 3
+    err = capsys.readouterr().err
+    assert "ciFail=True is not a number" in err
+
+
+def test_config_failed_test_regex_non_string_ignored(capsys) -> None:
+    """A non-string failedTestRegex must not crash on the pre-`.strip()` call
+    that runs before _cfg_compile ever sees the value."""
+    configure(failedTestRegex=20260101)
+    assert ship.FAILED_FQN_RX is None
+    err = capsys.readouterr().err
+    assert "failedTestRegex=20260101 is not a string" in err
+
+
+def test_doctor_reports_malformed_config_distinctly(tmp_path: Path, monkeypatch, capsys) -> None:
+    """`ship doctor` must not tell the user to re-run /develop:init for a
+    JSON typo — that message is reserved for a genuinely absent ship section,
+    and would risk /develop:init overwriting an otherwise-fine config."""
+    cfgdir = tmp_path / ".claude"
+    cfgdir.mkdir()
+    (cfgdir / "develop.config.json").write_text("{not json")
+    monkeypatch.setattr(ship, "_repo_root", lambda: tmp_path)
+    monkeypatch.setattr(ship, "run", lambda *a, **k: ship.subprocess.CompletedProcess([], 1))
+    ship._CONFIG = None
+    ship._CONFIG_SECTION_FOUND = False
+    ship._CONFIG_MALFORMED = None
+    ship.cmd_doctor()
+    out = capsys.readouterr().out
+    assert "malformed" in out
+    assert "missing — defaults in use (run /develop:init)" not in out
 
 
 def test_apply_config_recompiles_module_tables() -> None:
