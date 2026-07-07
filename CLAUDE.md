@@ -33,4 +33,5 @@ Everything the plugin ships loads on **every run, for every user, forever** — 
 - **Manifests** — `marketplace.json` + `plugin.json` must be schema-valid JSON; layout per the plugin spec (components at plugin root, only `plugin.json` in `.claude-plugin/`).
 - **Releasing** — follow [RELEASING.md](RELEASING.md); `scripts/install-smoke.sh` (real `claude plugin` install of the working tree, isolated) is a required pre-tag gate for any manifest/skill/agent change.
 - **"Discover, don't transplant"** — the bootstrapper fits `/develop` to the target repo's real commands, never copies a finished system. Keep new content aligned.
+- **Adding a skill or agent** — update its roster mention in `plugins/develop/README.md` and `docs/use.html` (and, for a new skill, root `README.md`); `scripts/check-docs-freshness.py` (CI-gated) checks these plus cross-file version agreement, but a grouped/aliased mention needs a matching entry in that script's `AGENT_ALIASES`.
 - Backlog: GitHub issues (labels `mvp`, `area:plugin`, `area:docs`, `area:infra`).

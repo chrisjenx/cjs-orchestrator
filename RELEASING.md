@@ -31,6 +31,7 @@ How a release of the `develop` plugin is cut, and the version policy.
    scripts/install-smoke.sh                                 # live: really installs THIS tree
    python3 scripts/check-docs-subpath.py
    python3 scripts/check-docs-leaks.py
+   python3 scripts/check-docs-freshness.py
    for f in docs/*.js; do node --check "$f"; done
    ```
    `validate-manifests.py` mirrors the validator's source-shape, `agents`-field, and
