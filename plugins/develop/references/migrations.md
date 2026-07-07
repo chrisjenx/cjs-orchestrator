@@ -11,6 +11,16 @@ treat as `0.6.0` (oldest migratable)** — runs every entry newer than the recor
 stamps `pluginVersion` to current. A release that changes nothing init writes still gets a
 one-line `no migration` entry below so the version is accounted for.
 
+## v0.9.0 — new `ship` config section (additive)
+
+`/develop:ship` (the 4th skill) reads an optional top-level `ship` section of `develop.config.json`
+([config-schema.md](./config-schema.md)); no `schema` bump (additive optional key). On re-run, init
+*proposes* adding the `ship` block (base branch from remote HEAD, empty `reviewBots`, the neutral
+default `flakePatterns`, caps) — idempotency reconcile: present-and-customised ⇒ preserve, absent ⇒
+additive diff shown before write. It also ensures the `ship.durationsFile` path is git-ignored (via
+`gitignore-append.sh`) and re-stamps `pluginVersion`. A repo that never runs `/develop:ship` is
+unaffected — the engine falls back to defaults.
+
 ## v0.8.0 — the run skill is now `/develop:work` (breaking)
 
 `/develop:run` was renamed to `/develop:work`; the old invocation no longer works. Nothing init writes into `.claude/` is keyed on the command name, so

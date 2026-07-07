@@ -1,0 +1,25 @@
+{
+  "pr": {
+    "number": 204,
+    "headRefOid": "memo0000000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "UNSTABLE",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": null,
+    "reviewRequests": [],
+    "reviewThreads": {"nodes": []},
+    "headRefName": "fix/memory"
+  },
+  "check_runs": {
+    "check_runs": [
+      {
+        "name": "unit-tests",
+        "status": "completed",
+        "conclusion": "failure",
+        "details_url": "https://github.com/example-org/example-repo/actions/runs/204/jobs/1004",
+        "html_url": "https://github.com/example-org/example-repo/actions/runs/204",
+        "failed_log": "com.example.LargeDatasetTest loadsFullDataset FAILED\n    OutOfMemoryError: heap space exhausted\n"
+      }
+    ]
+  }
+}

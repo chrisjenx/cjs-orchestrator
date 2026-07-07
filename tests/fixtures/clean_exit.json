@@ -1,0 +1,47 @@
+{
+  "pr": {
+    "number": 110,
+    "headRefOid": "clean0000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "CLEAN",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": "APPROVED",
+    "reviewRequests": [],
+    "reviewThreads": {
+      "nodes": []
+    },
+    "headRefName": "claude/alpha-beta-clean0"
+  },
+  "check_runs": {
+    "check_runs": [
+      {
+        "name": "backend-test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/o/r/actions/runs/900"
+      },
+      {
+        "name": "ui-test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/o/r/actions/runs/901"
+      },
+      {
+        "name": "review-bot",
+        "status": "completed",
+        "conclusion": "success",
+        "completed_at": "2026-05-16T12:00:00Z",
+        "details_url": "https://github.com/o/r/actions/runs/902"
+      }
+    ]
+  },
+  "sticky": {
+    "sticky_found": true,
+    "sha": "clean0000000000000000000000000000000000",
+    "run": 2,
+    "status": "APPROVED",
+    "findings_count": 0,
+    "sha_matches_current": true,
+    "findings": []
+  }
+}

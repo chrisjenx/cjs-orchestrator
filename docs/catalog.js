@@ -28,7 +28,7 @@ const CATALOG = {
   '/tidy': { kind: 'skill', role: 'Quality gate before pushing.',
     detail: 'Runs a changed-module lint gate, then dispatches a path-routed reviewer set self-scaled to the size of the change. The PT phase is this skill\'s logic.' },
   '/commit-push-watch': { kind: 'skill', role: 'Push, then babysit CI + review until green.',
-    detail: 'The handoff target. Opens the PR, extracts and fixes CI failures, resolves review threads, optionally auto-merges. /develop never pushes; it hands off to this.' },
+    detail: 'The handoff target. Opens the PR, extracts and fixes CI failures, resolves review threads, optionally auto-merges. /develop never pushes; it hands off to this. The develop plugin ships this pattern as /develop:ship.' },
 
   /* ---- planners ---- */
   'spec-analyzer': { kind: 'agent', arche: 'planner', role: 'Turns specs into validated requirements + file manifest + execution strategy.',

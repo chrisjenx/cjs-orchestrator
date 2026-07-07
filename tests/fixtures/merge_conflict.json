@@ -1,0 +1,18 @@
+{
+  "pr": {
+    "number": 103,
+    "headRefOid": "conf0000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "DIRTY",
+    "mergeable": "CONFLICTING",
+    "reviewDecision": null,
+    "reviewRequests": [],
+    "reviewThreads": {
+      "nodes": []
+    },
+    "headRefName": "claude/alpha-beta-conf00"
+  },
+  "check_runs": {
+    "check_runs": []
+  }
+}

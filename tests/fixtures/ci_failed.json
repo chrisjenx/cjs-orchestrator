@@ -1,0 +1,32 @@
+{
+  "pr": {
+    "number": 102,
+    "headRefOid": "fail0000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "UNSTABLE",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": null,
+    "reviewRequests": [],
+    "reviewThreads": {
+      "nodes": []
+    },
+    "headRefName": "claude/alpha-beta-fail00"
+  },
+  "check_runs": {
+    "check_runs": [
+      {
+        "name": "backend-test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/o/r/actions/runs/200"
+      },
+      {
+        "name": "ui-test",
+        "status": "completed",
+        "conclusion": "failure",
+        "details_url": "https://github.com/o/r/actions/runs/201",
+        "html_url": "https://github.com/o/r/actions/runs/201"
+      }
+    ]
+  }
+}

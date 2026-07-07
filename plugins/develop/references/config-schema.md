@@ -38,7 +38,19 @@ repo. Keep it small and human-editable; the user owns it.
   "caps": { "validator": 3, "audit": 2, "fork": 1, "gate": 2 },
   "intensity": { "refuters": 1, "planCandidates": 1 },
   "routingFile": ".claude/develop-routing.json",
-  "flywheelFile": ".claude/develop-flywheel.md"
+  "flywheelFile": ".claude/develop-flywheel.md",
+  "ship": {
+    "baseBranch": "main",
+    "reviewBots": [],
+    "flakePatterns": [
+      { "regex": "OutOfMemoryError", "mechanism": "memory", "hint": "shrink fixture; per-test cleanup" },
+      { "regex": "(?i)connect(ion)? (refused|reset)|sockettimeout", "mechanism": "network", "hint": "stub the network dependency" },
+      { "regex": "(?i)timeout", "mechanism": "timing", "hint": "bump timeout 2x or inject a test double" }
+    ],
+    "caps": { "ciFail": 3, "flakySoak": 3, "emptyRuns": 3, "retriggerReview": 2 },
+    "ticketRoute": "gh-issue",
+    "mergeMethod": "squash"
+  }
 }
 ```
 
@@ -62,6 +74,20 @@ repo. Keep it small and human-editable; the user owns it.
 | `intensity` | [verify-by-forking.md](./verify-by-forking.md) | `refuters` and `planCandidates` counts. `1` = lean default (no forking). |
 | `routingFile` | init | Path to the routing table ([routing.md](./routing.md)). |
 | `flywheelFile` | init | Path to the **human-curated** flywheel doc ([flywheel.md](./flywheel.md)). The machine SSOT is its sibling `.claude/develop-flywheel.jsonl`, which `PF` appends to; the `.md` is never written from a run. |
+| `ship` | init (optional) | Config for `/develop:ship` ([ship-watch.md](./ship-watch.md)). Absent ⇒ the engine runs on built-in defaults. All fields optional, merged over defaults. |
+| `ship.baseBranch` | init | Fallback base branch for rebase/merge; resolution prefers `SHIP_BASE_REF`, then the PR's live base, then this, then `origin/HEAD`. |
+| `ship.reviewBots[]` | init / user | Per-bot review identities: `checkNames[]` (review check-runs, excluded from CI classification), `commentLogins[]` + `commentSignature` (classify a thread's author as the review bot), `stickyBeacon` + `stickyMeta` (a summary comment; `stickyMeta:true` parses an embedded `{sha,status,findings}` JSON), `retrigger` (draft→ready toggle to force re-review; **default false** — it re-fires every `ready_for_review` workflow). Empty ⇒ CI + human threads + merge still work; no sticky/retrigger hints. |
+| `ship.checkExclusions[]` | user | Extra check-run names to exclude from CI pass/fail (unioned with every `reviewBots[].checkNames`). |
+| `ship.skipLogins[]` | init | Comment authors to ignore entirely (bots like `dependabot[bot]`). |
+| `ship.flakePatterns[]` | init / flywheel | Ordered `{regex, mechanism, hint}` rows; first regex matching a failed log marks the failure flaky with that mechanism ([ship-flake.md](./ship-flake.md)). Defaults cover memory/network/timing; add stack rows as flakes recur. |
+| `ship.failedTestRegex` | init | Optional regex extracting failing test ids from a log (named groups joined, else whole match). Empty ⇒ the extractor agent supplies location instead. |
+| `ship.caps` | user | Halt caps: `ciFail`, `flakySoak`, `emptyRuns`, `retriggerReview`. |
+| `ship.cadence` | user | Poll cadence seconds: `waitCi`, `fastFailWindow`, `landingBuffer`, `rewake`, `unackedRewake`. |
+| `ship.rateFloor` | user | `core`/`graphql` gh-token reserve floors; the watcher backs off below them. |
+| `ship.durationsFile` | init | Path to the self-maintained CI-duration baseline (git-ignored). |
+| `ship.hotPaths[]` | init / user | Regexes for high-conflict paths (lockfiles, generated code); a rebase touching one wakes the agent. Default `[]`. |
+| `ship.ticketRoute` | init | Where a flake ticket goes: `gh-issue` (default), `mcp`, or `none` ([ship-flake.md](./ship-flake.md)). |
+| `ship.mergeMethod` | init | `squash` \| `merge` \| `rebase` for the auto-merge under `--merge`. |
 
 ## Rules
 

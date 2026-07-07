@@ -5,6 +5,26 @@ users. Newest first.
 
 ---
 
+## 2026-07-07 — Lock a 4th public verb: `/develop:ship` (push → watch → merge)
+
+The plugin ended at a committed branch by design (`/develop:work` never pushes). `/develop:ship`
+adds the missing half: push, open the PR, then a mechanical watcher (`scripts/ship.py`, a
+genericized port of our private babysit/commit-push-watch engine) babysits CI + review — waking the
+agent only for judgment — and merges at green + approved + threads addressed.
+
+- **Locked name/paths:** `/develop:ship`, `plugins/develop/skills/ship/`, engine
+  `plugins/develop/scripts/ship.py`, agent `agents/ci-failure-extractor.md`.
+- **Why `ship`:** it names the outcome (get the change merged) without over-claiming — and it was
+  rejected for the *work* rename precisely because work never pushes, which is exactly why it fits
+  the skill that does. Rejected `build` (collides with the build gates the plugin talks about) and
+  `watch` (undersells that it commits/fixes/merges too).
+- **Earns its place** by the same test `/develop:flywheel` passed: distinct **cadence** (per branch,
+  after work — not per feature) and distinct **action** (remote CI/review babysitting + merge, not a
+  local build). Overloading `work` with it would muddy work's "hands off a committed branch" contract.
+- **Static + discovered:** the engine is stack-neutral; all repo specifics (base branch, review-bot
+  identities, flake patterns, caps, ticket route) come from the init-written `ship` config section —
+  the locked discover-don't-transplant doctrine, not a transplant of the private engine's config.
+
 ## 2026-07-06 — Rename the run skill `/develop:run` → `/develop:work` (reverses the 2026-06-17 lock)
 
 Deliberately overturning the "Public names locked" entry below for one name. `/develop:run`

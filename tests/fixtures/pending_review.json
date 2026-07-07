@@ -1,0 +1,35 @@
+{
+  "pr": {
+    "number": 213,
+    "headRefOid": "pend0000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "CLEAN",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": "APPROVED",
+    "reviewRequests": [],
+    "reviewThreads": {
+      "nodes": [
+        {
+          "id": "PRRT_1",
+          "isResolved": false
+        },
+        {
+          "id": "PRRT_2",
+          "isResolved": false
+        }
+      ]
+    },
+    "headRefName": "claude/alpha-beta-pend00"
+  },
+  "check_runs": {
+    "check_runs": [
+      {
+        "name": "backend-test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/o/r/actions/runs/213"
+      }
+    ]
+  },
+  "pending_reviews": 1
+}

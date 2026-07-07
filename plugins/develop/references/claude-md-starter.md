@@ -24,7 +24,7 @@ teaches you more.
 3. **Layout** — the handful of top-level dirs that matter (where source, tests, CI live).
 4. **Conventions worth stating** — only ones you have evidence for (formatter enforced in
    CI, a test-naming pattern, a monorepo workspace rule). Skip if you're guessing.
-5. **A pointer** to `.claude/develop.config.json` and `/develop:work`.
+5. **A pointer** to `.claude/develop.config.json`, `/develop:work`, and `/develop:ship`.
 
 ## Template
 

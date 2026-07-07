@@ -1,0 +1,25 @@
+{
+  "pr": {
+    "number": 109,
+    "headRefOid": "bhnd0000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "BEHIND",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": "APPROVED",
+    "reviewRequests": [],
+    "reviewThreads": {
+      "nodes": []
+    },
+    "headRefName": "claude/alpha-beta-bhnd00"
+  },
+  "check_runs": {
+    "check_runs": [
+      {
+        "name": "backend-test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/o/r/actions/runs/800"
+      }
+    ]
+  }
+}

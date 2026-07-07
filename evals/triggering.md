@@ -31,11 +31,26 @@ expected skill activated.
 
 - "how does /develop:work work?" (a question)
 - "set up the develop flow" (that's init)
-- "push my branch and open a PR" (run never pushes; this is a different flow)
+- "push my branch and open a PR" (work never pushes; that's `/develop:ship`)
+
+## `/develop:ship` — SHOULD trigger
+
+- "/develop:ship"
+- "ship this branch"
+- "push and watch CI to green"
+- "babysit the PR"
+- "push and fix the CI failures"
+- "handle the review comments and merge"
+
+## `/develop:ship` — should NOT trigger
+
+- "how does /develop:ship work?" (a question)
+- "develop this ticket" (that's work — no push/watch intent)
+- "commit these files" (a plain commit, no watch)
 
 ## Pass criteria
 
 - Every SHOULD row activates the named skill.
 - Every should-NOT row does **not** activate it.
-- Pay special attention to the `init` vs `run` boundary ("set up" → init; "develop this
-  change" → run) and to question-shaped phrases, which should trigger neither.
+- Pay special attention to the boundaries: "set up" → init; "develop this change" → work;
+  "push/watch/babysit the PR" → ship. Question-shaped phrases should trigger neither.

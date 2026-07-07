@@ -173,16 +173,19 @@ h2 { font-size: clamp(28px, 4.2vw, 42px); }
 
 /* ---------- mental model trio ---------- */
 .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 34px; }
+.trio.trio-quad { grid-template-columns: repeat(2, 1fr); }
 .trio-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; background: var(--surface); position: relative; overflow: hidden; }
 .trio-card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; }
 .trio-card.skill::before { background: var(--skill); }
 .trio-card.agent::before { background: var(--agent); }
 .trio-card.orch::before { background: var(--accent); }
+.trio-card.ship::before { background: var(--nest); }
 .trio-card h3 { font-size: 19px; display: flex; align-items: center; gap: 9px; }
 .trio-tag { font-family: var(--mono); font-size: 11px; padding: 3px 8px; border-radius: 6px; }
 .trio-card.skill .trio-tag { color: var(--skill); background: rgba(163, 113, 247, 0.12); }
 .trio-card.agent .trio-tag { color: var(--agent); background: rgba(45, 212, 191, 0.12); }
 .trio-card.orch .trio-tag { color: var(--accent); background: rgba(240, 160, 32, 0.12); }
+.trio-card.ship .trio-tag { color: var(--nest); background: rgba(88, 166, 255, 0.12); }
 .trio-card p { color: var(--text-dim); font-size: 16px; margin: 14px 0 0; }
 .trio-card .eg { font-family: var(--mono); font-size: 12px; color: var(--text-faint); margin-top: 12px; }
 

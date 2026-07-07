@@ -1,0 +1,31 @@
+{
+  "pr": {
+    "number": 100,
+    "headRefOid": "abc1230000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": null,
+    "reviewRequests": [],
+    "reviewThreads": {
+      "nodes": []
+    },
+    "headRefName": "claude/alpha-beta-abc123"
+  },
+  "check_runs": {
+    "check_runs": [
+      {
+        "name": "backend-test",
+        "status": "in_progress",
+        "conclusion": null,
+        "details_url": "https://github.com/o/r/actions/runs/100"
+      },
+      {
+        "name": "ui-test",
+        "status": "queued",
+        "conclusion": null,
+        "details_url": "https://github.com/o/r/actions/runs/101"
+      }
+    ]
+  }
+}

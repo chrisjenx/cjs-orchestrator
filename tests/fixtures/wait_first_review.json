@@ -1,0 +1,29 @@
+{
+  "pr": {
+    "number": 106,
+    "headRefOid": "fr000000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": null,
+    "reviewRequests": [
+      {
+        "name": "reviewer-x"
+      }
+    ],
+    "reviewThreads": {
+      "nodes": []
+    },
+    "headRefName": "claude/alpha-beta-fr0000"
+  },
+  "check_runs": {
+    "check_runs": [
+      {
+        "name": "backend-test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/o/r/actions/runs/500"
+      }
+    ]
+  }
+}

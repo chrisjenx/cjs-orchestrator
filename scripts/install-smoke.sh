@@ -52,6 +52,7 @@ check() { printf '%s\n' "$details" | grep -Eq "$1" || { echo "install-smoke: FAI
 check "\(develop\) $EXPECTED([^0-9.]|$)"  "version $EXPECTED not resolved (install did not serve the working-tree version)"
 check "\binit\b"                          "skill 'init' missing from inventory"
 check "\bwork\b"                          "skill 'work' missing from inventory"
+check "\bship\b"                          "skill 'ship' missing from inventory"
 check "\bflywheel\b"                      "skill 'flywheel' missing from inventory"
 check "Agents \($AGENT_COUNT\)"           "expected $AGENT_COUNT agents in inventory"
 check "Hooks \(1\)|PreToolUse"            "expected the PreToolUse guard hook"
@@ -62,4 +63,4 @@ if [ "$fail" -ne 0 ]; then
   exit 1
 fi
 
-echo "install-smoke: PASS — develop@$EXPECTED installs from the working tree (3 skills, $AGENT_COUNT agents, 1 guard hook)"
+echo "install-smoke: PASS — develop@$EXPECTED installs from the working tree (4 skills, $AGENT_COUNT agents, 1 guard hook)"

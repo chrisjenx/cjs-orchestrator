@@ -1,0 +1,25 @@
+{
+  "pr": {
+    "number": 203,
+    "headRefOid": "time0000000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "UNSTABLE",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": null,
+    "reviewRequests": [],
+    "reviewThreads": {"nodes": []},
+    "headRefName": "fix/timing"
+  },
+  "check_runs": {
+    "check_runs": [
+      {
+        "name": "unit-tests",
+        "status": "completed",
+        "conclusion": "timed_out",
+        "details_url": "https://github.com/example-org/example-repo/actions/runs/203/jobs/1003",
+        "html_url": "https://github.com/example-org/example-repo/actions/runs/203",
+        "failed_log": "com.example.PollerTest pollsUntilConditionMet FAILED\n    TimeoutException: exceeded timeout of 5000ms\n"
+      }
+    ]
+  }
+}

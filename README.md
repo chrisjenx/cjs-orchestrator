@@ -30,14 +30,17 @@ Then, in the repo you want to set up:
 
 ```text
 /develop:init     # once: detect your stack, confirm gates, scaffold the config
-/develop:work      # repeatedly: spec → reviewed, committed branch
+/develop:work      # per feature: spec → reviewed, committed branch
+/develop:ship      # per branch: push, watch CI + review, merge
 /develop:flywheel # periodically: review postmortems, tune the flow for next run
 ```
 
 `/develop:init` detects your stack, confirms the real gate commands with you, and writes
 the repo-specific definitions (gates, conventions, routing, safe hooks) into `.claude/`.
 `/develop:work` is the portable orchestrator loop: it ships **static** in the plugin but
-behaves **fitted to your repo** because it reads those discovered definitions. See
+behaves **fitted to your repo** because it reads those discovered definitions, and hands off a
+committed branch (it never pushes). `/develop:ship` takes it from there — push, open the PR, and a
+Monitor-driven watcher babysits CI and review to merge, waking you only for judgment. See
 [DECISIONS.md](DECISIONS.md) for the locked names and architecture.
 
 ## Layout
@@ -49,7 +52,9 @@ cjs-orchestrator/
 │   ├── .claude-plugin/plugin.json
 │   ├── skills/init/SKILL.md          # the /develop:init bootstrapper
 │   ├── skills/work/SKILL.md           # the /develop:work orchestrator loop
+│   ├── skills/ship/SKILL.md           # the /develop:ship CI watcher
 │   ├── skills/flywheel/SKILL.md      # the /develop:flywheel tuner
+│   ├── scripts/                      # bundled engines (ship.py, flywheel-*.py)
 │   ├── references/                   # portable mechanism (plan anatomy, briefs, gates)
 │   ├── agents/                       # portable, stack-agnostic auditor agents
 │   └── hooks/                        # safe, stack-agnostic hooks

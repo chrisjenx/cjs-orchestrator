@@ -55,3 +55,9 @@ jobs:
         run: |
           python3 plugins/develop/scripts/flywheel-aggregate.py --selftest
           python3 plugins/develop/scripts/flywheel-ingest.py --selftest
+
+      - name: Self-test the ship engine + run its suite
+        run: |
+          python3 plugins/develop/scripts/ship.py --selftest
+          pip install pytest
+          python3 -m pytest tests/ -q

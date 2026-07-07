@@ -1,0 +1,40 @@
+{
+  "pr": {
+    "number": 111,
+    "headRefOid": "halt000000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": "APPROVED",
+    "reviewRequests": [],
+    "reviewThreads": {
+      "nodes": []
+    },
+    "headRefName": "claude/alpha-beta-halt00"
+  },
+  "check_runs": {
+    "check_runs": [
+      {
+        "name": "backend-test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/o/r/actions/runs/1000"
+      }
+    ]
+  },
+  "sticky": {
+    "sticky_found": true,
+    "sha": "halt000000000000000000000000000000000000",
+    "run": 1,
+    "status": "BLOCKING",
+    "findings_count": 1,
+    "sha_matches_current": true,
+    "findings": [
+      {
+        "id": "abc",
+        "severity": "HIGH",
+        "node_id": "PRRC_1"
+      }
+    ]
+  }
+}

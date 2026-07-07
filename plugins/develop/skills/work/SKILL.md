@@ -155,7 +155,9 @@ finalize result — never from prose:
 
 Report status, the commit SHA, open findings, and escalations. **Never push and never open a
 PR** — `/develop:work` hands off a committed branch; the user (or a separate push/PR flow)
-takes it from there.
+takes it from there. Offer the handoff: **`/develop:ship`** pushes, opens the PR, and watches it
+through CI and review to merge ([ship-watch.md](../../references/ship-watch.md); needs the `ship`
+config section from `/develop:init`).
 _say:_ the final line is the mechanical status — `✓ committed <sha> · ready` (or
 `⚠ … · ready-with-escalations`, `✗ … · committed-with-failures` / `commit-failed` /
 `planning-failed`).

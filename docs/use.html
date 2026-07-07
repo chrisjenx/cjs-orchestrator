@@ -50,17 +50,17 @@
     <li><strong>Add the marketplace</strong><br><code>/plugin marketplace add chrisjenx/cjs-orchestrator</code></li>
     <li><strong>Install the plugin</strong><br><code>/plugin install develop@cjs-orchestrator</code></li>
     <li><strong>Scaffold your flow</strong><br><code>/develop:init</code> detects your stack, confirms your real gate commands with you, and writes the per-repo definitions plus safe hooks into <code>.claude/</code>.</li>
-    <li><strong>Use it</strong><br><code>/develop:work &lt;spec | ticket | idea&gt;</code> per change, and <code>/develop:flywheel</code> periodically to tune the flow from its postmortems.</li>
+    <li><strong>Use it</strong><br><code>/develop:work &lt;spec | ticket | idea&gt;</code> per change, <code>/develop:ship</code> to push and watch the PR to merge, and <code>/develop:flywheel</code> periodically to tune the flow from its postmortems.</li>
   </ol>
   <p class="section-lead">Nothing is transplanted: <code>/develop:init</code> reads <em>this</em> repo's commands and conventions and grows from a minimal core. Re-run it any time to refresh discovery: it reconciles, it doesn't clobber.</p>
 </section>
 
 <!-- ================= COMMANDS ================= -->
 <section id="commands">
-  <div class="section-eyebrow">The three commands</div>
-  <h2>Scaffold once · run per feature · tune periodically</h2>
-  <p class="section-lead">Three static, portable skills. Their behaviour is fitted to your repo because they read the definitions <code>init</code> discovered, not because they were rewritten for you.</p>
-  <div class="trio">
+  <div class="section-eyebrow">The four commands</div>
+  <h2>Scaffold once · work per feature · ship per branch · tune periodically</h2>
+  <p class="section-lead">Four static, portable skills. Their behaviour is fitted to your repo because they read the definitions <code>init</code> discovered, not because they were rewritten for you.</p>
+  <div class="trio trio-quad">
     <div class="trio-card skill">
       <h3><span class="trio-tag">once</span> /develop:init</h3>
       <p>Detects your stack, discovers the real build/test/lint/coverage commands (CI is the source of truth), and writes <code>.claude/develop.config.json</code>, a routing table, a starter <code>CLAUDE.md</code>, safe hooks, and a flywheel doc. Confirms with you before writing.</p>
@@ -68,8 +68,13 @@
     </div>
     <div class="trio-card orch">
       <h3><span class="trio-tag">per feature</span> /develop:work</h3>
-      <p>The orchestrator loop. Plans, works in an isolated worktree, dispatches one executor per phase, then runs a fixed quality tail (validate → audit → tidy → finalize) wired to <em>your</em> gates. Blocks the commit until they pass; hands off a branch (never pushes).</p>
+      <p>The orchestrator loop. Plans, works in an isolated worktree, dispatches one executor per phase, then runs a fixed quality tail (validate → audit → tidy → finalize) wired to <em>your</em> gates. Blocks the commit until they pass; hands off a committed branch — it never pushes. That's <code>ship</code>'s job.</p>
       <div class="eg">run per change: spec, ticket, or rough idea</div>
+    </div>
+    <div class="trio-card ship">
+      <h3><span class="trio-tag">per branch</span> /develop:ship</h3>
+      <p>Pushes the branch, opens the PR, then a mechanical watcher babysits it through CI and review: it fixes real failures, deflakes flaky tests, answers review threads, rebases on conflict, and merges only at green + approved + threads addressed. It wakes you only for judgment — a clean PR merges with zero interruptions.</p>
+      <div class="eg">run per branch, after work — optionally <code>--merge</code></div>
     </div>
     <div class="trio-card agent">
       <h3><span class="trio-tag">periodically</span> /develop:flywheel</h3>
@@ -115,15 +120,17 @@
         <li><code>develop-routing.json</code>: artifact-shape → agent (starts with a generalist fallback)</li>
         <li><code>CLAUDE.md</code>: a short starter from your discovered conventions</li>
         <li><code>develop-flywheel.md</code>: the decision log plus your promoted checks (records land in a companion <code>.jsonl</code>)</li>
+        <li><code>develop.config.json → ship</code>: your base branch, review-bot + flake patterns, and caps for <code>/develop:ship</code> (plus a self-maintained CI-duration baseline, git-ignored)</li>
         <li>safe <code>hooks/</code>: a worktree guard plus a generic command timeout</li>
       </ul>
     </div>
     <div class="split-card">
       <h3 class="sub-h">Bundled in the plugin (not copied)</h3>
       <ul class="checklist tight">
-        <li><strong>skills</strong>: <code>/develop:init</code>, <code>/develop:work</code>, <code>/develop:flywheel</code></li>
-        <li><strong>agents</strong>: planner, executor, the diff-reading auditors, code-reviewer, tidy, refuter</li>
-        <li><strong>references</strong>: the portable mechanism (plan anatomy, gate tokens, the quality tail, the flywheel)</li>
+        <li><strong>skills</strong>: <code>/develop:init</code>, <code>/develop:work</code>, <code>/develop:ship</code>, <code>/develop:flywheel</code></li>
+        <li><strong>agents</strong>: planner, executor, the diff-reading auditors, code-reviewer, tidy, refuter, ci-failure-extractor</li>
+        <li><strong>scripts</strong>: the <code>ship.py</code> watch engine (Monitor-driven — wakes you only for judgment) and the flywheel aggregators</li>
+        <li><strong>references</strong>: the portable mechanism (plan anatomy, gate tokens, the quality tail, the flywheel, the watch protocol)</li>
       </ul>
       <p class="sub-lead">Your routing table references the bundled agents by name. Specialists you add later live in your own <code>.claude/agents/</code>, grown via the flywheel.</p>
     </div>
@@ -137,6 +144,7 @@
   <p class="section-lead">Reuse first, defer creation to workflows: the flow prefers the skills/agents/rules you already have, and when something's missing it proposes building it, rather than quietly hand-rolling one-off helpers.</p>
   <ol class="ship-steps">
     <li><strong>Run a feature.</strong> <code>/develop:work</code> plans, builds, and runs the quality tail. The finalize phase logs a postmortem: what escaped, classified preventable vs irreducible.</li>
+    <li><strong>Ship it.</strong> <code>/develop:ship</code> pushes and watches the PR. A CI check it has to fix downstream <em>is</em> a confirmed escape by definition, so it records one to the same postmortem log in real time — deduped against the periodic scan, so nothing is counted twice.</li>
     <li><strong>Tune periodically.</strong> <code>/develop:flywheel</code> reads the postmortems, and for each recurring (or breaking-class) escape proposes the cheapest lever: a hook, gate, rule, anchor, or a new or pruned reviewer.</li>
     <li><strong>You approve; it applies.</strong> Simple deterministic levers are edited directly; building or improving an agent/skill/rule is deferred to a focused workflow. Nothing edits <code>.claude/</code> without you.</li>
     <li><strong>Next run is stronger.</strong> The new checks are enforced by construction, so that defect class stops escaping. Preventable findings trend toward zero; the irreducible floor stays.</li>

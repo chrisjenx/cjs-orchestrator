@@ -15,5 +15,19 @@
   "caps": { "validator": 3, "audit": 2, "fork": 1, "gate": 2 },
   "intensity": { "refuters": 1, "planCandidates": 1 },
   "routingFile": ".claude/develop-routing.json",
-  "flywheelFile": ".claude/develop-flywheel.md"
+  "flywheelFile": ".claude/develop-flywheel.md",
+  "ship": {
+    "baseBranch": "<detected default branch>",
+    "reviewBots": [],
+    "skipLogins": ["dependabot[bot]", "renovate[bot]"],
+    "flakePatterns": [
+      { "regex": "OutOfMemoryError", "mechanism": "memory", "hint": "shrink fixture; per-test cleanup" },
+      { "regex": "(?i)connect(ion)? (refused|reset)|sockettimeout", "mechanism": "network", "hint": "stub the network dependency" },
+      { "regex": "(?i)timeout", "mechanism": "timing", "hint": "bump timeout 2x or inject a test double" }
+    ],
+    "caps": { "ciFail": 3, "flakySoak": 3, "emptyRuns": 3, "retriggerReview": 2 },
+    "durationsFile": ".claude/ship-ci-durations.json",
+    "ticketRoute": "gh-issue",
+    "mergeMethod": "squash"
+  }
 }

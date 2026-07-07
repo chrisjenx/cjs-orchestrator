@@ -1,0 +1,25 @@
+{
+  "pr": {
+    "number": 104,
+    "headRefOid": "drft0000000000000000000000000000000000",
+    "isDraft": true,
+    "mergeStateStatus": "BLOCKED",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": null,
+    "reviewRequests": [],
+    "reviewThreads": {
+      "nodes": []
+    },
+    "headRefName": "claude/alpha-beta-drft00"
+  },
+  "check_runs": {
+    "check_runs": [
+      {
+        "name": "backend-test",
+        "status": "completed",
+        "conclusion": "success",
+        "details_url": "https://github.com/o/r/actions/runs/300"
+      }
+    ]
+  }
+}

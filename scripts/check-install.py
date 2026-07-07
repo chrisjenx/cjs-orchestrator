@@ -71,7 +71,7 @@ def main() -> int:
     sdir = os.path.join(PLUGIN, "skills")
     skills = sorted(d for d in os.listdir(sdir) if os.path.isdir(os.path.join(sdir, d))) \
         if os.path.isdir(sdir) else []
-    for required in ("init", "work", "flywheel"):
+    for required in ("init", "work", "ship", "flywheel"):
         if required not in skills:
             problems.append(f"skills/{required}/ missing")
     for skill in skills:

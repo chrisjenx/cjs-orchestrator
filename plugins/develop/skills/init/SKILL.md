@@ -96,6 +96,14 @@ command ran and produced evidence. Follow [references/gate-tokens.md](../../refe
 - Confirm the command list with the user, then write it into `.claude/develop.config.json`
   per [references/config-schema.md](../../references/config-schema.md).
 
+**Ship discovery (optional — for `/develop:ship`).** Seed the config's `ship` section
+([config-schema.md](../../references/config-schema.md), [ship-watch.md](../../references/ship-watch.md)):
+resolve `baseBranch` from `git symbolic-ref refs/remotes/origin/HEAD`; scan recent PR check-runs
+(`gh pr checks` / recent runs) for a review-bot check name to offer as a `reviewBots[]` entry (leave
+`[]` if none — it degrades fine); keep the neutral default `flakePatterns` and `caps`. Ask only the
+one or two questions that need a human (which check is the review bot; the sticky beacon, if any);
+default the rest. A repo that won't use `/develop:ship` can skip this entirely.
+
 ## Phase 3 — Write the per-repo definitions
 
 Write (showing the diff first):
@@ -115,8 +123,9 @@ Write (showing the diff first):
   <repo_root> <pattern>` (idempotent, parent-dir aware — a re-run shows no spurious diff), called
   for **both** `<featureDir>` (default `.develop/`, so plan artifacts stay out of commits and out
   of any build-output dir a `clean` wipes) **and** `.claude/worktrees/` (the run-loop worktree
-  cache, which `/develop:work` creates under `.claude/` — otherwise it leaks as untracked). This is
-  the only place init touches `.gitignore`; Phase 0's re-run references this ensure.
+  cache, which `/develop:work` creates under `.claude/` — otherwise it leaks as untracked), plus
+  `ship.durationsFile` (default `.claude/ship-ci-durations.json`) when the `ship` section was
+  written. This is the only place init touches `.gitignore`; Phase 0's re-run references this ensure.
 
 The plan file, plan-anatomy, executor brief, and quality tail are **not** written here —
 they live in the plugin and are used by `/develop:work` at runtime.

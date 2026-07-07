@@ -1,0 +1,25 @@
+{
+  "pr": {
+    "number": 202,
+    "headRefOid": "netw0000000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "UNSTABLE",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": null,
+    "reviewRequests": [],
+    "reviewThreads": {"nodes": []},
+    "headRefName": "fix/network"
+  },
+  "check_runs": {
+    "check_runs": [
+      {
+        "name": "unit-tests",
+        "status": "completed",
+        "conclusion": "failure",
+        "details_url": "https://github.com/example-org/example-repo/actions/runs/202/jobs/1002",
+        "html_url": "https://github.com/example-org/example-repo/actions/runs/202",
+        "failed_log": "com.example.ApiClientTest fetchesRemoteResource FAILED\n    Connection refused: no further information\n"
+      }
+    ]
+  }
+}

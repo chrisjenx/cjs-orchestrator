@@ -1,0 +1,16 @@
+{
+  "pr": {
+    "number": 151,
+    "headRefOid": "emptyrun00000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "MERGEABLE",
+    "mergeable": "MERGEABLE",
+    "reviewDecision": "APPROVED",
+    "reviewRequests": [],
+    "headRefName": "feat/empty-workflow"
+  },
+  "check_runs": {
+    "check_runs": []
+  },
+  "sticky": null
+}

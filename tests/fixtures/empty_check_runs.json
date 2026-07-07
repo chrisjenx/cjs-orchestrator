@@ -1,0 +1,18 @@
+{
+  "pr": {
+    "number": 101,
+    "headRefOid": "def4560000000000000000000000000000000000",
+    "isDraft": false,
+    "mergeStateStatus": "UNKNOWN",
+    "mergeable": "UNKNOWN",
+    "reviewDecision": null,
+    "reviewRequests": [],
+    "reviewThreads": {
+      "nodes": []
+    },
+    "headRefName": "claude/alpha-beta-def456"
+  },
+  "check_runs": {
+    "check_runs": []
+  }
+}

@@ -39,6 +39,12 @@ each — stamped `run` = the source PR id so re-scanning dedups on
 `(run, fingerprint)` — as a `FLYWHEEL_RECORD` with `source: pr-review|ci` and the `escaped_phase`
 that should have caught it. Attribute each to that phase, then route to its cheapest lever:
 
+> **Live path:** [`/develop:ship`](../skills/ship/SKILL.md) already fixes CI failures at watch time
+> — a check it fixed **is** a confirmed escape. Its `ci_failed` handler appends one through the same
+> `flywheel-ingest.py` (`source: ci`, `run: pr-<n>`), so it lands in the SSOT immediately instead of
+> waiting for the periodic scan; the shared `(run, fingerprint)` key means a later `/develop:flywheel`
+> re-scan of that PR dedups rather than double-counting.
+
 | Escaped signal | escaped_phase | Cheapest lever |
 |---|---|---|
 | Missing/unstated requirement | `planner` | Requirements-Inventory / contract anchor |
