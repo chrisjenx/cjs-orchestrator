@@ -101,6 +101,43 @@ def test_config_absent_file_uses_defaults(tmp_path: Path, monkeypatch) -> None:
     assert ship.MERGE_METHOD == "squash"
 
 
+def test_config_bad_values_degrade_not_crash(capsys) -> None:
+    """A typo'd cap, an invalid hotPaths/flakePatterns regex, and a bad
+    failedTestRegex each warn and fall back instead of raising at load."""
+    configure(
+        caps={"ciFail": "three"},
+        hotPaths=["[unclosed", r".*\.lock$"],
+        flakePatterns=[{"regex": "(bad", "mechanism": "broken"},
+                       {"regex": "OutOfMemoryError", "mechanism": "memory"}],
+        failedTestRegex="(also-bad",
+    )
+    assert ship.CI_FAIL_CAP == 3                       # default, not a crash
+    assert len(ship.HOT_PATHS_RX) == 1                 # bad pattern skipped
+    assert [m for m, _, _ in ship.FLAKE_MECHANISMS] == ["memory"]
+    assert ship.FAILED_FQN_RX is None
+    err = capsys.readouterr().err
+    assert "is not a number" in err
+    assert "invalid regex in hotPaths" in err
+    assert "invalid regex in flakePatterns[broken]" in err
+    assert "invalid regex in failedTestRegex" in err
+
+
+def test_config_malformed_file_names_the_fault(tmp_path: Path, monkeypatch, capsys) -> None:
+    """A corrupt develop.config.json is reported as unreadable, not as
+    'no ship config found' (which would mislead a user who configured it)."""
+    cfgdir = tmp_path / ".claude"
+    cfgdir.mkdir()
+    (cfgdir / "develop.config.json").write_text("{not json")
+    monkeypatch.setattr(ship, "_repo_root", lambda: tmp_path)
+    ship._CONFIG = None
+    ship._CONFIG_SECTION_FOUND = False
+    cfg = ship._config()
+    assert cfg["caps"]["ciFail"] == 3                  # defaults in use
+    err = capsys.readouterr().err
+    assert "unreadable" in err
+    assert "no ship config found" not in err
+
+
 def test_apply_config_recompiles_module_tables() -> None:
     configure(hotPaths=[r".*\.lock$"], checkExclusions=["gen"],
               reviewBots=[REVIEW_BOT], mergeMethod="rebase")
