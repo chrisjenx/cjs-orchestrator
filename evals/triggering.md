@@ -1,24 +1,25 @@
 # Triggering matrix
 
-`/develop:init` and `/develop:work` must fire on the right intents and stay quiet on unrelated
+`/develop:bootstrap` and `/develop:work` must fire on the right intents and stay quiet on unrelated
 ones. Run each phrase with a fresh agent that has the plugin installed; record whether the
 expected skill activated.
 
-## `/develop:init` — SHOULD trigger
+## `/develop:bootstrap` — SHOULD trigger
 
-- "init develop"
+- "bootstrap develop"
 - "set up orchestration for this repo"
 - "build my own develop flow"
 - "scaffold an agentic pipeline here"
 - "I want a spec-to-branch loop fitted to this project"
 - "bootstrap the develop orchestrator"
 
-## `/develop:init` — should NOT trigger
+## `/develop:bootstrap` — should NOT trigger
 
 - "what does develop mean?" (a definition question)
 - "run the tests" (a plain task)
 - "develop a new feature for X" (this is run-flow / plain work, not bootstrap)
-- "git init" (unrelated tooling)
+- "git init" (unrelated tooling — not to be confused with Claude Code's own built-in `/init`,
+  which is also a different command)
 
 ## `/develop:work` — SHOULD trigger
 
@@ -30,7 +31,7 @@ expected skill activated.
 ## `/develop:work` — should NOT trigger
 
 - "how does /develop:work work?" (a question)
-- "set up the develop flow" (that's init)
+- "set up the develop flow" (that's bootstrap)
 - "push my branch and open a PR" (work never pushes; that's `/develop:ship`)
 
 ## `/develop:ship` — SHOULD trigger
@@ -52,5 +53,5 @@ expected skill activated.
 
 - Every SHOULD row activates the named skill.
 - Every should-NOT row does **not** activate it.
-- Pay special attention to the boundaries: "set up" → init; "develop this change" → work;
+- Pay special attention to the boundaries: "set up" → bootstrap; "develop this change" → work;
   "push/watch/babysit the PR" → ship. Question-shaped phrases should trigger neither.

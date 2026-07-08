@@ -1,6 +1,6 @@
 ---
 name: work
-description: Run the fitted /develop orchestration loop for THIS repo — turn a spec, ticket, or rough idea into a reviewed, committed branch. Trigger on "/develop:work", "develop this", "run the develop flow", "spec to branch", or handing this skill a spec/ticket/description. Requires /develop:init to have written .claude/develop.config.json. Walks a per-feature plan file, dispatches one executor per phase, and runs a fixed quality tail wired to the repo's real gates. Static loop; behaviour is fitted because it reads the repo's discovered definitions.
+description: Run the fitted /develop orchestration loop for THIS repo — turn a spec, ticket, or rough idea into a reviewed, committed branch. Trigger on "/develop:work", "develop this", "run the develop flow", "spec to branch", or handing this skill a spec/ticket/description. Requires /develop:bootstrap to have written .claude/develop.config.json. Walks a per-feature plan file, dispatches one executor per phase, and runs a fixed quality tail wired to the repo's real gates. Static loop; behaviour is fitted because it reads the repo's discovered definitions.
 ---
 
 # Run the `/develop` loop
@@ -14,7 +14,7 @@ never write feature code yourself.
 - `.claude/develop.config.json` — the repo's gates, stack, model tiers, caps
   ([config-schema.md](../../references/config-schema.md)). Read it from the **main checkout**
   (the `--git-common-dir` parent), since it may be uncommitted and so absent on a fresh worktree
-  branch. **If it's genuinely missing there, stop and tell the user to run `/develop:init` first.**
+  branch. **If it's genuinely missing there, stop and tell the user to run `/develop:bootstrap` first.**
 - `.claude/develop-routing.json` — artifact-shape → specialist routing
   ([routing.md](../../references/routing.md)).
 - The portable mechanism: [plan-anatomy.md](../../references/plan-anatomy.md),
@@ -157,7 +157,7 @@ Report status, the commit SHA, open findings, and escalations. **Never push and 
 PR** — `/develop:work` hands off a committed branch; the user (or a separate push/PR flow)
 takes it from there. Offer the handoff: **`/develop:ship`** pushes, opens the PR, and watches it
 through CI and review to merge ([ship-watch.md](../../references/ship-watch.md); needs the `ship`
-config section from `/develop:init`).
+config section from `/develop:bootstrap`).
 _say:_ the final line is the mechanical status — `✓ committed <sha> · ready` (or
 `⚠ … · ready-with-escalations`, `✗ … · committed-with-failures` / `commit-failed` /
 `planning-failed`).

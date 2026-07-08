@@ -5,6 +5,20 @@ users. Newest first.
 
 ---
 
+## 2026-07-07 — Rename the bootstrap skill `/develop:init` → `/develop:bootstrap` (reverses part of the 2026-06-17 lock)
+
+`/develop:init` collided with Claude Code's own built-in `/init` command (which generates a plain
+`CLAUDE.md`) — a newcomer typing `/init` in a repo with this plugin installed couldn't tell which
+one they'd get, or might skip the plugin's bootstrap thinking they'd already "init'd". Renamed to
+`/develop:bootstrap`, the word DECISIONS.md and both READMEs already used to describe this skill.
+
+- **Breaking, no alias.** `/develop:init` stops working immediately — the same "while there are
+  ~zero users" bet the `run`→`work` rename made.
+- Current locked name: **Bootstrap skill → `/develop:bootstrap`**,
+  `plugins/develop/skills/bootstrap/`. The 2026-06-17 table below is left as the historical record
+  of the original lock. Migration note:
+  [migrations.md](plugins/develop/references/migrations.md) v0.10.0.
+
 ## 2026-07-07 — Lock a 4th public verb: `/develop:ship` (push → watch → merge)
 
 The plugin ended at a committed branch by design (`/develop:work` never pushes). `/develop:ship`

@@ -1,6 +1,6 @@
-# Evals for `/develop:init`
+# Evals for `/develop:bootstrap`
 
-These evals are the **tests** for the bootstrapper skill: they pin down that `/develop:init`
+These evals are the **tests** for the bootstrapper skill: they pin down that `/develop:bootstrap`
 (1) **triggers** on the right intents and not the wrong ones, and (2) **behaves** correctly —
 detects the stack and discovers the real gates — across sample repos of different stacks.
 Their job is to catch regressions in detection/discovery when the skill or references change.
@@ -15,7 +15,7 @@ detection makes an eval fail.
 evals/
   README.md            # this file
   triggering.md        # should-trigger / should-NOT-trigger phrase matrix
-  scaffold-eval.md     # full WRITE eval: run init, validate the .claude/ it writes
+  scaffold-eval.md     # full WRITE eval: run bootstrap, validate the .claude/ it writes
   fixtures/
     node-ts/           # a realistic minimal repo per stack
     python-uv/
@@ -27,7 +27,7 @@ evals/
 ## How to run (subagent-per-fixture)
 
 For each fixture, dispatch a subagent with the `develop` plugin available, cwd set to the
-fixture, and the task: *"Run the `/develop:init` Phase 1–2 discovery (stack detection + gate
+fixture, and the task: *"Run the `/develop:bootstrap` Phase 1–2 discovery (stack detection + gate
 discovery) and report the stack summary + the gate commands you'd write to
 develop.config.json."* Do **not** let it write files — this is a read-only detection eval.
 
@@ -47,7 +47,7 @@ fix in the skill/references, not in the eval.
 ## Scaffold eval (full write)
 
 The detection eval above is **read-only** — it checks Phase 1–2 discovery and forbids writes.
-To validate the **whole scaffold** init writes (config, routing, safe hook, flywheel seed,
+To validate the **whole scaffold** bootstrap writes (config, routing, safe hook, flywheel seed,
 `CLAUDE.md`), measure run-to-run determinism, or diff against an existing repo's hand-built
 `.claude/` golden, see [scaffold-eval.md](./scaffold-eval.md) and
 [`../scripts/check-scaffold.py`](../scripts/check-scaffold.py).
@@ -55,7 +55,7 @@ To validate the **whole scaffold** init writes (config, routing, safe hook, flyw
 ## Triggering evals
 
 See [triggering.md](./triggering.md). For each should-trigger phrase, a fresh agent with the
-plugin installed should invoke `/develop:init`; for each should-NOT-trigger phrase, it should
+plugin installed should invoke `/develop:bootstrap`; for each should-NOT-trigger phrase, it should
 not. Over-triggering (firing on unrelated intents) is as much a failure as under-triggering.
 
 ## Adding a fixture

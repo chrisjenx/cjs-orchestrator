@@ -1,6 +1,6 @@
 ---
 name: ship
-description: "Push a committed branch, open its PR, then watch it through CI and review to merge — the handoff after /develop:work. Trigger on '/develop:ship', 'ship this branch', 'push and watch', 'babysit the PR', 'push and fix CI', 'watch the PR to green', 'handle the review comments', '--merge'. NOT for a plain commit/push with no watch intent. Reads the repo's `ship` config section (written by /develop:init); the bundled ship.py engine owns all mechanics."
+description: "Push a committed branch, open its PR, then watch it through CI and review to merge — the handoff after /develop:work. Trigger on '/develop:ship', 'ship this branch', 'push and watch', 'babysit the PR', 'push and fix CI', 'watch the PR to green', 'handle the review comments', '--merge'. NOT for a plain commit/push with no watch intent. Reads the repo's `ship` config section (written by /develop:bootstrap); the bundled ship.py engine owns all mechanics."
 ---
 
 # Ship — push, watch, respond, merge
@@ -13,7 +13,7 @@ narration.
 
 Invoke the engine as `ship` = `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/ship.py"`. It reads
 `.claude/develop.config.json`'s `ship` section from the main checkout; missing section → defaults +
-a warning (tell the user to run `/develop:init`). All ops target the active worktree; state is
+a warning (tell the user to run `/develop:bootstrap`). All ops target the active worktree; state is
 isolated per worktree.
 
 **Entry contract:** ship expects a branch that already passed `/develop:work`'s quality tail (or

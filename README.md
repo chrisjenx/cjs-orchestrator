@@ -29,13 +29,13 @@ The portable part is a small set of moves: state in a file, narrow context per a
 Then, in the repo you want to set up:
 
 ```text
-/develop:init     # once: detect your stack, confirm gates, scaffold the config
+/develop:bootstrap # once: detect your stack, confirm gates, scaffold the config
 /develop:work      # per feature: spec → reviewed, committed branch
 /develop:ship      # per branch: push, watch CI + review, merge
 /develop:flywheel # periodically: review postmortems, tune the flow for next run
 ```
 
-`/develop:init` detects your stack, confirms the real gate commands with you, and writes
+`/develop:bootstrap` detects your stack, confirms the real gate commands with you, and writes
 the repo-specific definitions (gates, conventions, routing, safe hooks) into `.claude/`.
 `/develop:work` is the portable orchestrator loop: it ships **static** in the plugin but
 behaves **fitted to your repo** because it reads those discovered definitions, and hands off a
@@ -50,7 +50,7 @@ cjs-orchestrator/
 ├── .claude-plugin/marketplace.json   # marketplace catalog
 ├── plugins/develop/                  # the plugin
 │   ├── .claude-plugin/plugin.json
-│   ├── skills/init/SKILL.md          # the /develop:init bootstrapper
+│   ├── skills/bootstrap/SKILL.md     # the /develop:bootstrap discovery skill
 │   ├── skills/work/SKILL.md           # the /develop:work orchestrator loop
 │   ├── skills/ship/SKILL.md           # the /develop:ship CI watcher
 │   ├── skills/flywheel/SKILL.md      # the /develop:flywheel tuner

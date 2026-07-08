@@ -17,7 +17,7 @@ review comments runs from push to the merge gate with **zero** wakes.
 
 The engine reads the optional `ship` section of `.claude/develop.config.json` (from the main
 checkout) and merges it over built-in defaults; a missing section logs one stderr warning and runs on
-defaults. `/develop:init` writes the section; [config-schema.md](./config-schema.md) documents every
+defaults. `/develop:bootstrap` writes the section; [config-schema.md](./config-schema.md) documents every
 field. Repo specifics — base branch, review-bot check/comment identities + sticky format, flake
 patterns, caps, cadence, rate floor, merge method, ticket route — come only from there. The engine
 hardcodes nothing repo-specific; with an empty `reviewBots` it degrades gracefully (no sticky or

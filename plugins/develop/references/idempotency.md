@@ -1,28 +1,28 @@
 # Idempotent re-runs — reconcile, never clobber
 
-`/develop:init` is meant to be re-run: when the stack changes, when CI gains a gate, when the
+`/develop:bootstrap` is meant to be re-run: when the stack changes, when CI gains a gate, when the
 user wants to refresh discovery. A re-run must **never** silently overwrite work the user
 customised. Same discipline the executor uses on resume: **reconcile, don't regenerate.**
 
 > **Golden rule:** show the diff before writing anything, and default to *preserving* the
-> user's version on every conflict. The user owns `.claude/`; init only proposes changes.
+> user's version on every conflict. The user owns `.claude/`; bootstrap only proposes changes.
 
 ## Detect (Phase 0)
 
-A re-run is any init where `.claude/develop.config.json` already exists. Inventory what's
+A re-run is any bootstrap where `.claude/develop.config.json` already exists. Inventory what's
 already there: `develop.config.json`, `develop-routing.json`, `develop-flywheel.md`, the
 hooks + their `settings.json` entries, and a `CLAUDE.md`.
 
 ## Classify each target file
 
-For every file init would write, compute one of:
+For every file bootstrap would write, compute one of:
 
 | State | Action |
 |---|---|
 | **absent** | create it (normal first-run write) |
-| **present, == what init would write** | skip silently (no-op) |
+| **present, == what bootstrap would write** | skip silently (no-op) |
 | **present, user-customised** | reconcile (per-file rules below); never overwrite |
-| **present, init would add new content** | propose an *additive* change; show the diff |
+| **present, bootstrap would add new content** | propose an *additive* change; show the diff |
 
 Then present a single consolidated diff and apply only after the user accepts. Applying
 nothing on a no-change re-run is a valid, expected outcome.
@@ -52,15 +52,15 @@ nothing on a no-change re-run is a valid, expected outcome.
 
 Two classes of target content, with opposite rules:
 
-- **PLUGIN-MANAGED** — init may update or clean these; they are never preserved as user content.
-  `pluginVersion` (init **always overwrites** it with the live plugin version at write time —
+- **PLUGIN-MANAGED** — bootstrap may update or clean these; they are never preserved as user content.
+  `pluginVersion` (bootstrap **always overwrites** it with the live plugin version at write time —
   distinct from the schema-gated "add fields on a `schema` bump" rule and from "never overwrite
   user content"); the guard hook wiring; the gitignore lines the plugin owns (`<featureDir>`,
   `.claude/worktrees/`). Per-version cleanups live in [migrations.md](./migrations.md).
 - **USER-MANAGED** — reconcile and preserve (the per-file rules above): `gates`, routing,
   `models` / `caps` / `intensity`, and `CLAUDE.md` prose.
 
-The golden rule ("the user owns `.claude/`") is unchanged: plugin-managed items are init's own
+The golden rule ("the user owns `.claude/`") is unchanged: plugin-managed items are bootstrap's own
 bookkeeping and wiring, not the user's authored content.
 
 ## Show the diff

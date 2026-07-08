@@ -1,6 +1,6 @@
 # Dry run — prove the gates are real before trusting them
 
-`/develop:init` Phase 5. A scaffold that *looks* wired but whose gates don't actually run (or
+`/develop:bootstrap` Phase 5. A scaffold that *looks* wired but whose gates don't actually run (or
 run but don't block) is worse than none — it gives false confidence. Before declaring the
 flow ready, prove two things on a throwaway change:
 

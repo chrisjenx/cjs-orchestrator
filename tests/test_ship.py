@@ -218,9 +218,9 @@ def test_config_failed_test_regex_non_string_ignored(capsys) -> None:
 
 
 def test_doctor_reports_malformed_config_distinctly(tmp_path: Path, monkeypatch, capsys) -> None:
-    """`ship doctor` must not tell the user to re-run /develop:init for a
+    """`ship doctor` must not tell the user to re-run /develop:bootstrap for a
     JSON typo — that message is reserved for a genuinely absent ship section,
-    and would risk /develop:init overwriting an otherwise-fine config."""
+    and would risk /develop:bootstrap overwriting an otherwise-fine config."""
     cfgdir = tmp_path / ".claude"
     cfgdir.mkdir()
     (cfgdir / "develop.config.json").write_text("{not json")
@@ -232,7 +232,7 @@ def test_doctor_reports_malformed_config_distinctly(tmp_path: Path, monkeypatch,
     ship.cmd_doctor()
     out = capsys.readouterr().out
     assert "malformed" in out
-    assert "missing — defaults in use (run /develop:init)" not in out
+    assert "missing — defaults in use (run /develop:bootstrap)" not in out
 
 
 def test_apply_config_recompiles_module_tables() -> None:

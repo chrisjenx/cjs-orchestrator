@@ -1,15 +1,24 @@
-# Per-version migrations — what a re-run of `/develop:init` cleans up
+# Per-version migrations — what a re-run of `/develop:bootstrap` cleans up
 
-The single home for per-version cleanups init applies when Phase 0 detects a `pluginVersion`
-gap. idempotency.md, the init SKILL, the hooks README, and the CHANGELOG carry a one-line
+The single home for per-version cleanups bootstrap applies when Phase 0 detects a `pluginVersion`
+gap. idempotency.md, the bootstrap SKILL, the hooks README, and the CHANGELOG carry a one-line
 summary + a link here — never the procedure.
 
-init reads the target's recorded `pluginVersion` (`config-schema.md`) vs the live plugin
+bootstrap reads the target's recorded `pluginVersion` (`config-schema.md`) vs the live plugin
 (`${CLAUDE_PLUGIN_ROOT}/.claude-plugin/plugin.json`), compares with
 [`scripts/version-compare.sh`](../scripts/version-compare.sh), and — **recorded version absent ⇒
 treat as `0.6.0` (oldest migratable)** — runs every entry newer than the recorded version, then
-stamps `pluginVersion` to current. A release that changes nothing init writes still gets a
+stamps `pluginVersion` to current. A release that changes nothing bootstrap writes still gets a
 one-line `no migration` entry below so the version is accounted for.
+
+## v0.10.0 — the bootstrap skill is now `/develop:bootstrap` (breaking)
+
+`/develop:init` was renamed to `/develop:bootstrap` — it collided with Claude Code's own built-in
+`/init` command. The old invocation no longer works. Nothing bootstrap writes into `.claude/` is
+keyed on the command name, so a re-run just re-stamps `pluginVersion`. **Flag, don't auto-edit:**
+the target repo's `CLAUDE.md` (user-managed prose — [idempotency.md](./idempotency.md)) or any
+local scripts may still say `/develop:init`; tell the user to update those to `/develop:bootstrap`
+by hand.
 
 ## v0.9.0 — new `ship` config section (additive)
 

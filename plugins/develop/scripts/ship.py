@@ -8,7 +8,7 @@ per-PR JSON state file. Emits compact hints; never decides.
 Watch contract: stdout is wake-only — a printed JSON line means the agent must
 act; all waiting, throttling, and diagnostics go to stderr (silent to the
 Monitor). Per-repo behaviour comes from the `ship` object in
-`.claude/develop.config.json` (written by /develop:init), deep-merged over
+`.claude/develop.config.json` (written by /develop:bootstrap), deep-merged over
 built-in defaults.
 """
 
@@ -318,7 +318,7 @@ def _config() -> dict[str, Any]:
                 data = json.loads(path.read_text())
             except (OSError, json.JSONDecodeError) as exc:
                 # A config the user DID write but ship can't read is not "missing" —
-                # say so, or the defaults + "run /develop:init" hint hides the real fault.
+                # say so, or the defaults + "run /develop:bootstrap" hint hides the real fault.
                 malformed = f"{path}: {exc}"
             else:
                 if not isinstance(data, dict):
@@ -338,7 +338,7 @@ def _config() -> dict[str, Any]:
         if malformed:
             sys.stderr.write(f"ship: develop.config.json unreadable ({malformed}); using defaults\n")
         else:
-            sys.stderr.write("ship: no ship config found; using defaults (run /develop:init)\n")
+            sys.stderr.write("ship: no ship config found; using defaults (run /develop:bootstrap)\n")
     else:
         _CONFIG_MALFORMED = None
         merged = _deep_merge(merged, section)
@@ -3442,12 +3442,12 @@ def cmd_doctor() -> int:
     _config()
     if _CONFIG_MALFORMED:
         # Distinct from "missing": the user DID write a ship config, but it's
-        # broken — pointing them at /develop:init would risk overwriting a
+        # broken — pointing them at /develop:bootstrap would risk overwriting a
         # hand-tuned section that has nothing to do with the actual fault.
         report("ship config section", False, f"malformed — {_CONFIG_MALFORMED}", hard=False)
     else:
         report("ship config section", _CONFIG_SECTION_FOUND,
-               "present" if _CONFIG_SECTION_FOUND else "missing — defaults in use (run /develop:init)",
+               "present" if _CONFIG_SECTION_FOUND else "missing — defaults in use (run /develop:bootstrap)",
                hard=False)
 
     base = _base_ref()

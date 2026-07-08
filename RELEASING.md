@@ -15,8 +15,8 @@ How a release of the `develop` plugin is cut, and the version policy.
     kind, a new config field) that is backwards-compatible.
   - **major-ish for pre-1.0** — a breaking change to `develop.config.json`'s `schema`, the
     plan format, or a skill's name/contract. Bump the minor and **bump
-    `develop.config.json`'s `schema`** + provide a migration note (init reconciles on re-run;
-    see `references/idempotency.md`).
+    `develop.config.json`'s `schema`** + provide a migration note (bootstrap reconciles on
+    re-run; see `references/idempotency.md`).
 - `marketplace.json` has no version of its own; the plugin's version is the unit users track.
 
 ## Cutting a release
@@ -61,6 +61,6 @@ How a release of the `develop` plugin is cut, and the version policy.
   update prompt, driven by the bumped `version`).
 - The pre-release green check already ran `scripts/install-smoke.sh` (automated install). The
   part it can't automate is the interactive last mile: in a scratch Claude Code session, type
-  `/develop:init` and confirm it triggers and degrades gracefully in an empty repo
+  `/develop:bootstrap` and confirm it triggers and degrades gracefully in an empty repo
   ([install e2e](evals/install-e2e.md)). Do this for any release touching manifests, skills, or
   agents.

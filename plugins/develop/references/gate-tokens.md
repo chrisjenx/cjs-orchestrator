@@ -1,6 +1,6 @@
 # Gate tokens — the repo's real checks, made un-skippable
 
-`/develop:init` Phase 2. A **gate** is a check that clears *only because a command ran and
+`/develop:bootstrap` Phase 2. A **gate** is a check that clears *only because a command ran and
 produced evidence* — never because an agent "felt done." Below: how to discover gates from
 the repo and how `/develop:work` references them.
 

@@ -7,6 +7,20 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+Breaking: the bootstrap skill is renamed. This reverses part of the 2026-06-17 "public names
+locked" decision (see DECISIONS.md), taken now while the user base is still small.
+
+### Changed
+- **`/develop:init` is now `/develop:bootstrap`** (BREAKING, no alias). The old invocation stops
+  working. `init` collided with Claude Code's own built-in `/init` command. The skill directory
+  moved to `plugins/develop/skills/bootstrap/`.
+
+### Migration
+- Re-run `/develop:bootstrap` to re-stamp `pluginVersion`; nothing it writes is keyed on the
+  command name. Update any `/develop:init` references in your repo's CLAUDE.md or local scripts
+  to `/develop:bootstrap` by hand (bootstrap will not rewrite that user-managed prose). See
+  references/migrations.md.
+
 ## [0.9.0] - 2026-07-07
 
 Adds a 4th command, `/develop:ship`: the push-watch-merge handoff after `/develop:work`. It

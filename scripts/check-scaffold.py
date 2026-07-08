@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Validate / compare a `.claude/` scaffold produced by `/develop:init`.
+"""Validate / compare a `.claude/` scaffold produced by `/develop:bootstrap`.
 
-`/develop:init` is an LLM-driven skill, so its output is never bit-identical. But the
+`/develop:bootstrap` is an LLM-driven skill, so its output is never bit-identical. But the
 parts that matter are sourced deterministically (gates mirror CI, routing/hooks/flywheel
 come from fixed templates), so they can be asserted. This is the structural validator for
 that deterministic core. Prose (CLAUDE.md text, config `evidence`, `notes`) varies per run
@@ -10,7 +10,7 @@ and is NOT asserted.
 Modes:
 
   check-scaffold.py <target_dir> <expected.json>
-      Assert the scaffold init wrote under <target_dir> matches the contract: required
+      Assert the scaffold bootstrap wrote under <target_dir> matches the contract: required
       files exist, develop.config.json is schema-shaped, the discovered gate set matches
       CI (from <expected.json>), routing carries the generalist fallback, the flywheel
       SSOT is an empty .jsonl, the safe hook is installed, and CLAUDE.md carries the
@@ -19,14 +19,14 @@ Modes:
   check-scaffold.py --compare <dirA> <dirB>
       Extract the deterministic core (gate kinds+commands, stack, routing shape, file set,
       model/cap defaults) from two scaffolds and report whether they are identical. The
-      run-to-run variance probe: a well-authored init yields an identical core across runs
+      run-to-run variance probe: a well-authored bootstrap yields an identical core across runs
       even though prose varies.  Exit 0 = cores identical, 1 = they diverge.
 
   check-scaffold.py --selftest
       Guard the guard: unit-checks the (deliberately lenient) matchers and runs validate()
       end-to-end over a temp scaffold. Deterministic, no LLM — safe to run in CI.
 
-A red validate/compare result drives a fix in the init SKILL.md / references, never a
+A red validate/compare result drives a fix in the bootstrap SKILL.md / references, never a
 tweak here (evals/README Iron Law).
 """
 import json, os, sys
@@ -59,7 +59,7 @@ def claude_md(target):
     return None
 
 
-# ---- matchers (lenient by design: init's labelling varies, the substance is stable) ----
+# ---- matchers (lenient by design: bootstrap's labelling varies, the substance is stable) ----
 
 def eco_missing(want_list, got_list):
     """Each expected ecosystem term must appear somewhere in the produced (free-form)

@@ -1,7 +1,7 @@
 # End-to-end install test (scratch repo)
 
 Verifies a real user path: add the marketplace, install the plugin, and confirm
-`/develop:init` triggers — in a clean scratch repo. Closes #23.
+`/develop:bootstrap` triggers — in a clean scratch repo. Closes #23.
 
 ## Automated pre-check (run in CI + locally)
 
@@ -31,12 +31,12 @@ local-path variant below).
    Expect: marketplace added, plugin `develop` installed, no manifest errors.
 3. Confirm the skills are present and trigger:
    ```
-   /develop:init
+   /develop:bootstrap
    ```
    Expect: the bootstrapper activates (Phase 0 re-run check → Phase 1 stack detection). In an
    empty repo it should detect "unknown" gracefully and ask for gate commands rather than
    erroring (see references/stacks.md). Also confirm `/develop:work` is listed.
-4. Run the [triggering matrix](./triggering.md) phrases and confirm init vs run fire on the
+4. Run the [triggering matrix](./triggering.md) phrases and confirm bootstrap vs work fire on the
    right intents.
 
 ### Testing before merge (local-path marketplace)
@@ -51,6 +51,6 @@ trigger path on the current branch before pushing.
 ## Pass criteria
 - `scripts/check-install.py` exits 0.
 - Marketplace add + install complete with no manifest/JSON errors.
-- `/develop:init` and `/develop:work` are both available and trigger on their intents.
-- In an empty scratch repo, `/develop:init` degrades gracefully (asks for gates) rather than
+- `/develop:bootstrap` and `/develop:work` are both available and trigger on their intents.
+- In an empty scratch repo, `/develop:bootstrap` degrades gracefully (asks for gates) rather than
   failing.

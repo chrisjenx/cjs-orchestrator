@@ -1,6 +1,6 @@
 # Starter `CLAUDE.md` from discovered conventions
 
-`/develop:init` Phase 3 writes a **short** starter `CLAUDE.md` capturing what it discovered,
+`/develop:bootstrap` Phase 3 writes a **short** starter `CLAUDE.md` capturing what it discovered,
 so Claude (and the develop loop) has the repo's commands and layout in context. Keep it
 minimal — a few lines per section. It's a seed, not a manual; let it grow as the repo
 teaches you more.

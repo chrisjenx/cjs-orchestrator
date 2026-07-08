@@ -2,17 +2,17 @@
 
 "Supported" means something narrow here: the orchestrator, plan, executor, auditors, and
 quality tail don't care about the language — they care about *gate commands*, which are
-discovered. So "support" is really "how confidently can `/develop:init` auto-derive your
+discovered. So "support" is really "how confidently can `/develop:bootstrap` auto-derive your
 gates?" Everything downstream is the same across stacks.
 
 ## Support levels
 
-- **First-class** — init recognises the marker files, knows where the gate commands usually
+- **First-class** — bootstrap recognises the marker files, knows where the gate commands usually
   live, and can propose build/test/lint/type/coverage gates with high confidence. You still
   confirm them.
 - **Best-effort** — detected, gates proposed, but more likely to need correction (unusual
   toolchains, thin CI). Confirm carefully.
-- **Unknown** — not recognised. The flow still works; init asks you for the gate commands
+- **Unknown** — not recognised. The flow still works; bootstrap asks you for the gate commands
   directly and logs what it couldn't detect (see Degradation below).
 
 ## Matrix

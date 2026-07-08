@@ -1,7 +1,7 @@
 # Safe, stack-agnostic hooks
 
 The worktree-guard is an **auto-loaded plugin hook** (`hooks.json`, command
-`${CLAUDE_PLUGIN_ROOT}/hooks/worktree-guard.sh`). `/develop:init` no longer copies it or wires
+`${CLAUDE_PLUGIN_ROOT}/hooks/worktree-guard.sh`). `/develop:bootstrap` no longer copies it or wires
 it into a target's `settings.json`.
 
 > **The rule (do not break it):** never ship a hook tied to a stack you didn't confirm. A
@@ -26,15 +26,15 @@ resolves a `.claude/develop.config.json` at the main checkout (via `git --git-co
 works from inside a worktree too) and fail-opens everywhere else. The self-gate rule and its
 mechanics live in `worktree-guard.sh` itself; this is only a pointer.
 
-## The command timeout (init Phase 4)
+## The command timeout (bootstrap Phase 4)
 
-Plugin `env` does not auto-apply, so init merges a generic command timeout
+Plugin `env` does not auto-apply, so bootstrap merges a generic command timeout
 (`BASH_DEFAULT_TIMEOUT_MS` / `BASH_MAX_TIMEOUT_MS`, from `hooks.json`) into the target's
 `.claude/settings.json` — idempotent (present ⇒ keep the user's value; absent ⇒ add). This is
-init's **only** `settings.json` write now. It is a wall-clock bound on any command, generic by
+bootstrap's **only** `settings.json` write now. It is a wall-clock bound on any command, generic by
 construction.
 
-When the host **denies** the `settings.json` edit (self-modification guard), init must **emit
+When the host **denies** the `settings.json` edit (self-modification guard), bootstrap must **emit
 only the `env` snippet** for the user to paste and report it as a required manual step — it must
 **never** re-emit a project-local guard copy (the guard is plugin-managed; re-emitting a copy
 reintroduces the deleted fail-open bug).

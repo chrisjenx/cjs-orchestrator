@@ -1,6 +1,6 @@
 # Stack detection — evidence, not assumption
 
-`/develop:init` Phase 1. The goal is a **stack summary the user confirms**, where every
+`/develop:bootstrap` Phase 1. The goal is a **stack summary the user confirms**, where every
 claim is backed by a real file in *this* repo. Never assume an ecosystem from the repo
 name, the language of a few files, or what you saw in another project.
 

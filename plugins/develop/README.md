@@ -9,7 +9,7 @@
 ```text
 /plugin marketplace add chrisjenx/cjs-orchestrator
 /plugin install develop@cjs-orchestrator
-/develop:init     # once: discover + scaffold
+/develop:bootstrap # once: discover + scaffold
 /develop:work      # per feature: spec → reviewed, committed branch
 /develop:ship      # per branch: push, watch CI + review, merge
 /develop:flywheel # periodically: tune the flow from its postmortems
@@ -19,7 +19,7 @@
 
 The plugin ships **static, portable skills**; per-project behaviour comes from **definitions the skills discover**, not from a bespoke flow generated per repo. Its **first principle is token frugality**: every shipped token is paid on every run, so the prose is kept tight by design (`references/token-frugality.md`).
 
-- **`skills/init`** (`/develop:init`) detects the stack, discovers the repo's real gate commands, and writes the definitions into `.claude/` (`develop.config.json`, `develop-routing.json`, a starter `CLAUDE.md`, safe hooks, a flywheel doc). It never transplants a finished system.
+- **`skills/bootstrap`** (`/develop:bootstrap`) detects the stack, discovers the repo's real gate commands, and writes the definitions into `.claude/` (`develop.config.json`, `develop-routing.json`, a starter `CLAUDE.md`, safe hooks, a flywheel doc). It never transplants a finished system.
 - **`skills/work`** (`/develop:work`) is the portable orchestrator loop. It reads those definitions and walks a per-feature plan file it creates at runtime: static in the plugin, fitted to your repo at run time. It hands off a committed branch (it never pushes).
 - **`skills/ship`** (`/develop:ship`) takes that branch the rest of the way: push, open the PR, then a mechanical watcher (`scripts/ship.py`, Monitor-driven, waking the agent only for judgment: a real CI failure, a review thread, a conflict) fixes/replies/rebases and merges at green + approved + threads addressed. Repo specifics come from the config's `ship` section.
 - **`skills/flywheel`** (`/develop:flywheel`) is the manual tuner. It reads accumulated postmortems, flags recurring or breaking findings, and proposes the cheapest remediation lever and target for each (human-gated).

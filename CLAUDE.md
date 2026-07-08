@@ -4,10 +4,10 @@ A **public** Claude Code plugin marketplace + the `develop` plugin + an interact
 
 - Marketplace: `.claude-plugin/marketplace.json`
 - Plugin: `plugins/develop/` (manifest in its `.claude-plugin/plugin.json`)
-- Skills → commands: `skills/init` → `/develop:init`, `skills/work` → `/develop:work`, `skills/ship` → `/develop:ship`, `skills/flywheel` → `/develop:flywheel`
+- Skills → commands: `skills/bootstrap` → `/develop:bootstrap`, `skills/work` → `/develop:work`, `skills/ship` → `/develop:ship`, `skills/flywheel` → `/develop:flywheel`
 - Explainer: `docs/` — no-build static site (HTML + CSS + vanilla JS)
 
-**Locked architecture ([DECISIONS.md](DECISIONS.md)):** the plugin ships *static, portable skills*; per-project behaviour comes from *definitions `/develop:init` writes* into the target's `.claude/` (`develop.config.json`, `develop-routing.json`, starter `CLAUDE.md`, hooks, flywheel). `/develop:work` is the static orchestrator that reads them; `/develop:ship` is the static CI watcher (`scripts/ship.py` engine) reading the config's `ship` section — same discover-don't-transplant doctrine. Mechanism → `plugins/develop/references/`; stack-agnostic auditors → `plugins/develop/agents/`. **Names are locked — don't rename** (a rename is a deliberate, DECISIONS-recorded reversal, as `run`→`work` was).
+**Locked architecture ([DECISIONS.md](DECISIONS.md)):** the plugin ships *static, portable skills*; per-project behaviour comes from *definitions `/develop:bootstrap` writes* into the target's `.claude/` (`develop.config.json`, `develop-routing.json`, starter `CLAUDE.md`, hooks, flywheel). `/develop:work` is the static orchestrator that reads them; `/develop:ship` is the static CI watcher (`scripts/ship.py` engine) reading the config's `ship` section — same discover-don't-transplant doctrine. Mechanism → `plugins/develop/references/`; stack-agnostic auditors → `plugins/develop/agents/`. **Names are locked — don't rename** (a rename is a deliberate, DECISIONS-recorded reversal, as `run`→`work` was).
 
 ## Token frugality — first principle for every edit
 

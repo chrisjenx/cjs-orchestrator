@@ -310,40 +310,40 @@ def check_guard_contract(problems):
     problems.extend(guard_contract_problems(hj, gs))
 
 
-def init_coherence_problems(init_md, config_tmpl_text, migrations_md, plugin_version):
-    """Thread-1/3 wiring (pure): init prose references the worktree probe + the .claude/worktrees/
+def bootstrap_coherence_problems(bootstrap_md, config_tmpl_text, migrations_md, plugin_version):
+    """Thread-1/3 wiring (pure): bootstrap prose references the worktree probe + the .claude/worktrees/
     gitignore; the config template carries pluginVersion; migrations.md mentions the CURRENT plugin
-    version (an init-write-changing release needs a migration entry; a no-op release adds a one-line
+    version (a bootstrap-write-changing release needs a migration entry; a no-op release adds a one-line
     'no migration' entry — either way the version string appears)."""
     out = []
-    if "probe-worktree" not in init_md:
-        out.append("init SKILL.md: no reference to probe-worktree (the worktree capability probe)")
-    if ".claude/worktrees/" not in init_md:
-        out.append("init SKILL.md: Phase 3 must gitignore .claude/worktrees/ (the run-loop worktree cache)")
+    if "probe-worktree" not in bootstrap_md:
+        out.append("bootstrap SKILL.md: no reference to probe-worktree (the worktree capability probe)")
+    if ".claude/worktrees/" not in bootstrap_md:
+        out.append("bootstrap SKILL.md: Phase 3 must gitignore .claude/worktrees/ (the run-loop worktree cache)")
     try:
         cfg = json.loads(config_tmpl_text)
     except Exception as e:  # noqa: BLE001
         return out + [f"templates/develop.config.json: invalid JSON — {e}"]
     if "pluginVersion" not in cfg:
-        out.append("templates/develop.config.json: missing the init-managed 'pluginVersion' field")
+        out.append("templates/develop.config.json: missing the bootstrap-managed 'pluginVersion' field")
     if plugin_version and plugin_version not in migrations_md:
         out.append(f"references/migrations.md: no entry mentioning the current plugin version "
                    f"{plugin_version!r} (add a migration entry, or a one-line 'no migration' note)")
     return out
 
 
-def check_init_coherence(problems):
+def check_bootstrap_coherence(problems):
     def read(rel):
         return open(ROOT + rel, encoding="utf-8").read()
     try:
-        init_md = read("/plugins/develop/skills/init/SKILL.md")
+        bootstrap_md = read("/plugins/develop/skills/bootstrap/SKILL.md")
         tmpl = read("/plugins/develop/templates/develop.config.json")
         migr = read("/plugins/develop/references/migrations.md")
         ver = json.loads(read("/plugins/develop/.claude-plugin/plugin.json")).get("version", "")
     except (OSError, ValueError) as e:  # ValueError covers a malformed plugin.json (JSONDecodeError) — fail cleanly, don't crash main()
-        problems.append(f"init coherence: cannot read an input file — {e}")
+        problems.append(f"bootstrap coherence: cannot read an input file — {e}")
         return
-    problems.extend(init_coherence_problems(init_md, tmpl, migr, ver))
+    problems.extend(bootstrap_coherence_problems(bootstrap_md, tmpl, migr, ver))
 
 
 def main() -> int:
@@ -395,8 +395,8 @@ def main() -> int:
     # 9) Thread-2 guard contract: plugin-hook command + self-gate + invariant marker.
     check_guard_contract(problems)
 
-    # 10) Thread-1/3 init coherence: probe + worktrees gitignore + pluginVersion + migrations entry.
-    check_init_coherence(problems)
+    # 10) Thread-1/3 bootstrap coherence: probe + worktrees gitignore + pluginVersion + migrations entry.
+    check_bootstrap_coherence(problems)
 
     if problems:
         print("manifest validation FAILED:")
@@ -530,19 +530,19 @@ def selftest() -> int:
     expect(guard_contract_problems(GOOD_HOOKS, GOOD_GUARD.replace("develop.config.json", "x")),
            "a guard missing the develop.config.json marker key should fail")
 
-    # init coherence
-    GOOD_INIT = "uses probe-worktree.sh early; Phase 3 gitignores .claude/worktrees/ and <featureDir>\n"
+    # bootstrap coherence
+    GOOD_BOOTSTRAP = "uses probe-worktree.sh early; Phase 3 gitignores .claude/worktrees/ and <featureDir>\n"
     GOOD_TMPL = '{"schema":1,"pluginVersion":"0.7.0","featureDir":".develop"}'
     GOOD_MIGR = "## v0.7.0 — retire the copied worktree-guard\n"
-    expect(not init_coherence_problems(GOOD_INIT, GOOD_TMPL, GOOD_MIGR, "0.7.0"),
-           "coherent init wiring should pass")
-    expect(init_coherence_problems(GOOD_INIT.replace("probe-worktree.sh", "x"), GOOD_TMPL, GOOD_MIGR, "0.7.0"),
-           "init prose missing the worktree probe should fail")
-    expect(init_coherence_problems(GOOD_INIT.replace(".claude/worktrees/", "x"), GOOD_TMPL, GOOD_MIGR, "0.7.0"),
-           "init prose missing the .claude/worktrees/ gitignore should fail")
-    expect(init_coherence_problems(GOOD_INIT, '{"schema":1,"featureDir":".develop"}', GOOD_MIGR, "0.7.0"),
+    expect(not bootstrap_coherence_problems(GOOD_BOOTSTRAP, GOOD_TMPL, GOOD_MIGR, "0.7.0"),
+           "coherent bootstrap wiring should pass")
+    expect(bootstrap_coherence_problems(GOOD_BOOTSTRAP.replace("probe-worktree.sh", "x"), GOOD_TMPL, GOOD_MIGR, "0.7.0"),
+           "bootstrap prose missing the worktree probe should fail")
+    expect(bootstrap_coherence_problems(GOOD_BOOTSTRAP.replace(".claude/worktrees/", "x"), GOOD_TMPL, GOOD_MIGR, "0.7.0"),
+           "bootstrap prose missing the .claude/worktrees/ gitignore should fail")
+    expect(bootstrap_coherence_problems(GOOD_BOOTSTRAP, '{"schema":1,"featureDir":".develop"}', GOOD_MIGR, "0.7.0"),
            "a template without pluginVersion should fail")
-    expect(init_coherence_problems(GOOD_INIT, GOOD_TMPL, "## v0.6.0 only\n", "0.7.0"),
+    expect(bootstrap_coherence_problems(GOOD_BOOTSTRAP, GOOD_TMPL, "## v0.6.0 only\n", "0.7.0"),
            "migrations.md missing the current version should fail")
 
     if fails:

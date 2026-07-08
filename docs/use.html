@@ -49,20 +49,20 @@
   <ol class="ship-steps">
     <li><strong>Add the marketplace</strong><br><code>/plugin marketplace add chrisjenx/cjs-orchestrator</code></li>
     <li><strong>Install the plugin</strong><br><code>/plugin install develop@cjs-orchestrator</code></li>
-    <li><strong>Scaffold your flow</strong><br><code>/develop:init</code> detects your stack, confirms your real gate commands with you, and writes the per-repo definitions plus safe hooks into <code>.claude/</code>.</li>
+    <li><strong>Scaffold your flow</strong><br><code>/develop:bootstrap</code> detects your stack, confirms your real gate commands with you, and writes the per-repo definitions plus safe hooks into <code>.claude/</code>.</li>
     <li><strong>Use it</strong><br><code>/develop:work &lt;spec | ticket | idea&gt;</code> per change, <code>/develop:ship</code> to push and watch the PR to merge, and <code>/develop:flywheel</code> periodically to tune the flow from its postmortems.</li>
   </ol>
-  <p class="section-lead">Nothing is transplanted: <code>/develop:init</code> reads <em>this</em> repo's commands and conventions and grows from a minimal core. Re-run it any time to refresh discovery: it reconciles, it doesn't clobber.</p>
+  <p class="section-lead">Nothing is transplanted: <code>/develop:bootstrap</code> reads <em>this</em> repo's commands and conventions and grows from a minimal core. Re-run it any time to refresh discovery: it reconciles, it doesn't clobber.</p>
 </section>
 
 <!-- ================= COMMANDS ================= -->
 <section id="commands">
   <div class="section-eyebrow">The four commands</div>
   <h2>Scaffold once · work per feature · ship per branch · tune periodically</h2>
-  <p class="section-lead">Four static, portable skills. Their behaviour is fitted to your repo because they read the definitions <code>init</code> discovered, not because they were rewritten for you.</p>
+  <p class="section-lead">Four static, portable skills. Their behaviour is fitted to your repo because they read the definitions <code>bootstrap</code> discovered, not because they were rewritten for you.</p>
   <div class="trio trio-quad">
     <div class="trio-card skill">
-      <h3><span class="trio-tag">once</span> /develop:init</h3>
+      <h3><span class="trio-tag">once</span> /develop:bootstrap</h3>
       <p>Detects your stack, discovers the real build/test/lint/coverage commands (CI is the source of truth), and writes <code>.claude/develop.config.json</code>, a routing table, a starter <code>CLAUDE.md</code>, safe hooks, and a flywheel doc. Confirms with you before writing.</p>
       <div class="eg">run when you set up, or to refresh discovery</div>
     </div>
@@ -104,14 +104,14 @@
     <li><strong>Then tune.</strong> Run <code>/develop:flywheel</code> after a few features and promote the recurring escapes into hooks/gates/rules. The line tightens every cycle, but only if you feed it.</li>
   </ul>
 
-  <p class="section-lead">Weak checks aren't a blocker to starting: <code>/develop:init</code> degrades gracefully and uses whatever you confirm. But the gap between "it ran" and "it's trustworthy" is exactly the gap between a repo with strong mechanical checks and one without. That's where the payoff lives.</p>
+  <p class="section-lead">Weak checks aren't a blocker to starting: <code>/develop:bootstrap</code> degrades gracefully and uses whatever you confirm. But the gap between "it ran" and "it's trustworthy" is exactly the gap between a repo with strong mechanical checks and one without. That's where the payoff lives.</p>
 </section>
 
 <!-- ================= WHAT IT WRITES ================= -->
 <section id="scaffold">
   <div class="section-eyebrow">What it writes</div>
   <h2>Static skills, discovered definitions</h2>
-  <p class="section-lead">The plugin ships static, portable skills and agents. <code>/develop:init</code> writes only the <em>repo-specific definitions</em> they read, so the flow is fitted without being a copy you have to maintain.</p>
+  <p class="section-lead">The plugin ships static, portable skills and agents. <code>/develop:bootstrap</code> writes only the <em>repo-specific definitions</em> they read, so the flow is fitted without being a copy you have to maintain.</p>
   <div class="split-cols">
     <div class="split-card">
       <h3 class="sub-h">Written into your <code>.claude/</code></h3>
@@ -127,7 +127,7 @@
     <div class="split-card">
       <h3 class="sub-h">Bundled in the plugin (not copied)</h3>
       <ul class="checklist tight">
-        <li><strong>skills</strong>: <code>/develop:init</code>, <code>/develop:work</code>, <code>/develop:ship</code>, <code>/develop:flywheel</code></li>
+        <li><strong>skills</strong>: <code>/develop:bootstrap</code>, <code>/develop:work</code>, <code>/develop:ship</code>, <code>/develop:flywheel</code></li>
         <li><strong>agents</strong>: planner, executor, the diff-reading auditors, general-quality-reviewer, code-reviewer, tidy, refuter, ci-failure-extractor</li>
         <li><strong>scripts</strong>: the <code>ship.py</code> watch engine (Monitor-driven — wakes you only for judgment) and the flywheel aggregators</li>
         <li><strong>references</strong>: the portable mechanism (plan anatomy, gate tokens, the quality tail, the flywheel, the watch protocol)</li>

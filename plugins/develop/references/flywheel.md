@@ -125,7 +125,7 @@ judgement:
   run hot loop); `/develop:flywheel`'s ingest step appends one per confirmed escape via
   `scripts/flywheel-ingest.py`.
 - **`.claude/develop-flywheel.md`** — **human-curated**: the remediation-lever reference, this
-  repo's promoted-anchors contract, and a promotion history. Seeded by `/develop:init` from
+  repo's promoted-anchors contract, and a promotion history. Seeded by `/develop:bootstrap` from
   [`templates/develop-flywheel.md`](../templates/develop-flywheel.md); **never written from a
   run** — only `/develop:flywheel` edits it, on human approval.
 

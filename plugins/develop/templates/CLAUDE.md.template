@@ -26,4 +26,4 @@ These are the gates `/develop:work` enforces; the machine-readable source is
 This repo uses the `develop` plugin. Run `/develop:work <spec | ticket | idea>` to take a
 change from spec to a reviewed, committed branch, then `/develop:ship` to push it and babysit
 the PR through CI and review to merge. Config: `.claude/develop.config.json`. Re-run
-`/develop:init` to refresh discovered settings.
+`/develop:bootstrap` to refresh discovered settings.

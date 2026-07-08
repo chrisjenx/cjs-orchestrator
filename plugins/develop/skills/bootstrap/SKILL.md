@@ -1,6 +1,6 @@
 ---
-name: init
-description: Bootstrap a fitted /develop orchestration flow for THIS repo. Trigger on "init develop", "set up orchestration", "build my own develop flow", "scaffold an agentic pipeline", or any intent to stand up a spec-to-branch loop. Detects the stack, discovers the repo's real build/test/lint gates, and writes the per-repo definitions that the static /develop:work loop reads — it does NOT transplant another project's setup.
+name: bootstrap
+description: Bootstrap a fitted /develop orchestration flow for THIS repo. Trigger on "bootstrap develop", "set up orchestration", "build my own develop flow", "scaffold an agentic pipeline", or any intent to stand up a spec-to-branch loop. Detects the stack, discovers the repo's real build/test/lint gates, and writes the per-repo definitions that the static /develop:work loop reads — it does NOT transplant another project's setup.
 ---
 
 # Bootstrap a fitted `/develop` flow
@@ -17,7 +17,7 @@ You are standing up an agentic orchestration pipeline **fitted to the current re
 The plugin ships **static, portable skills**; per-project behaviour comes from
 **definitions you discover and write**, not from generating a bespoke flow:
 
-- **`/develop:init`** (this skill) — discovers the repo and writes the repo-specific
+- **`/develop:bootstrap`** (this skill) — discovers the repo and writes the repo-specific
   definitions into `.claude/`:
   - `.claude/develop.config.json` — stack summary, the discovered gate commands (tagged
     cheap/heavy), build dir, model tiers, caps.
@@ -51,7 +51,7 @@ Read them as you reach each phase; don't paste their contents into the repo.
 Early, run `${CLAUDE_PLUGIN_ROOT}/scripts/probe-worktree.sh <repo_root>` and record its status
 (`ok` | `no-commits` | `blocked`). This is **non-blocking**: it *recommends* the worktree run
 mode (the only supported mode) and its result feeds the Phase 5 gate; it does **not** hard-abort
-init (a transient failure must not kill the bootstrap, and the gitignore fix is independent of
+the bootstrap (a transient failure must not kill it, and the gitignore fix is independent of
 capability). The status word's meaning is defined once in the script header.
 
 ---
@@ -125,14 +125,14 @@ Write (showing the diff first):
   of any build-output dir a `clean` wipes) **and** `.claude/worktrees/` (the run-loop worktree
   cache, which `/develop:work` creates under `.claude/` — otherwise it leaks as untracked), plus
   `ship.durationsFile` (default `.claude/ship-ci-durations.json`) when the `ship` section was
-  written. This is the only place init touches `.gitignore`; Phase 0's re-run references this ensure.
+  written. This is the only place bootstrap touches `.gitignore`; Phase 0's re-run references this ensure.
 
 The plan file, plan-anatomy, executor brief, and quality tail are **not** written here —
 they live in the plugin and are used by `/develop:work` at runtime.
 
 ## Phase 4 — Merge the command timeout only
 
-The worktree-guard is an auto-loaded, self-gating plugin hook now — init does **not** copy it or
+The worktree-guard is an auto-loaded, self-gating plugin hook now — bootstrap does **not** copy it or
 wire it into `settings.json`. Phase 4's only `settings.json` write is the generic command timeout
 (`BASH_DEFAULT_TIMEOUT_MS` / `BASH_MAX_TIMEOUT_MS`): idempotent merge (present ⇒ keep the user's
 value; absent ⇒ add), per [hooks/README.md](../../hooks/README.md). If the host **denies** the

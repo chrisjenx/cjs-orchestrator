@@ -1,5 +1,5 @@
 {
-  "//": "Auto-loaded plugin hook. worktree-guard.sh self-gates to develop-managed repos and is inert elsewhere (see README.md). Plugin env does NOT auto-apply — /develop:init merges the bash timeout below into the target's .claude/settings.json (init Phase 4); it stays here as the source for that merge and the manual-paste fallback.",
+  "//": "Auto-loaded plugin hook. worktree-guard.sh self-gates to develop-managed repos and is inert elsewhere (see README.md). Plugin env does NOT auto-apply — /develop:bootstrap merges the bash timeout below into the target's .claude/settings.json (bootstrap Phase 4); it stays here as the source for that merge and the manual-paste fallback.",
   "env": {
     "BASH_DEFAULT_TIMEOUT_MS": "120000",
     "BASH_MAX_TIMEOUT_MS": "600000"

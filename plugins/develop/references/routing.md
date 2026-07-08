@@ -1,7 +1,7 @@
 # Routing — artifact shape → the right agent
 
 `.claude/develop-routing.json` maps the *shape* of a file (by path glob) to the agent that
-should write or review it. `/develop:init` generates it with **only a generalist fallback**;
+should write or review it. `/develop:bootstrap` generates it with **only a generalist fallback**;
 it grows specialist rows over time as the [flywheel](./flywheel.md) shows where a generalist
 keeps missing things. Day one has no specialists — and that's correct.
 
@@ -46,11 +46,11 @@ keeps missing things. Day one has no specialists — and that's correct.
   `PA` then climbs the [audit ladder](./quality-tail.md) one rung per round that finds
   defects.
 
-## Generation (what init writes)
+## Generation (what bootstrap writes)
 
 Init writes the starting table above: the bundled auditors wired into `audit`, and
 generalist fallbacks for `writers`/`reviewers`. No stack-specific routes — those aren't
-guessed up front. On a re-run, init only **appends** routes that don't already exist and
+guessed up front. On a re-run, bootstrap only **appends** routes that don't already exist and
 keeps the fallback last ([idempotency.md](./idempotency.md)).
 
 ## Growing the table (the flywheel pays out here)
