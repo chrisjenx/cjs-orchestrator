@@ -13,8 +13,8 @@
 # can gate a release before tagging. Needs the `claude` CLI; exits 2 (skip) if absent.
 #
 # Note: this verifies the plugin installs and resolves with its full component set. The
-# interactive last mile (typing /develop:init and watching it trigger / degrade gracefully in
-# an empty repo) still needs a human keystroke in a Claude Code session — see evals/install-e2e.md.
+# interactive last mile (typing /develop:bootstrap and watching it trigger / degrade gracefully
+# in an empty repo) still needs a human keystroke in a Claude Code session — see evals/install-e2e.md.
 #
 # Usage: scripts/install-smoke.sh        Exit 0 = install path healthy, 1 = broken, 2 = skipped.
 set -euo pipefail
@@ -50,7 +50,7 @@ fail=0
 check() { printf '%s\n' "$details" | grep -Eq "$1" || { echo "install-smoke: FAIL — $2"; fail=1; }; }
 
 check "\(develop\) $EXPECTED([^0-9.]|$)"  "version $EXPECTED not resolved (install did not serve the working-tree version)"
-check "\binit\b"                          "skill 'init' missing from inventory"
+check "\bbootstrap\b"                     "skill 'bootstrap' missing from inventory"
 check "\bwork\b"                          "skill 'work' missing from inventory"
 check "\bship\b"                          "skill 'ship' missing from inventory"
 check "\bflywheel\b"                      "skill 'flywheel' missing from inventory"

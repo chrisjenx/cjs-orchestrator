@@ -7,6 +7,8 @@ See [RELEASING.md](RELEASING.md) for how releases are cut and the version policy
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-07-08
+
 Breaking: the bootstrap skill is renamed. This reverses part of the 2026-06-17 "public names
 locked" decision (see DECISIONS.md), taken now while the user base is still small.
 
@@ -349,7 +351,8 @@ bootstrapper into static, portable skills that read per-repo discovered definiti
 - Marketplace and `develop` plugin (v0): the `/develop:init` bootstrapper skill and the
   genericized explainer site.
 
-[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/chrisjenx/cjs-orchestrator/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.10.0
 [0.9.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.9.0
 [0.8.0]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.8.0
 [0.7.2]: https://github.com/chrisjenx/cjs-orchestrator/releases/tag/v0.7.2
