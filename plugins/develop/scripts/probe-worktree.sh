@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# probe-worktree.sh <repo_root> — worktree capability oracle for /develop:init.
+# probe-worktree.sh <repo_root> — worktree capability oracle for /develop:bootstrap.
 # Echoes a status word to stdout and exits 0 (usage error: 3); a one-line reason goes to stderr
 # on the non-ok paths. POSIX sh; no bashisms; NO git-version parsing (the live add/remove IS the
 # test). The temp worktree lives in SYSTEM temp (mktemp -d), NEVER under the repo's .claude/, and
